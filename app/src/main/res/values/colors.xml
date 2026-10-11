@@ -1,8 +1,8 @@
 <resources>
-    <color name="niknолig_background">#101010</color>
-    <color name="niknолig_surface">#242424</color>
-    <color name="niknолig_gold">#E4B64E</color>
-    <color name="niknолig_active">#72D572</color>
-    <color name="niknолig_text_primary">#FFFFFF</color>
-    <color name="niknолig_text_secondary">#C5C5C5</color>
+    <color name="dark_background">#101010</color>
+    <color name="dark_surface">#242424</color>
+    <color name="gold">#E4B64E</color>
+    <color name="active_green">#72D572</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#C5C5C5</color>
 </resources>

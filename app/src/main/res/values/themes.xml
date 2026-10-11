@@ -1,10 +1,10 @@
 <resources>
-    <style name="Theme.Niknოლig" parent="@android:style/Theme.Material.NoActionBar">
-        <item name="android:colorAccent">@color/niknолig_gold</item>
-        <item name="android:navigationBarColor">@color/niknолig_background</item>
-        <item name="android:statusBarColor">@color/niknолig_background</item>
+    <style name="Theme.Niknolig" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:colorAccent">@color/gold</item>
+        <item name="android:navigationBarColor">@color/dark_background</item>
+        <item name="android:statusBarColor">@color/dark_background</item>
         <item name="android:windowActionModeOverlay">true</item>
-        <item name="android:windowBackground">@color/niknолig_background</item>
+        <item name="android:windowBackground">@color/dark_background</item>
         <item name="android:windowLightNavigationBar">false</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
