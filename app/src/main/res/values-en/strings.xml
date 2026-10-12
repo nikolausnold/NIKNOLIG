@@ -28,5 +28,8 @@
     <string name="support_email_subject">Technical support request – NIKNOLIG</string>
     <string name="support_email_body">Please describe your technical issue. Do not send passwords or payment details.</string>
     <string name="support_email_unavailable">No email app found on this device.</string>
+    <string name="privacy_policy_button">Privacy policy</string>
+    <string name="privacy_policy_url">https://nikolausnold.github.io/NIKNOLIG/privacy.html</string>
+    <string name="privacy_policy_unavailable">The privacy policy could not be opened.</string>
     <string name="demo_notice">Preview — discovery temporarily displays only broadcast device names and signal strengths. No connections are made and no GATT values are read or written.</string>
 </resources>

@@ -52,6 +52,9 @@ class MainActivity : Activity() {
         findViewById<Button>(R.id.support_contact_button).setOnClickListener {
             openTechnicalSupportEmail()
         }
+        findViewById<Button>(R.id.privacy_policy_button).setOnClickListener {
+            openPrivacyPolicy()
+        }
     }
 
     override fun onStop() {
@@ -67,7 +70,7 @@ class MainActivity : Activity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode != REQUEST_SCAN_PERMISSION) return
 
-        if (hasScanPermission()) {
+        if (hasBluetoothPermissions()) {
             startScan()
         } else {
             scanStatus.setText(R.string.scan_permission_denied)
@@ -75,32 +78,43 @@ class MainActivity : Activity() {
     }
 
     private fun requestPermissionAndStartScan() {
-        if (hasScanPermission()) {
+        if (hasBluetoothPermissions()) {
             startScan()
             return
         }
 
         scanStatus.setText(R.string.scan_permission_required)
-        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            Manifest.permission.BLUETOOTH_SCAN
+        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            arrayOf(
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.BLUETOOTH_CONNECT
+            )
         } else {
-            Manifest.permission.ACCESS_FINE_LOCATION
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
         }
-        requestPermissions(arrayOf(permission), REQUEST_SCAN_PERMISSION)
+        val missingPermissions = permissions.filter {
+            checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED
+        }
+        requestPermissions(missingPermissions.toTypedArray(), REQUEST_SCAN_PERMISSION)
     }
 
-    private fun hasScanPermission(): Boolean {
-        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            Manifest.permission.BLUETOOTH_SCAN
+    private fun hasBluetoothPermissions(): Boolean {
+        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            arrayOf(
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.BLUETOOTH_CONNECT
+            )
         } else {
-            Manifest.permission.ACCESS_FINE_LOCATION
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
         }
-        return checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+        return permissions.all {
+            checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED
+        }
     }
 
     private fun startScan() {
         if (activeScanCallback != null) return
-        if (!hasScanPermission()) {
+        if (!hasBluetoothPermissions()) {
             scanStatus.setText(R.string.scan_permission_required)
             return
         }
@@ -242,6 +256,18 @@ class MainActivity : Activity() {
             startActivity(emailIntent)
         } catch (_: ActivityNotFoundException) {
             Toast.makeText(this, R.string.support_email_unavailable, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun openPrivacyPolicy() {
+        val intent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse(getString(R.string.privacy_policy_url))
+        )
+        try {
+            startActivity(intent)
+        } catch (_: ActivityNotFoundException) {
+            Toast.makeText(this, R.string.privacy_policy_unavailable, Toast.LENGTH_LONG).show()
         }
     }
 

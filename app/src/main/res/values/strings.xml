@@ -28,5 +28,8 @@
     <string name="support_email_subject">Technische Supportanfrage – NIKNOLIG</string>
     <string name="support_email_body">Bitte beschreibe dein technisches Problem. Sende keine Passwörter oder Zahlungsdaten.</string>
     <string name="support_email_unavailable">Keine E-Mail-App auf diesem Gerät gefunden.</string>
+    <string name="privacy_policy_button">Datenschutzerklärung</string>
+    <string name="privacy_policy_url">https://nikolausnold.github.io/NIKNOLIG/privacy.html</string>
+    <string name="privacy_policy_unavailable">Die Datenschutzerklärung kann nicht geöffnet werden.</string>
     <string name="demo_notice">Vorschau – die Suche zeigt nur vorübergehend ausgesendete Gerätenamen und Signalstärken. Es werden keine Verbindungen hergestellt und keine GATT-Werte gelesen oder geschrieben.</string>
 </resources>
