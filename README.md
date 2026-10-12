@@ -18,10 +18,42 @@ Debug-Build starten:
 ./gradlew :app:assembleDebug
 ```
 
-Der Build wurde in der aktuellen Umgebung versucht. Gradle konnte das Android
-Gradle Plugin nicht aus Google Maven auflösen; die Google-Maven-Domain war über
-DNS nicht erreichbar. Daher ist ein erfolgreicher Android-Build noch nicht
-nachgewiesen.
+Der Debug-Build wurde am 12.10.2026 in
+[GitHub Actions erfolgreich ausgeführt](https://github.com/nikolausnold/NIKNOLIG/actions/runs/38223083688).
+Das Artefakt dieses Laufs belegt den APK-Build, nicht die Funktionsfähigkeit von
+BLE oder Sicherheitsfreigaben.
+
+## Gerätestand vom 12.10.2026
+
+Beim realen Android-Test wurde folgender Zustand gemeldet:
+
+- Branding: NIKNOLIG / Elektro-Engel
+- Design: dunkler Hintergrund mit goldenen Akzenten
+- Systemstatus: „Entwicklungsgerüst“
+- Geräte: „Keine Geräte verbunden“
+- Hinweis: „Vorschau – noch keine Geräteverbindung, Sicherheitsfreigabe oder produktive Funktion.“
+
+Der gemeldete Bildschirm entspricht den Strings und dem Layout im Repository.
+Der Testbericht enthält kein Gerätemodell und keine Android-Version; der
+Gerätetest wurde hier nicht unabhängig wiederholt.
+
+## Implementierungs- und Testergebnis
+
+`MainActivity` lädt derzeit nur das Layout. Im Manifest sind keine
+Bluetooth-Berechtigungen eingetragen; im Repository gibt es keine BLE-Scanner-,
+GATT- oder Connection-Manager-Implementierung und keine Testquellen. Der
+Gerätebildschirm belegt daher keine BLE-Verbindung. Ebenso wurden weder
+Sicherheitsfreigaben noch produktive Funktionen getestet.
+
+Nachgewiesen ist der erfolgreiche Debug-APK-Build in GitHub Actions. Ein
+automatisierter BLE- oder Gerätetest ist im Repository nicht vorhanden.
+
+## Nächster konkreter Schritt
+
+Vor der BLE-Implementierung das unterstützte Zielgerät (Hersteller und Modell),
+dessen BLE-Dienst/Protokoll und die benötigte Android-Version festlegen. Danach
+kann der begrenzte Scan- und Verbindungsablauf mit passenden Tests spezifiziert
+werden; bis dahin bleibt die App eine Vorschau.
 
 ## Geplante Grenzen
 
