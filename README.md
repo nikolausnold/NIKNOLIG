@@ -49,6 +49,40 @@ nach BLE-Geräten und zeigt die Ergebnisse nach Stoppen der Suche weiter an. Ein
 neue Suche oder das Verlassen des Bildschirms löscht die Ergebnisse. Es gibt
 weiterhin keine Geräteverbindung oder Gerätesteuerung.
 
+### Checkliste für den Gerätetest
+
+Die Debug-APK ist für einen manuellen Funktionstest der Vorschau gedacht. Prüfe
+mindestens ein echtes Gerät mit Android 12 oder höher; wenn verfügbar, teste
+zusätzlich Android 8 bis 11. Notiere Modell, Android-Version und Ergebnis, aber
+keine Geräteadressen oder personenbezogenen Daten.
+
+- [ ] App frisch installieren und starten; Gerätesuche und Elektro-Engel-Vorschau
+  lassen sich öffnen.
+- [ ] BLE-Berechtigung beim ersten Suchstart erlauben. Suche läuft, zeigt
+  ausgesendete Namen und Signalstärken, lässt sich manuell stoppen und startet
+  nach erneutem Antippen wieder.
+- [ ] Suche ohne Berechtigung ablehnen; verständlicher Hinweis erscheint und die
+  App bleibt bedienbar. Berechtigung in Android-Einstellungen nachträglich
+  erlauben und Suche erneut testen.
+- [ ] Bluetooth ausschalten oder ein Gerät ohne BLE verwenden; App zeigt einen
+  Fehlerzustand statt abzustürzen. Mit eingeschaltetem Bluetooth mindestens
+  einen bekannten BLE-Werbenden in der Nähe suchen.
+- [ ] Suche bis zum automatischen Ende laufen lassen; sie stoppt nach höchstens
+  30 Sekunden. Eine neue Suche und das Verlassen der Ansicht löschen alte
+  Ergebnisse; manuelles Stoppen lässt die aktuelle Ergebnisliste stehen.
+- [ ] Während einer Suche zu einer anderen App wechseln oder die Activity
+  verlassen; Scan endet. Zurückkehren und eine neue Suche starten.
+- [ ] WLAN/Mobilfunk deaktivieren; Gerätesuche und vorbereitete lokale
+  Elektro-Engel-Beispiele bleiben verfügbar. Internetstatus nicht mit
+  Serververfügbarkeit verwechseln.
+- [ ] Bei Bedarf Serverprüfung testen: ohne konfigurierte Serveradresse bleibt
+  sie deaktiviert; mit gültiger HTTPS-Basisadresse meldet sie nur den
+  `/v1/health`-Status.
+
+Das ist ein Test der Gerätesuche und Vorschau, keine Prüfung einer
+Geräteverbindung: Die App verbindet sich nicht, liest oder schreibt keine
+GATT-Werte und steuert keine Geräte.
+
 ## Android-Release-Build
 
 Ein signiertes Android App Bundle wird beim Pushen eines Tags im Format
