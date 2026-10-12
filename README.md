@@ -51,8 +51,9 @@ nicht erfunden oder als fertige Rechtsseiten ausgegeben.
 ## Lernkonzept für Elektro-Engel (Vorbereitung)
 
 Elektro-Engel soll mit der Zeit dazulernen, was für hilfreiche Unterstützung nötig
-ist. Das ist ein Entwicklungsziel, noch keine vorhandene Funktion. Die Vorbereitung
-trennt zwei Lernbereiche:
+ist. Das ist ein schrittweises Entwicklungsziel. Die Android-Vorschau enthält nun
+ein begrenztes lokales Lernprofil, aber noch kein selbstlernendes Modell. Die
+Vorbereitung trennt drei Bereiche:
 
 - **Nutzungsmuster:** freiwillig freigegebene, möglichst grobe und nicht sensible
   Muster, die über „genutzt/nicht genutzt“ hinausgehen können: etwa wiederkehrende
@@ -84,10 +85,12 @@ und erfordern später eigene, explizite Freigaben.
 
 Vor einer Implementierung müssen mindestens Einwilligung und Widerruf, Einsicht,
 Änderung und Löschung gespeicherter Präferenzen sowie Datenminimierung und
-Aufbewahrungsfristen festgelegt werden. Es gibt derzeit weder ein Lernmodell noch
-einen Lernspeicher oder eine Übertragung von Lerndaten. Die Umsetzung beginnt erst
-nach einer überprüfbaren lokalen Grundlage; externe Dienste oder Modelltraining
-sind damit nicht automatisch beschlossen.
+Aufbewahrungsfristen festgelegt werden. Die aktuelle Android-Vorschau speichert die
+bewusst gewählte Erklärungsart und zählt nach gesondertem Opt-in ausschließlich
+manuelle Rückmeldungen zu Beispielantworten lokal zusammen. Die Zähler lassen sich
+zusammen mit der Präferenz löschen. Es gibt keine automatische Verhaltensmessung,
+Übertragung, Wikipedia-Import oder Modelltraining; die Zähler verändern Antworten
+nicht. Jede Erweiterung braucht eine eigene Prüfung und Freigabe.
 
 ### Wikipedia als Wissensgerüst
 
