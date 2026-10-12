@@ -77,4 +77,10 @@
     <string name="interest_profile_cleared_status">The interest profile and saved topics have been deleted.</string>
     <string name="interest_profile_save_button">Save selection</string>
     <string name="interest_profile_clear_button">Withdraw consent and delete profile</string>
+    <string name="server_connection_description">Optional server availability check. It does not send questions or interests; your IP address is technically visible when connecting.</string>
+    <string name="server_connection_check_button">Check server connection</string>
+    <string name="server_connection_not_configured">Server connection is not configured yet.</string>
+    <string name="server_connection_checking">Checking secure connection …</string>
+    <string name="server_connection_success">HTTPS connection to the NIKNOLIG server is available.</string>
+    <string name="server_connection_failed">Server unavailable or response invalid. Questions and interests were not sent.</string>
 </resources>

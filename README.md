@@ -193,6 +193,36 @@ Verfügbarkeit und Kosten hängen von Repository-Sichtbarkeit und GitHub-Tarif a
 Die statische, lokale Wissenshilfe liegt in `assistant.js`; vor dem Hochladen prüft
 der Pages-Workflow sie mit den integrierten Node.js-Tests.
 
+### Optionale Server-Verfügbarkeitsprüfung
+
+`server/health-server.mjs` stellt ohne zusätzliche Pakete ausschließlich
+`GET /v1/health` bereit. Es gibt keine Konten, Nutzdaten-Endpunkte oder
+Anfrageprotokollierung. Der optionale Client-Aufruf muss vom Nutzer gestartet werden
+und überträgt keine Fragen oder Interessen; Server/Netzwerkinfrastruktur sieht dabei
+die IP-Adresse und technische Verbindungsmetadaten. Ohne Konfiguration ist die
+Prüfung deaktiviert.
+
+Für lokale API-Tests:
+
+```sh
+node --test server/health-server.test.mjs
+```
+
+Für den Betrieb `node server/health-server.mjs` hinter einem vertrauenswürdigen
+TLS-Reverse-Proxy ausführen. Der Dienst bindet standardmäßig nur an `127.0.0.1`;
+bei Containerbetrieb den internen Host über `HOST` konfigurieren und TLS am
+Ingress/Proxy erzwingen. Setze dort `NIKNOLIG_ALLOWED_ORIGIN` exakt auf
+`https://nikolausnold.github.io`, damit nur die Website browserseitig auf die
+Statusantwort zugreifen kann. `PORT` steuert den internen Listener.
+
+Die öffentliche Basisadresse ist kein Geheimnis. Für Android-Builds setze die
+GitHub-Actions-Repository-Variable `NIKNOLIG_API_BASE_URL` auf die HTTPS-Basisadresse;
+Gradle lehnt HTTP, Zugangsdaten, Query und Fragment ab. Für die Website wird dieselbe
+Repository-Variable beim Pages-Deploy in `api-config.js` geschrieben und ebenfalls
+auf HTTPS validiert. Setze sie erst auf einen realen, mit gültigem Zertifikat
+geschützten Server. Der Health-Endpunkt ist nur die Verbindungsgrundlage; Kontozugang,
+Authentifizierung und zahlungsabhängige Berechtigungen sind nicht enthalten.
+
 Der Abschnitt **Elektro-Engel** stellt aktuelle App-Funktionen den Zukunftsideen
 gegenüber. Die Android-App verlinkt zwischen Gerätesuche und Assistenzvorschau.
 Die lokale Wissenshilfe in Website und App ordnet Fragen nach festen Schlüsselwörtern

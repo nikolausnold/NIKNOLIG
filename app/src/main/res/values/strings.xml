@@ -77,4 +77,10 @@
     <string name="interest_profile_cleared_status">Interessenprofil und gespeicherte Themen wurden gelöscht.</string>
     <string name="interest_profile_save_button">Auswahl speichern</string>
     <string name="interest_profile_clear_button">Zustimmung widerrufen und Profil löschen</string>
+    <string name="server_connection_description">Optionale Server-Verfügbarkeitsprüfung. Sie überträgt keine Frage oder Interessen; beim Verbindungsaufbau wird deine IP-Adresse technisch sichtbar.</string>
+    <string name="server_connection_check_button">Serververbindung prüfen</string>
+    <string name="server_connection_not_configured">Serververbindung ist noch nicht konfiguriert.</string>
+    <string name="server_connection_checking">Sichere Verbindung wird geprüft …</string>
+    <string name="server_connection_success">HTTPS-Verbindung zum NIKNOLIG-Server ist verfügbar.</string>
+    <string name="server_connection_failed">Server nicht erreichbar oder Antwort ungültig. Fragen und Interessen wurden nicht übertragen.</string>
 </resources>

@@ -15,6 +15,7 @@
     <meta property="og:locale" content="de_DE">
     <link rel="icon" type="image/svg+xml" href="assets/niknolig-mark.svg">
     <link rel="stylesheet" href="styles.css">
+    <script src="api-config.js"></script>
     <script src="assistant.js" defer></script>
 </head>
 <body>
@@ -162,6 +163,11 @@
                     <button class="button button-primary" type="submit">Lokal beantworten</button>
                 </form>
                 <p id="assistant-answer" class="local-helper-answer" role="status" aria-live="polite">Stelle eine Frage zu NIKNOLIG, Datenschutz, Gerätesuche, Arbeit oder Alltag.</p>
+                <div class="api-connection">
+                    <p>Optionale Verbindung zum NIKNOLIG-Server prüfen. Dabei erhält der Server technisch notwendigerweise deine IP-Adresse. Es werden keine Frage oder Interessen übertragen.</p>
+                    <button class="button button-secondary" id="api-check" type="button">Serververbindung prüfen</button>
+                    <p id="api-status" class="local-helper-status" role="status" aria-live="polite">Serververbindung ist noch nicht konfiguriert.</p>
+                </div>
                 <form id="interest-profile-form">
                     <fieldset>
                         <legend>Dein User View · Interessengebiete</legend>

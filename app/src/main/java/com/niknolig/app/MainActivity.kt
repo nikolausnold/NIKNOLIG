@@ -21,6 +21,8 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class MainActivity : Activity() {
     private lateinit var scanStatus: TextView
@@ -30,6 +32,7 @@ class MainActivity : Activity() {
     private var activeScanCallback: ScanCallback? = null
     private val discoveredDevices = LinkedHashMap<BluetoothDevice, TextView>()
     private val mainHandler = Handler(Looper.getMainLooper())
+    private val connectionExecutor: ExecutorService = Executors.newSingleThreadExecutor()
     private val scanTimeout = Runnable {
         stopScan(getString(R.string.scan_time_limit_reached))
     }
@@ -61,12 +64,20 @@ class MainActivity : Activity() {
         findViewById<Button>(R.id.privacy_policy_button).setOnClickListener {
             openPrivacyPolicy()
         }
+        findViewById<Button>(R.id.server_connection_check_button).setOnClickListener {
+            checkServerConnection()
+        }
     }
 
     override fun onStop() {
         stopScan(getString(R.string.scan_stopped))
         clearDiscoveredDevices()
         super.onStop()
+    }
+
+    override fun onDestroy() {
+        connectionExecutor.shutdownNow()
+        super.onDestroy()
     }
 
     override fun onRequestPermissionsResult(
@@ -273,6 +284,35 @@ class MainActivity : Activity() {
             startActivity(intent)
         } catch (_: ActivityNotFoundException) {
             Toast.makeText(this, R.string.privacy_policy_unavailable, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun checkServerConnection() {
+        val status = findViewById<TextView>(R.id.server_connection_status)
+        val button = findViewById<Button>(R.id.server_connection_check_button)
+        if (BuildConfig.API_BASE_URL.isBlank()) {
+            status.setText(R.string.server_connection_not_configured)
+            return
+        }
+
+        button.isEnabled = false
+        status.setText(R.string.server_connection_checking)
+        connectionExecutor.execute {
+            val connected = runCatching {
+                BackendHealthClient.check(BuildConfig.API_BASE_URL)
+            }.getOrDefault(false)
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed) {
+                    status.setText(
+                        if (connected) {
+                            R.string.server_connection_success
+                        } else {
+                            R.string.server_connection_failed
+                        }
+                    )
+                    button.isEnabled = true
+                }
+            }
         }
     }
 

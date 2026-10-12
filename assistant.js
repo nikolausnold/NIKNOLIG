@@ -42,6 +42,8 @@
     const interestInputs = [...profileForm.querySelectorAll('input[name="interest"]')];
     const interestStatus = document.querySelector("#interest-status");
     const clearButton = document.querySelector("#interest-clear");
+    const apiCheckButton = document.querySelector("#api-check");
+    const apiStatus = document.querySelector("#api-status");
 
     const selectedInterests = () => interestInputs
         .filter((input) => input.checked && supportedInterests.has(input.value))
@@ -159,5 +161,51 @@
                 : fallback;
         }
         questionInput.value = "";
+    });
+
+    apiCheckButton.addEventListener("click", async () => {
+        const configuredBaseUrl = window.NIKNOLIG_API_BASE_URL || "";
+        if (!configuredBaseUrl.trim()) {
+            apiStatus.textContent = "Serververbindung ist noch nicht konfiguriert.";
+            return;
+        }
+
+        apiCheckButton.disabled = true;
+        apiStatus.textContent = "Sichere Verbindung wird geprüft …";
+        try {
+            const baseUrl = new URL(configuredBaseUrl);
+            if (
+                baseUrl.protocol !== "https:" ||
+                baseUrl.username ||
+                baseUrl.password ||
+                baseUrl.search ||
+                baseUrl.hash
+            ) {
+                throw new Error("Invalid API URL");
+            }
+            const response = await fetch(`${configuredBaseUrl.replace(/\/+$/, "")}/v1/health`, {
+                method: "GET",
+                mode: "cors",
+                credentials: "omit",
+                cache: "no-store",
+                redirect: "error",
+                referrerPolicy: "no-referrer",
+                headers: { Accept: "application/json" }
+            });
+            const contentType = response.headers.get("content-type") || "";
+            const payload = await response.json();
+            const healthy = response.ok &&
+                contentType.toLowerCase().startsWith("application/json") &&
+                payload.status === "ok" &&
+                payload.service === "niknolig-api" &&
+                payload.apiVersion === 1;
+            apiStatus.textContent = healthy
+                ? "HTTPS-Verbindung zum NIKNOLIG-Server ist verfügbar."
+                : "Server nicht erreichbar oder Antwort ungültig. Fragen und Interessen wurden nicht übertragen.";
+        } catch {
+            apiStatus.textContent = "Server nicht erreichbar oder Antwort ungültig. Fragen und Interessen wurden nicht übertragen.";
+        } finally {
+            apiCheckButton.disabled = false;
+        }
     });
 })();

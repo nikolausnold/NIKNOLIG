@@ -1,0 +1,1 @@
+window.NIKNOLIG_API_BASE_URL = "";

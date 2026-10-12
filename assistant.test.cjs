@@ -22,7 +22,7 @@ class Element {
     }
 }
 
-function createAssistant() {
+function createAssistant({ apiBaseUrl = "", fetchImpl = async () => { throw new Error("unexpected request"); } } = {}) {
     const selectors = [
         "#assistant-form",
         "#assistant-question",
@@ -30,7 +30,9 @@ function createAssistant() {
         "#interest-profile-form",
         "#interest-consent",
         "#interest-status",
-        "#interest-clear"
+        "#interest-clear",
+        "#api-check",
+        "#api-status"
     ];
     const elements = Object.fromEntries(selectors.map((selector) => [selector, new Element()]));
     const interests = ["work", "devices", "transport", "everyday"].map((value) => {
@@ -58,7 +60,13 @@ function createAssistant() {
         }
     };
     const script = fs.readFileSync(path.join(__dirname, "assistant.js"), "utf8");
-    vm.runInNewContext(script, { document, localStorage });
+    vm.runInNewContext(script, {
+        document,
+        localStorage,
+        URL,
+        window: { NIKNOLIG_API_BASE_URL: apiBaseUrl },
+        fetch: fetchImpl
+    });
 
     const submit = (form) => form.listeners.submit({ preventDefault() {} });
     return { elements, interests, localStorage, stored, submit };
@@ -92,4 +100,47 @@ test("uses opted-in interests for fallback suggestions and deletes the profile o
     assert.equal(assistant.stored.size, 0);
     assert.equal(assistant.interests[0].checked, false);
     assert.equal(assistant.elements["#interest-status"].textContent, "Zustimmung widerrufen; das Interessenprofil wurde gelöscht.");
+});
+
+test("does not call an unconfigured server", async () => {
+    const assistant = createAssistant();
+    await assistant.elements["#api-check"].listeners.click();
+
+    assert.equal(assistant.elements["#api-status"].textContent, "Serververbindung ist noch nicht konfiguriert.");
+});
+
+test("sends only an explicit HTTPS health GET and validates the fixed response", async () => {
+    const requests = [];
+    const assistant = createAssistant({
+        apiBaseUrl: "https://api.example.test/base/",
+        fetchImpl: async (url, options) => {
+            requests.push({ url, options });
+            return {
+                ok: true,
+                headers: { get: () => "application/json; charset=utf-8" },
+                json: async () => ({ status: "ok", service: "niknolig-api", apiVersion: 1 })
+            };
+        }
+    });
+    await assistant.elements["#api-check"].listeners.click();
+
+    assert.equal(requests.length, 1);
+    assert.equal(requests[0].url, "https://api.example.test/base/v1/health");
+    assert.equal(requests[0].options.method, "GET");
+    assert.equal(requests[0].options.credentials, "omit");
+    assert.equal(assistant.elements["#api-status"].textContent, "HTTPS-Verbindung zum NIKNOLIG-Server ist verfügbar.");
+});
+
+test("rejects a non-HTTPS server URL without making a request", async () => {
+    let requests = 0;
+    const assistant = createAssistant({
+        apiBaseUrl: "http://api.example.test",
+        fetchImpl: async () => {
+            requests += 1;
+        }
+    });
+    await assistant.elements["#api-check"].listeners.click();
+
+    assert.equal(requests, 0);
+    assert.match(assistant.elements["#api-status"].textContent, /nicht erreichbar/);
 });

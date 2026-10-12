@@ -1,0 +1,23 @@
+name: API tests
+
+on:
+  push:
+    paths:
+      - "server/**"
+      - ".github/workflows/api-tests.yml"
+  pull_request:
+    paths:
+      - "server/**"
+      - ".github/workflows/api-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-health-api:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test health API
+        run: node --test server/health-server.test.mjs
