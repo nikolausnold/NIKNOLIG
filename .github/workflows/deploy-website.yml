@@ -1,0 +1,47 @@
+name: Deploy website
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - index.html
+      - styles.css
+      - .github/workflows/deploy-website.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  upload:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare website
+        run: |
+          mkdir "$RUNNER_TEMP/website"
+          cp index.html styles.css "$RUNNER_TEMP/website/"
+      - name: Upload website artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ runner.temp }}/website
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-24.04
+    needs: upload
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

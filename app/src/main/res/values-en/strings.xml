@@ -6,5 +6,13 @@
     <string name="system_status_heading">SYSTEM STATUS</string>
     <string name="system_status">Development scaffold</string>
     <string name="device_status">No devices connected</string>
+    <string name="support_heading">TECHNICAL SUPPORT</string>
+    <string name="support_description">For technical questions, contact us at n_nold@hotmail.com.</string>
+    <string name="support_payment_notice">Payment questions are not handled here. Please contact your payment provider or merchant directly. Do not send payment details to technical support.</string>
+    <string name="support_contact_button">Contact technical support</string>
+    <string name="support_email">n_nold@hotmail.com</string>
+    <string name="support_email_subject">Technical support request – NIKNOLIG</string>
+    <string name="support_email_body">Please describe your technical issue. Do not send passwords or payment details.</string>
+    <string name="support_email_unavailable">No email app found on this device.</string>
     <string name="demo_notice">Preview — no device connection, security approval, or production feature is available yet.</string>
 </resources>
