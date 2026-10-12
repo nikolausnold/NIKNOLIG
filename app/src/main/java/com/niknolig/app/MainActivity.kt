@@ -1,20 +1,208 @@
 package com.niknolig.app
 
 import android.app.Activity
+import android.Manifest
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
+import android.bluetooth.le.BluetoothLeScanner
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings
 import android.net.Uri
 import android.os.Bundle
+import android.os.Build
 import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 
 class MainActivity : Activity() {
+    private lateinit var scanStatus: TextView
+    private lateinit var scanButton: Button
+    private lateinit var scanResults: LinearLayout
+    private var scanner: BluetoothLeScanner? = null
+    private var activeScanCallback: ScanCallback? = null
+    private val discoveredDevices = LinkedHashMap<BluetoothDevice, TextView>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        scanStatus = findViewById(R.id.scan_status)
+        scanButton = findViewById(R.id.device_scan_button)
+        scanResults = findViewById(R.id.scan_results)
+        scanButton.setOnClickListener {
+            if (activeScanCallback == null) {
+                requestPermissionAndStartScan()
+            } else {
+                stopScan(getString(R.string.scan_stopped))
+            }
+        }
+
         findViewById<Button>(R.id.support_contact_button).setOnClickListener {
             openTechnicalSupportEmail()
+        }
+    }
+
+    override fun onStop() {
+        stopScan(getString(R.string.scan_stopped))
+        super.onStop()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != REQUEST_SCAN_PERMISSION) return
+
+        if (hasScanPermission()) {
+            startScan()
+        } else {
+            scanStatus.setText(R.string.scan_permission_denied)
+        }
+    }
+
+    private fun requestPermissionAndStartScan() {
+        if (hasScanPermission()) {
+            startScan()
+            return
+        }
+
+        scanStatus.setText(R.string.scan_permission_required)
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            Manifest.permission.BLUETOOTH_SCAN
+        } else {
+            Manifest.permission.ACCESS_FINE_LOCATION
+        }
+        requestPermissions(arrayOf(permission), REQUEST_SCAN_PERMISSION)
+    }
+
+    private fun hasScanPermission(): Boolean {
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            Manifest.permission.BLUETOOTH_SCAN
+        } else {
+            Manifest.permission.ACCESS_FINE_LOCATION
+        }
+        return checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun startScan() {
+        if (activeScanCallback != null) return
+        if (!hasScanPermission()) {
+            scanStatus.setText(R.string.scan_permission_required)
+            return
+        }
+
+        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
+        val bleScanner = bluetoothManager?.adapter?.bluetoothLeScanner
+        if (bleScanner == null) {
+            scanStatus.setText(R.string.scan_bluetooth_unavailable)
+            return
+        }
+
+        clearDiscoveredDevices()
+        val callback = object : ScanCallback() {
+            override fun onScanResult(callbackType: Int, result: ScanResult) {
+                runOnUiThread {
+                    if (activeScanCallback === this) addOrUpdateDevice(result)
+                }
+            }
+
+            override fun onBatchScanResults(results: MutableList<ScanResult>) {
+                runOnUiThread {
+                    if (activeScanCallback === this) results.forEach(::addOrUpdateDevice)
+                }
+            }
+
+            override fun onScanFailed(errorCode: Int) {
+                runOnUiThread {
+                    if (activeScanCallback === this) {
+                        stopScan(getString(R.string.scan_failed))
+                    }
+                }
+            }
+        }
+
+        scanner = bleScanner
+        activeScanCallback = callback
+        scanButton.setText(R.string.scan_stop_button)
+        scanStatus.setText(R.string.scan_running)
+        try {
+            bleScanner.startScan(
+                null,
+                ScanSettings.Builder()
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+                    .build(),
+                callback
+            )
+        } catch (_: SecurityException) {
+            activeScanCallback = null
+            scanner = null
+            scanButton.setText(R.string.scan_start_button)
+            scanStatus.setText(R.string.scan_permission_denied)
+        } catch (_: IllegalStateException) {
+            activeScanCallback = null
+            scanner = null
+            scanButton.setText(R.string.scan_start_button)
+            scanStatus.setText(R.string.scan_failed)
+        }
+    }
+
+    private fun addOrUpdateDevice(result: ScanResult) {
+        val device = result.device
+        val name = result.scanRecord?.deviceName
+            ?.replace(Regex("\\s+"), " ")
+            ?.trim()
+            ?.take(MAX_DEVICE_NAME_LENGTH)
+            ?.takeIf(String::isNotEmpty)
+            ?: getString(R.string.scan_unknown_device)
+        val row = discoveredDevices[device]
+        if (row == null) {
+            if (discoveredDevices.size >= MAX_DISPLAYED_DEVICES) return
+            val deviceRow = TextView(this).apply {
+                setTextColor(getColor(R.color.text_primary))
+                textSize = 14f
+                contentDescription = getString(
+                    R.string.scan_device_accessibility,
+                    name,
+                    result.rssi
+                )
+            }
+            discoveredDevices[device] = deviceRow
+            scanResults.addView(deviceRow)
+        }
+
+        discoveredDevices.getValue(device).text =
+            getString(R.string.scan_device_result, name, result.rssi)
+    }
+
+    private fun clearDiscoveredDevices() {
+        discoveredDevices.clear()
+        scanResults.removeAllViews()
+        scanResults.addView(TextView(this).apply {
+            setText(R.string.scan_no_devices)
+            setTextColor(getColor(R.color.text_secondary))
+            textSize = 14f
+        })
+    }
+
+    private fun stopScan(status: String) {
+        val callback = activeScanCallback ?: return
+        activeScanCallback = null
+        try {
+            scanner?.stopScan(callback)
+        } catch (_: SecurityException) {
+            // Permission may have been revoked while the scan was active.
+        } finally {
+            scanner = null
+            scanButton.setText(R.string.scan_start_button)
+            scanStatus.text = status
         }
     }
 
@@ -30,5 +218,11 @@ class MainActivity : Activity() {
         } catch (_: ActivityNotFoundException) {
             Toast.makeText(this, R.string.support_email_unavailable, Toast.LENGTH_LONG).show()
         }
+    }
+
+    private companion object {
+        const val REQUEST_SCAN_PERMISSION = 1001
+        const val MAX_DISPLAYED_DEVICES = 50
+        const val MAX_DEVICE_NAME_LENGTH = 48
     }
 }
