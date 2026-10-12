@@ -59,16 +59,21 @@ nicht erfunden oder als fertige Rechtsseiten ausgegeben.
 
 ## Entwicklungs- und Freigabestatus
 
-Die Android-App ist ein einzelner Activity-Prototyp. Es gibt derzeit keinen
-BLE-Client, Connection Manager, Verbindungszustandsautomaten, Authentifizierung,
-Autorisierung oder Gerätevertrauens- und Freigabemodell. Das Manifest deklariert
-keine Bluetooth-Berechtigungen; es werden keine Gerätezugriffe ausgeführt. Die
-Statusanzeige ist eine Vorschau und kein Nachweis einer Geräteverbindung.
+Die Android-App ist ein einzelner Activity-Prototyp mit ausdrücklich gestarteter,
+auf den Vordergrund beschränkter BLE-Gerätesuche. Die Suche zeigt ausgesendete
+Gerätenamen und Signalstärken nur vorübergehend an und endet beim Verlassen der
+Ansicht; Ergebnisse bleiben nur während einer laufenden Suche sichtbar und werden
+nicht dauerhaft gespeichert. Es gibt keine Geräteverbindung, keinen GATT-Zugriff,
+kein Lesen oder Schreiben von Gerätewerten, keine Authentifizierung, Autorisierung oder
+Gerätevertrauens- und Freigabeentscheidung. Auf Android 12 und höher wird nur die
+Berechtigung für BLE-Scans angefordert; auf älteren unterstützten Android-Versionen
+wird für die Suche die Standortberechtigung benötigt.
 
 Im Repository sind derzeit keine Unit- oder Instrumentierungstests vorhanden.
 Der Android-Workflow baut ein Debug-APK und prüft dessen Integrität; das ersetzt
 weder Funktionstests noch eine SecurityChain-Freigabe. Zustandsübergänge,
-Berechtigungen, Fehlerzustände und Vertrauen müssen vor einer BLE-Implementierung
+Berechtigungen und Fehlerzustände der Gerätesuche sind noch nicht durch automatisierte
+Funktionstests abgedeckt. Vertrauen und Freigaben müssen vor jeder Verbindung
 explizit entworfen und getestet werden. KI-gestützte Experimente dürfen keine
 produktiven Sicherheitsregeln automatisch verändern.
 

@@ -5,7 +5,20 @@
     <string name="assistant_description">Deine Assistenz für nachvollziehbare, kontrollierte Technik.</string>
     <string name="system_status_heading">SYSTEMSTATUS</string>
     <string name="system_status">Entwicklungsgerüst</string>
-    <string name="device_status">Keine Geräte verbunden</string>
+    <string name="scan_idle">Die Gerätesuche wurde noch nicht gestartet.</string>
+    <string name="scan_start_button">Geräte in der Nähe suchen</string>
+    <string name="scan_stop_button">Suche stoppen</string>
+    <string name="scan_results_heading">GEFUNDENE GERÄTE</string>
+    <string name="scan_no_devices">Noch keine Geräte gefunden.</string>
+    <string name="scan_permission_required">Für die Suche ist eine Berechtigung erforderlich.</string>
+    <string name="scan_permission_denied">Berechtigung abgelehnt. Ohne sie ist keine Gerätesuche möglich.</string>
+    <string name="scan_bluetooth_unavailable">Bluetooth ist nicht verfügbar oder ausgeschaltet.</string>
+    <string name="scan_running">Suche läuft. Es wird keine Verbindung hergestellt.</string>
+    <string name="scan_stopped">Suche gestoppt. Es besteht keine Geräteverbindung.</string>
+    <string name="scan_failed">Die Gerätesuche konnte nicht gestartet werden. Bitte versuche es erneut.</string>
+    <string name="scan_unknown_device">Unbenanntes Gerät</string>
+    <string name="scan_device_result">%1$s — Signalstärke %2$d dBm</string>
+    <string name="scan_device_accessibility">%1$s, Signalstärke %2$d dBm</string>
     <string name="support_heading">TECHNISCHER SUPPORT</string>
     <string name="support_description">Bei technischen Fragen erreichst du uns unter n_nold@hotmail.com.</string>
     <string name="support_payment_notice">Zahlungsfragen werden hier nicht bearbeitet. Bitte wende dich dafür direkt an den Zahlungsanbieter oder Händler. Sende keine Zahlungsdaten an den technischen Support.</string>
@@ -14,5 +27,5 @@
     <string name="support_email_subject">Technische Supportanfrage – NIKNOLIG</string>
     <string name="support_email_body">Bitte beschreibe dein technisches Problem. Sende keine Passwörter oder Zahlungsdaten.</string>
     <string name="support_email_unavailable">Keine E-Mail-App auf diesem Gerät gefunden.</string>
-    <string name="demo_notice">Vorschau – noch keine Geräteverbindung, Sicherheitsfreigabe oder produktive Funktion.</string>
+    <string name="demo_notice">Vorschau – die Suche zeigt nur vorübergehend ausgesendete Gerätenamen und Signalstärken. Es werden keine Verbindungen hergestellt und keine GATT-Werte gelesen oder geschrieben.</string>
 </resources>

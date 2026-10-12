@@ -5,7 +5,20 @@
     <string name="assistant_description">Your assistant for transparent, controlled technology.</string>
     <string name="system_status_heading">SYSTEM STATUS</string>
     <string name="system_status">Development scaffold</string>
-    <string name="device_status">No devices connected</string>
+    <string name="scan_idle">Device discovery has not been started.</string>
+    <string name="scan_start_button">Search for nearby devices</string>
+    <string name="scan_stop_button">Stop search</string>
+    <string name="scan_results_heading">FOUND DEVICES</string>
+    <string name="scan_no_devices">No devices found yet.</string>
+    <string name="scan_permission_required">Permission is required to search for devices.</string>
+    <string name="scan_permission_denied">Permission denied. Device discovery is unavailable without it.</string>
+    <string name="scan_bluetooth_unavailable">Bluetooth is unavailable or turned off.</string>
+    <string name="scan_running">Search is running. No connection will be made.</string>
+    <string name="scan_stopped">Search stopped. No device connection was made.</string>
+    <string name="scan_failed">Device search could not start. Please try again.</string>
+    <string name="scan_unknown_device">Unnamed device</string>
+    <string name="scan_device_result">%1$s — Signal strength %2$d dBm</string>
+    <string name="scan_device_accessibility">%1$s, signal strength %2$d dBm</string>
     <string name="support_heading">TECHNICAL SUPPORT</string>
     <string name="support_description">For technical questions, contact us at n_nold@hotmail.com.</string>
     <string name="support_payment_notice">Payment questions are not handled here. Please contact your payment provider or merchant directly. Do not send payment details to technical support.</string>
@@ -14,5 +27,5 @@
     <string name="support_email_subject">Technical support request – NIKNOLIG</string>
     <string name="support_email_body">Please describe your technical issue. Do not send passwords or payment details.</string>
     <string name="support_email_unavailable">No email app found on this device.</string>
-    <string name="demo_notice">Preview — no device connection, security approval, or production feature is available yet.</string>
+    <string name="demo_notice">Preview — discovery temporarily displays only broadcast device names and signal strengths. No connections are made and no GATT values are read or written.</string>
 </resources>

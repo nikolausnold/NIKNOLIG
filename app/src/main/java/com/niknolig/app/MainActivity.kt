@@ -1,20 +1,20 @@
 package com.niknolig.app
 
-import android.app.Activity
 import android.Manifest
-import android.content.ActivityNotFoundException
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
+import android.app.Activity
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Bundle
 import android.os.Build
+import android.os.Bundle
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -99,8 +99,16 @@ class MainActivity : Activity() {
             return
         }
 
-        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
-        val bleScanner = bluetoothManager?.adapter?.bluetoothLeScanner
+        val bleScanner = try {
+            val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
+            bluetoothManager?.adapter?.bluetoothLeScanner
+        } catch (_: SecurityException) {
+            scanStatus.setText(R.string.scan_permission_denied)
+            return
+        } catch (_: IllegalStateException) {
+            scanStatus.setText(R.string.scan_bluetooth_unavailable)
+            return
+        }
         if (bleScanner == null) {
             scanStatus.setText(R.string.scan_bluetooth_unavailable)
             return
@@ -165,21 +173,23 @@ class MainActivity : Activity() {
         val row = discoveredDevices[device]
         if (row == null) {
             if (discoveredDevices.size >= MAX_DISPLAYED_DEVICES) return
+            if (discoveredDevices.isEmpty()) scanResults.removeAllViews()
             val deviceRow = TextView(this).apply {
                 setTextColor(getColor(R.color.text_primary))
                 textSize = 14f
-                contentDescription = getString(
-                    R.string.scan_device_accessibility,
-                    name,
-                    result.rssi
-                )
             }
             discoveredDevices[device] = deviceRow
             scanResults.addView(deviceRow)
         }
 
-        discoveredDevices.getValue(device).text =
-            getString(R.string.scan_device_result, name, result.rssi)
+        discoveredDevices.getValue(device).apply {
+            contentDescription = getString(
+                R.string.scan_device_accessibility,
+                name,
+                result.rssi
+            )
+            text = getString(R.string.scan_device_result, name, result.rssi)
+        }
     }
 
     private fun clearDiscoveredDevices() {
@@ -199,10 +209,13 @@ class MainActivity : Activity() {
             scanner?.stopScan(callback)
         } catch (_: SecurityException) {
             // Permission may have been revoked while the scan was active.
+        } catch (_: IllegalStateException) {
+            // The platform may already have stopped the scan.
         } finally {
             scanner = null
             scanButton.setText(R.string.scan_start_button)
             scanStatus.text = status
+            clearDiscoveredDevices()
         }
     }
 
