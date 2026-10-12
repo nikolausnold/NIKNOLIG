@@ -10,7 +10,7 @@
     <string name="scan_stop_button">Stop search</string>
     <string name="scan_results_heading">FOUND DEVICES</string>
     <string name="scan_no_devices">No devices found yet.</string>
-    <string name="scan_permission_required">Permission is required to search for devices.</string>
+    <string name="scan_permission_required">Device search needs nearby Bluetooth access. Android may ask for scan and adapter access; no device connection will be made.</string>
     <string name="scan_permission_denied">Permission denied. Device discovery is unavailable without it.</string>
     <string name="scan_bluetooth_unavailable">Bluetooth is unavailable or turned off.</string>
     <string name="scan_running">Search is running (up to 30 seconds). No connection will be made.</string>

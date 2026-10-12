@@ -31,6 +31,7 @@ android {
         if (releaseSigningConfigured) {
             create("release") {
                 storeFile = file(releaseSigningValues[0]!!)
+                storeType = "PKCS12"
                 storePassword = releaseSigningValues[1]
                 keyAlias = releaseSigningValues[2]
                 keyPassword = releaseSigningValues[3]

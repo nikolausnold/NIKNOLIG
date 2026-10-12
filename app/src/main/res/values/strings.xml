@@ -10,7 +10,7 @@
     <string name="scan_stop_button">Suche stoppen</string>
     <string name="scan_results_heading">GEFUNDENE GERÄTE</string>
     <string name="scan_no_devices">Noch keine Geräte gefunden.</string>
-    <string name="scan_permission_required">Für die Suche ist eine Berechtigung erforderlich.</string>
+    <string name="scan_permission_required">Für die Suche braucht die App Zugriff auf Bluetooth-Geräte in der Nähe. Android kann Scan- und Adapterzugriff abfragen; es wird keine Geräteverbindung hergestellt.</string>
     <string name="scan_permission_denied">Berechtigung abgelehnt. Ohne sie ist keine Gerätesuche möglich.</string>
     <string name="scan_bluetooth_unavailable">Bluetooth ist nicht verfügbar oder ausgeschaltet.</string>
     <string name="scan_running">Suche läuft (maximal 30 Sekunden). Es wird keine Verbindung hergestellt.</string>

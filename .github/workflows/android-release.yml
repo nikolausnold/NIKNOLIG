@@ -53,7 +53,7 @@ jobs:
             fi
           done
 
-          keystore="$RUNNER_TEMP/niknolig-release.jks"
+          keystore="$RUNNER_TEMP/niknolig-release.p12"
           if ! base64 --decode <<< "$ANDROID_KEYSTORE_BASE64" \
             > "$keystore"; then
             echo "::error::ANDROID_KEYSTORE_BASE64 is not valid base64."

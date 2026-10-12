@@ -52,7 +52,7 @@ Play Console hoch und veröffentlicht nichts. Der Workflow prüft die Signatur d
 AAB. Der Keystore wird nur während
 des CI-Laufs in einem temporären Runner-Verzeichnis abgelegt; Schlüssel und
 Passwörter gehören weder ins Repository noch in Build-Logs. Ohne diese Secrets
-oder eine gültige JKS/PKCS12-Datei mit passendem Alias bricht der Release-Workflow
+oder eine gültige PKCS12-Datei mit passendem Alias bricht der Release-Workflow
 ab. Ein lokaler `bundleRelease`-Build ohne
 Signierungsvariablen ist nicht für einen Store-Upload verwendbar.
 
@@ -68,8 +68,8 @@ umask 077
 mkdir -p "$HOME/.android/keystores"
 chmod 700 "$HOME/.android/keystores"
 keytool -genkeypair -v \
-  -keystore "$HOME/.android/keystores/niknolig-upload.jks" \
-  -storetype JKS -alias niknolig-upload \
+  -keystore "$HOME/.android/keystores/niknolig-upload.p12" \
+  -storetype PKCS12 -alias niknolig-upload \
   -keyalg RSA -keysize 2048 -validity 10000
 ```
 
@@ -79,23 +79,25 @@ nach dem Übertragen in GitHub:
 
 ```sh
 umask 077
-base64 < "$HOME/.android/keystores/niknolig-upload.jks" \
+set -o pipefail
+base64 < "$HOME/.android/keystores/niknolig-upload.p12" \
   | tr -d '\n' \
-  > "$HOME/.android/keystores/niknolig-upload.jks.b64"
-chmod 600 "$HOME/.android/keystores/niknolig-upload.jks.b64"
+  > "$HOME/.android/keystores/niknolig-upload.p12.b64"
+chmod 600 "$HOME/.android/keystores/niknolig-upload.p12.b64"
 ```
 
 Richte in der obigen `android-release`-Umgebung unter **Environment secrets**
-`ANDROID_KEYSTORE_BASE64` mit dem Inhalt der `.b64`-Datei,
+`ANDROID_KEYSTORE_BASE64` mit dem Inhalt der `.p12.b64`-Datei,
 `ANDROID_KEYSTORE_PASSWORD` mit dem Keystore-Passwort, `ANDROID_KEY_ALIAS` mit
 `niknolig-upload` und `ANDROID_KEY_PASSWORD` mit dem Passwort des Schlüssels ein.
+Bei keytool kannst du dasselbe Passwort für Keystore und Schlüssel verwenden.
 Übertrage die Werte nur direkt in GitHub und poste sie nirgendwo sonst. Der
 Workflow prüft Keystore, Passwort und Alias, bevor Gradle läuft. Erzeuge das
 öffentliche Upload-Zertifikat für Play App Signing mit:
 
 ```sh
 keytool -export -rfc \
-  -keystore "$HOME/.android/keystores/niknolig-upload.jks" \
+  -keystore "$HOME/.android/keystores/niknolig-upload.p12" \
   -alias niknolig-upload \
   -file "$HOME/.android/keystores/niknolig-upload.pem"
 ```
