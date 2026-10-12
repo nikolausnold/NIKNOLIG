@@ -7,4 +7,7 @@
     <string name="system_status">Entwicklungsgerüst</string>
     <string name="device_status">Keine Geräte verbunden</string>
     <string name="demo_notice">Vorschau – noch keine Geräteverbindung, Sicherheitsfreigabe oder produktive Funktion.</string>
+    <string name="assistant_button_description">Elektro-Engel-Assistenz öffnen</string>
+    <string name="assistant_unavailable">Die zentrale Assistenz ist noch nicht fertig. Gerätezugriffe und Sicherheitsfreigaben sind weiterhin nicht verfügbar.</string>
+    <string name="close">Schließen</string>
 </resources>

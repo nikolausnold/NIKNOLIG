@@ -1,56 +1,28 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/dark_background"
-    android:fillViewport="true">
+    android:fitsSystemWindows="true">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/screen_padding">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:accessibilityHeading="true"
-            android:letterSpacing="0.12"
-            android:text="@string/brand_name"
-            android:textColor="@color/gold"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_small"
-            android:accessibilityHeading="true"
-            android:text="@string/assistant_name"
-            android:textColor="@color/text_primary"
-            android:textSize="30sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_small"
-            android:text="@string/assistant_description"
-            android:textColor="@color/text_secondary"
-            android:textSize="16sp" />
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingBottom="@dimen/assistant_clearance">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_large"
-            android:background="@color/dark_surface"
             android:orientation="vertical"
-            android:padding="@dimen/card_padding">
+            android:padding="@dimen/screen_padding">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:accessibilityHeading="true"
-                android:text="@string/system_status_heading"
+                android:letterSpacing="0.12"
+                android:text="@string/brand_name"
                 android:textColor="@color/gold"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -59,28 +31,77 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_small"
-                android:text="@string/system_status"
+                android:accessibilityHeading="true"
+                android:text="@string/assistant_name"
                 android:textColor="@color/text_primary"
-                android:textSize="20sp"
+                android:textSize="30sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_medium"
-                android:text="@string/device_status"
-                android:textColor="@color/text_primary"
+                android:layout_marginTop="@dimen/space_small"
+                android:text="@string/assistant_description"
+                android:textColor="@color/text_secondary"
                 android:textSize="16sp" />
-        </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_large"
-            android:background="@color/dark_surface"
-            android:padding="@dimen/card_padding"
-            android:text="@string/demo_notice"
-            android:textColor="@color/text_primary"
-            android:textSize="14sp" />
-    </LinearLayout>
-</ScrollView>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_large"
+                android:background="@color/dark_surface"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:accessibilityHeading="true"
+                    android:text="@string/system_status_heading"
+                    android:textColor="@color/gold"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_small"
+                    android:text="@string/system_status"
+                    android:textColor="@color/text_primary"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_medium"
+                    android:text="@string/device_status"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_large"
+                android:background="@color/dark_surface"
+                android:padding="@dimen/card_padding"
+                android:text="@string/demo_notice"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <ImageButton
+        android:id="@+id/assistant_button"
+        android:layout_width="@dimen/assistant_button_size"
+        android:layout_height="@dimen/assistant_button_size"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/assistant_button_margin"
+        android:background="@drawable/assistant_button_background"
+        android:contentDescription="@string/assistant_button_description"
+        android:elevation="8dp"
+        android:padding="18dp"
+        android:src="@drawable/ic_elektro_engel"
+        android:tooltipText="@string/assistant_button_description" />
+</FrameLayout>

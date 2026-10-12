@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">نيكنوليغ</string>
+    <string name="brand_name">NIKNOLIG</string>
+    <string name="assistant_name">الملاك الكهربائي</string>
+    <string name="assistant_description">مساعدتك لتقنية واضحة وخاضعة للتحكم.</string>
+    <string name="system_status_heading">حالة النظام</string>
+    <string name="system_status">بيئة تطوير</string>
+    <string name="device_status">لا توجد أجهزة متصلة</string>
+    <string name="demo_notice">معاينة — لا يتوفر اتصال بالأجهزة أو موافقة أمنية أو وظيفة إنتاجية حتى الآن.</string>
+    <string name="assistant_button_description">فتح مساعد الملاك الكهربائي</string>
+    <string name="assistant_unavailable">المساعد المركزي غير مكتمل بعد. لا يزال الوصول إلى الأجهزة والموافقات الأمنية غير متاحين.</string>
+    <string name="close">إغلاق</string>
+</resources>

@@ -7,4 +7,7 @@
     <string name="system_status">Development scaffold</string>
     <string name="device_status">No devices connected</string>
     <string name="demo_notice">Preview — no device connection, security approval, or production feature is available yet.</string>
+    <string name="assistant_button_description">Open Elektro-Engel assistant</string>
+    <string name="assistant_unavailable">The central assistant is not finished yet. Device access and security approvals are still unavailable.</string>
+    <string name="close">Close</string>
 </resources>

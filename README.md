@@ -2,7 +2,13 @@
 
 Eigenständiges Android-Entwicklungsgerüst für NIKNOLIG und Elektro-Engel. Der
 aktuelle Bildschirm ist eine Vorschau; BLE, Gerätevertrauen,
-Sicherheitsfreigaben und produktive Funktionen sind noch nicht implementiert.
+Sicherheitsfreigaben und produktive Funktionen sind noch nicht implementiert. Der
+Elektro-Engel-Button öffnet einen Hinweis zur Assistenz; eine funktionale
+Assistenz ist noch nicht verfügbar.
+
+Die Oberfläche und der Assistenz-Einstieg sind auf Deutsch, Englisch, Arabisch und
+Japanisch lokalisiert. Der Button ist rechts unten verankert und berücksichtigt
+den verfügbaren Systembereich. Geräteberechtigungen werden nicht angefordert.
 
 ## Build-Basis
 

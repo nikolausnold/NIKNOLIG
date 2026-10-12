@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">NIKNOLIG</string>
+    <string name="brand_name">NIKNOLIG</string>
+    <string name="assistant_name">エレクトロ・エンジェル</string>
+    <string name="assistant_description">透明性と制御性を重視したテクノロジー支援。</string>
+    <string name="system_status_heading">システム状態</string>
+    <string name="system_status">開発用の基盤</string>
+    <string name="device_status">接続中のデバイスはありません</string>
+    <string name="demo_notice">プレビュー — デバイス接続、セキュリティ承認、本番機能はまだ利用できません。</string>
+    <string name="assistant_button_description">エレクトロ・エンジェル・アシスタントを開く</string>
+    <string name="assistant_unavailable">中央アシスタントはまだ完成していません。デバイスへのアクセスとセキュリティ承認は利用できません。</string>
+    <string name="close">閉じる</string>
+</resources>
