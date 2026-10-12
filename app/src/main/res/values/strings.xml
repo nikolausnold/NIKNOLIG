@@ -15,6 +15,7 @@
     <string name="stop_scan">Suche beenden</string>
     <string name="scan_not_started">Die Suche wurde noch nicht gestartet.</string>
     <string name="scanning">Suche läuft …</string>
+    <string name="scan_stopped">Suche beendet.</string>
     <string name="scan_failed">Die Bluetooth-Suche ist fehlgeschlagen. Bitte versuche es erneut.</string>
     <string name="scan_permission_denied">Die erforderliche Berechtigung wurde nicht erteilt. Ohne sie kann nicht gesucht werden.</string>
     <string name="bluetooth_unavailable">Bluetooth ist nicht verfügbar oder ausgeschaltet.</string>

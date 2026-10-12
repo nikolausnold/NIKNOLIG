@@ -3,13 +3,11 @@ package com.niknolig.app
 import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -37,6 +35,7 @@ class DeviceDiscoveryActivity : Activity() {
         override fun onScanFailed(errorCode: Int) {
             runOnUiThread {
                 scanning = false
+                scanner = null
                 scanButton.setText(R.string.start_scan)
                 scanStatus.setText(R.string.scan_failed)
             }
@@ -90,17 +89,17 @@ class DeviceDiscoveryActivity : Activity() {
     }
 
     private fun startScan() {
-        val adapter = (getSystemService(BLUETOOTH_SERVICE) as BluetoothManager).adapter
-        scanner = adapter?.bluetoothLeScanner
-        val activeScanner = scanner
-        if (activeScanner == null) {
-            scanStatus.setText(R.string.bluetooth_unavailable)
-            return
-        }
-
-        discoveredDevices.clear()
-        renderResults()
         try {
+            val adapter = BluetoothAdapter.getDefaultAdapter()
+            scanner = adapter?.bluetoothLeScanner
+            val activeScanner = scanner
+            if (activeScanner == null) {
+                scanStatus.setText(R.string.bluetooth_unavailable)
+                return
+            }
+
+            discoveredDevices.clear()
+            renderResults()
             activeScanner.startScan(scanCallback)
             scanning = true
             scanButton.setText(R.string.stop_scan)
@@ -118,6 +117,7 @@ class DeviceDiscoveryActivity : Activity() {
         if (!scanning) return
         try {
             scanner?.stopScan(scanCallback)
+            scanStatus.setText(R.string.scan_stopped)
         } catch (_: SecurityException) {
             scanStatus.setText(R.string.scan_permission_denied)
         } finally {
