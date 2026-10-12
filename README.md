@@ -1,32 +1,39 @@
 # NIKNOLIG
 
-Eigenständiges Android-Entwicklungsgerüst für NIKNOLIG und Elektro-Engel. Der
-aktuelle Bildschirm ist eine Vorschau; BLE, Gerätevertrauen,
-Sicherheitsfreigaben und produktive Funktionen sind noch nicht implementiert.
+Android app scaffold with an initial, permission-gated BLE discovery and
+connection flow for Elektro-Engel.
 
-## Build-Basis
+## BLE scope and safety
 
-- JDK 17
-- Gradle Wrapper 8.13
-- Android Gradle Plugin 8.11.1
-- Kotlin Android Plugin 2.2.21
-- Android SDK / compile SDK 35
+- Scanning requires runtime BLE permissions on Android 12+ and location
+  permission on Android 8–11. The app explains the reason before requesting a
+  permission rationale, never starts scanning after a denial, stops scanning
+  when the screen leaves the foreground, and ends scans after 15 seconds.
+- A GATT connection starts only after the user selects a discovered device.
+  The app can disconnect it, but does not discover services, read/write
+  characteristics, send commands, or remember devices.
+- A BLE connection is not device authentication. SecurityChain P0, trust
+  verification, and security approvals are not implemented; no approval or
+  device access is granted automatically.
+- The Elektro-Engel button opens the central assistant information surface.
 
-Debug-Build starten:
+## Build and tests
+
+The project uses JDK 17, Gradle Wrapper 8.13, Android Gradle Plugin 8.11.1,
+Kotlin 2.2.21, and compile SDK 35.
 
 ```sh
-./gradlew :app:assembleDebug
+./gradlew :app:testDebugUnitTest :app:assembleDebug --no-daemon
 ```
 
-Der Build wurde in der aktuellen Umgebung versucht. Gradle konnte das Android
-Gradle Plugin nicht aus Google Maven auflösen; die Google-Maven-Domain war über
-DNS nicht erreichbar. Daher ist ein erfolgreicher Android-Build noch nicht
-nachgewiesen.
+The BLE state manager has JVM unit tests using a fake transport. The Android
+Bluetooth APIs and physical-device behavior are not covered by those tests.
+The GitHub Actions workflow runs the unit tests and assembles the debug APK,
+then publishes `NIKNOLIG-debug-apk` as a 14-day downloadable workflow artifact.
 
-## Geplante Grenzen
-
-Die App startet ohne Bluetooth-Berechtigungen oder Gerätezugriffe. Der
-Implementierungsplan sieht vor, Sicherheitszustände, Berechtigungen und
-Gerätevertrauen erst mit expliziten Zustandsübergängen, Tests und nachvollziehbarer
-Freigabe einzuführen. KI-gestützte Experimente dürfen keine produktiven
-Sicherheitsregeln automatisch verändern.
+Validation on 2026-10-12: this environment could not resolve the Android Gradle
+Plugin 8.11.1 from configured repositories, so the current source and tests
+could not be built locally. The earlier successful GitHub build at commit
+`e291d4d` predates the BLE changes and did not upload an APK artifact. The
+updated workflow must complete successfully before the current build and
+artifact are considered verified.

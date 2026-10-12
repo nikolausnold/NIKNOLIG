@@ -13,6 +13,7 @@
     <string name="connect">Verbinden</string>
     <string name="ble_idle">Nicht verbunden</string>
     <string name="ble_scanning">Suche nach BLE-Geräten …</string>
+    <string name="ble_scan_timed_out">Suche nach 15 Sekunden beendet.</string>
     <string name="ble_connecting">Verbinde mit %1$s …</string>
     <string name="ble_connected">GATT-Verbindung aktiv: %1$s (nicht verifiziert)</string>
     <string name="ble_disconnecting">Trenne BLE-Verbindung …</string>

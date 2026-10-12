@@ -13,6 +13,7 @@
     <string name="connect">Connect</string>
     <string name="ble_idle">Disconnected</string>
     <string name="ble_scanning">Scanning for BLE devices …</string>
+    <string name="ble_scan_timed_out">Scan stopped after 15 seconds.</string>
     <string name="ble_connecting">Connecting to %1$s …</string>
     <string name="ble_connected">GATT connection active: %1$s (unverified)</string>
     <string name="ble_disconnecting">Disconnecting BLE device …</string>

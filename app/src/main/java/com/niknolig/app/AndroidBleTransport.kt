@@ -9,7 +9,9 @@ import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.content.Context
-import android.os.Build
+import android.annotation.SuppressLint
+import android.os.Handler
+import android.os.Looper
 import java.io.IOException
 
 class AndroidBleTransport(context: Context) : BleTransport {
@@ -21,6 +23,7 @@ class AndroidBleTransport(context: Context) : BleTransport {
     private var gatt: BluetoothGatt? = null
     private var connectionListener: BleTransport.ConnectionListener? = null
 
+    @SuppressLint("MissingPermission")
     override fun startScan(listener: BleTransport.ScanListener) {
         val activeAdapter = adapter ?: throw IllegalStateException("Bluetooth is unavailable")
         if (!activeAdapter.isEnabled) throw IllegalStateException("Bluetooth is turned off")
@@ -45,6 +48,7 @@ class AndroidBleTransport(context: Context) : BleTransport {
         activeScanner.startScan(callback)
     }
 
+    @SuppressLint("MissingPermission")
     override fun stopScan() {
         val activeCallback = scanCallback ?: return
         scanner?.stopScan(activeCallback)
@@ -52,19 +56,24 @@ class AndroidBleTransport(context: Context) : BleTransport {
         scanner = null
     }
 
+    @SuppressLint("MissingPermission")
     override fun connect(device: BleDevice, listener: BleTransport.ConnectionListener) {
         val activeAdapter = adapter ?: throw IllegalStateException("Bluetooth is unavailable")
         if (!activeAdapter.isEnabled) throw IllegalStateException("Bluetooth is turned off")
         if (gatt != null) throw IllegalStateException("A BLE connection is already active")
         val remoteDevice = activeAdapter.getRemoteDevice(device.address)
         connectionListener = listener
-        gatt = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            remoteDevice.connectGatt(appContext, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
-        } else {
-            remoteDevice.connectGatt(appContext, false, gattCallback)
-        } ?: throw IllegalStateException("Could not start BLE connection")
+        gatt = remoteDevice.connectGatt(
+            appContext,
+            false,
+            gattCallback,
+            BluetoothDevice.TRANSPORT_LE,
+            BluetoothDevice.PHY_LE_1M_MASK,
+            Handler(Looper.getMainLooper()),
+        ) ?: throw IllegalStateException("Could not start BLE connection")
     }
 
+    @SuppressLint("MissingPermission")
     override fun disconnect() {
         val activeGatt = gatt
         if (activeGatt == null) {
@@ -75,7 +84,17 @@ class AndroidBleTransport(context: Context) : BleTransport {
     }
 
     override fun close() {
-        stopScan()
+        try {
+            stopScan()
+        } catch (_: SecurityException) {
+            scanCallback = null
+            scanner = null
+        }
+        try {
+            gatt?.disconnect()
+        } catch (_: SecurityException) {
+            // Closing the GATT below still releases the local connection.
+        }
         gatt?.close()
         gatt = null
         connectionListener = null
@@ -103,7 +122,7 @@ class AndroidBleTransport(context: Context) : BleTransport {
         }
     }
 
-    @Suppress("MissingPermission")
+    @SuppressLint("MissingPermission")
     private fun ScanResult.toBleDevice(): BleDevice = BleDevice(
         address = device.address,
         name = device.name,
