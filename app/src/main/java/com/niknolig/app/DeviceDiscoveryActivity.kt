@@ -9,6 +9,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -17,13 +20,29 @@ class DeviceDiscoveryActivity : Activity() {
     private lateinit var scanButton: Button
     private lateinit var scanStatus: TextView
     private lateinit var resultsContainer: LinearLayout
+    private val mainHandler = Handler(Looper.getMainLooper())
     private var scanner: android.bluetooth.le.BluetoothLeScanner? = null
     private var scanning = false
+    private var scanStartedAt = 0L
     private val discoveredDevices = linkedMapOf<String, ScanResult>()
+    private val updateScanStatus = object : Runnable {
+        override fun run() {
+            if (!scanning) return
+            val remainingMillis = SCAN_DURATION_MILLIS - (SystemClock.elapsedRealtime() - scanStartedAt)
+            if (remainingMillis <= 0) {
+                stopScan(R.string.scan_complete)
+                return
+            }
+            val remainingSeconds = (remainingMillis + 999) / 1000
+            scanStatus.text = getString(R.string.scanning_countdown, remainingSeconds)
+            mainHandler.postDelayed(this, STATUS_UPDATE_INTERVAL_MILLIS)
+        }
+    }
 
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             runOnUiThread {
+                if (!scanning) return@runOnUiThread
                 val key = deviceKey(result)
                 if (!discoveredDevices.containsKey(key) && discoveredDevices.size >= MAX_RESULTS) {
                     return@runOnUiThread
@@ -37,6 +56,7 @@ class DeviceDiscoveryActivity : Activity() {
             runOnUiThread {
                 scanning = false
                 scanner = null
+                mainHandler.removeCallbacks(updateScanStatus)
                 scanButton.setText(R.string.start_scan)
                 scanStatus.setText(R.string.scan_failed)
             }
@@ -103,8 +123,10 @@ class DeviceDiscoveryActivity : Activity() {
             renderResults()
             activeScanner.startScan(scanCallback)
             scanning = true
+            scanStartedAt = SystemClock.elapsedRealtime()
             scanButton.setText(R.string.stop_scan)
-            scanStatus.setText(R.string.scanning)
+            mainHandler.removeCallbacks(updateScanStatus)
+            updateScanStatus.run()
         } catch (_: SecurityException) {
             scanStatus.setText(R.string.scan_permission_denied)
             scanner = null
@@ -114,11 +136,12 @@ class DeviceDiscoveryActivity : Activity() {
         }
     }
 
-    private fun stopScan() {
+    private fun stopScan(statusMessage: Int = R.string.scan_stopped) {
+        mainHandler.removeCallbacks(updateScanStatus)
         if (!scanning) return
         try {
             scanner?.stopScan(scanCallback)
-            scanStatus.setText(R.string.scan_stopped)
+            scanStatus.setText(statusMessage)
         } catch (_: SecurityException) {
             scanStatus.setText(R.string.scan_permission_denied)
         } finally {
@@ -208,10 +231,19 @@ class DeviceDiscoveryActivity : Activity() {
 
     private fun deviceKey(result: ScanResult): String {
         val record = result.scanRecord
+        val manufacturerData = record?.manufacturerSpecificData?.let { data ->
+            (0 until data.size()).joinToString(";") { index ->
+                "${data.keyAt(index)}:${data.valueAt(index).toHexString()}"
+            }
+        }.orEmpty()
+        val serviceData = record?.serviceData?.entries.orEmpty()
+            .sortedBy { it.key.uuid.toString() }
+            .joinToString(";") { (uuid, data) -> "${uuid.uuid}:${data.toHexString()}" }
         return listOf(
             record?.deviceName.orEmpty(),
-            record?.serviceUuids.orEmpty().joinToString(),
-            record?.manufacturerSpecificData?.toString().orEmpty()
+            record?.serviceUuids.orEmpty().map { it.uuid.toString() }.sorted().joinToString(";"),
+            manufacturerData,
+            serviceData
         ).joinToString("|")
     }
 
@@ -221,5 +253,7 @@ class DeviceDiscoveryActivity : Activity() {
     companion object {
         private const val REQUEST_BLE_PERMISSION = 100
         private const val MAX_RESULTS = 50
+        private const val SCAN_DURATION_MILLIS = 15_000L
+        private const val STATUS_UPDATE_INTERVAL_MILLIS = 1_000L
     }
 }

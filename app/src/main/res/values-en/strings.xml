@@ -15,7 +15,9 @@
     <string name="stop_scan">Stop scan</string>
     <string name="scan_not_started">Scanning has not started.</string>
     <string name="scanning">Scanning…</string>
+    <string name="scanning_countdown">Scanning for %1$d more s…</string>
     <string name="scan_stopped">Scanning stopped.</string>
+    <string name="scan_complete">Scan complete.</string>
     <string name="scan_failed">Bluetooth scanning failed. Please try again.</string>
     <string name="scan_permission_denied">The required permission was not granted. Scanning is unavailable without it.</string>
     <string name="bluetooth_unavailable">Bluetooth is unavailable or turned off.</string>
