@@ -3,6 +3,10 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+dependencies {
+    testImplementation("junit:junit:4.13.2")
+}
+
 val releaseSigningValues = listOf(
     providers.environmentVariable("ANDROID_KEYSTORE_PATH").orNull,
     providers.environmentVariable("ANDROID_KEYSTORE_PASSWORD").orNull,

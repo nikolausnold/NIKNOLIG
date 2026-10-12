@@ -1,4 +1,5 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/dark_background"
@@ -34,12 +35,34 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_medium"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/niknolig_nav_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/niknolig_nav_label" />
+
+            <Button
+                android:id="@+id/elektro_engel_nav_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_small"
+                android:layout_weight="1"
+                android:text="@string/elektro_engel_nav_label" />
+        </LinearLayout>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_small"
             android:accessibilityHeading="true"
-            android:text="@string/assistant_name"
+            android:text="@string/niknolig_section_title"
             android:textColor="@color/text_primary"
             android:textSize="30sp"
             android:textStyle="bold" />
@@ -48,7 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_small"
-            android:text="@string/assistant_description"
+            android:text="@string/niknolig_section_description"
             android:textColor="@color/text_secondary"
             android:textSize="16sp" />
 

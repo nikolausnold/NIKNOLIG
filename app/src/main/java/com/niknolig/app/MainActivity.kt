@@ -41,6 +41,12 @@ class MainActivity : Activity() {
         scanStatus = findViewById(R.id.scan_status)
         scanButton = findViewById(R.id.device_scan_button)
         scanResults = findViewById(R.id.scan_results)
+        findViewById<Button>(R.id.niknolig_nav_button).setOnClickListener {
+            findViewById<android.widget.ScrollView>(R.id.main_scroll_view).smoothScrollTo(0, 0)
+        }
+        findViewById<Button>(R.id.elektro_engel_nav_button).setOnClickListener {
+            startActivity(Intent(this, ElektroEngelActivity::class.java))
+        }
         scanButton.setOnClickListener {
             if (activeScanCallback == null) {
                 requestPermissionAndStartScan()
