@@ -92,6 +92,16 @@
             android:textColor="@color/text_primary"
             android:textSize="14sp" />
 
+        <Button
+            android:id="@+id/copy_services_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_small"
+            android:backgroundTint="@color/dark_surface"
+            android:enabled="false"
+            android:text="@string/copy_gatt_metadata"
+            android:textColor="@color/gold" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

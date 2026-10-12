@@ -72,6 +72,12 @@
     <string name="characteristic_signed_write">Signed write supported</string>
     <string name="characteristic_extended_properties">Extended properties declared</string>
     <string name="no_characteristic_permissions">Permissions not declared</string>
+    <string name="copy_gatt_metadata">Copy GATT overview</string>
+    <string name="gatt_copy_requires_connection">A connection is required to copy the overview.</string>
+    <string name="gatt_copy_nothing_to_copy">No GATT metadata is available to copy.</string>
+    <string name="gatt_metadata_copied">GATT overview copied.</string>
+    <string name="gatt_report_label">NIKNOLIG GATT overview</string>
+    <string name="gatt_metadata_report">NIKNOLIG — GATT metadata\nDevice name (unverified): %1$s\n\n%2$s</string>
     <string name="primary_gatt_service">primary</string>
     <string name="secondary_gatt_service">secondary</string>
     <string name="unknown_gatt_service_type">type unknown</string>

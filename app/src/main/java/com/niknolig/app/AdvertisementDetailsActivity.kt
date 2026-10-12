@@ -10,12 +10,16 @@ import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.le.ScanResult
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.widget.Button
+import android.widget.Toast
 import android.widget.TextView
 
 class AdvertisementDetailsActivity : Activity() {
@@ -23,6 +27,7 @@ class AdvertisementDetailsActivity : Activity() {
     private lateinit var connectionButton: Button
     private lateinit var servicesButton: Button
     private lateinit var servicesStatus: TextView
+    private lateinit var copyServicesButton: Button
     private val mainHandler = Handler(Looper.getMainLooper())
     private var bluetoothGatt: BluetoothGatt? = null
     private var connected = false
@@ -43,6 +48,7 @@ class AdvertisementDetailsActivity : Activity() {
         if (serviceDiscoveryPending) {
             serviceDiscoveryPending = false
             servicesButton.isEnabled = connected
+            copyServicesButton.isEnabled = false
             servicesStatus.setText(R.string.service_discovery_timed_out)
         }
     }
@@ -76,6 +82,7 @@ class AdvertisementDetailsActivity : Activity() {
                         disconnectPending = false
                         connected = false
                         servicesButton.isEnabled = false
+                        copyServicesButton.isEnabled = false
                         gatt.close()
                         showDisconnected(R.string.connection_failed)
                     }
@@ -90,6 +97,7 @@ class AdvertisementDetailsActivity : Activity() {
                         disconnectPending = false
                         servicesStatus.setText(R.string.services_not_inspected)
                         servicesButton.isEnabled = true
+                        copyServicesButton.isEnabled = false
                         connectionStatus.setText(R.string.connection_connected)
                         connectionButton.setText(R.string.disconnect_device)
                         connectionButton.isEnabled = true
@@ -105,6 +113,7 @@ class AdvertisementDetailsActivity : Activity() {
                         connected = false
                         mainHandler.removeCallbacks(serviceDiscoveryTimeout)
                         servicesButton.isEnabled = false
+                        copyServicesButton.isEnabled = false
                         servicesStatus.setText(R.string.services_unavailable_until_connected)
                         gatt.close()
                         showDisconnected(
@@ -124,6 +133,7 @@ class AdvertisementDetailsActivity : Activity() {
                 serviceDiscoveryPending = false
                 servicesButton.isEnabled = true
                 if (status != BluetoothGatt.GATT_SUCCESS) {
+                    copyServicesButton.isEnabled = false
                     servicesStatus.setText(R.string.service_discovery_failed)
                     return@runOnUiThread
                 }
@@ -131,57 +141,16 @@ class AdvertisementDetailsActivity : Activity() {
                 val discoveredServices = try {
                     gatt.services
                 } catch (_: SecurityException) {
+                    copyServicesButton.isEnabled = false
                     servicesStatus.setText(R.string.connection_permission_denied)
                     return@runOnUiThread
                 }
                 servicesStatus.text = if (discoveredServices.isEmpty()) {
                     getString(R.string.no_gatt_services)
                 } else {
-                    discoveredServices.joinToString(separator = "\n\n") { service ->
-                        val characteristics = service.characteristics.joinToString("\n") { characteristic ->
-                            val properties = characteristicProperties(characteristic)
-                            val permissions = characteristicPermissions(characteristic)
-                            val descriptors = characteristic.descriptors.joinToString("\n") { descriptor ->
-                                getString(
-                                    R.string.gatt_descriptor_entry,
-                                    descriptor.uuid,
-                                    descriptorPermissions(descriptor).ifEmpty {
-                                        getString(R.string.no_descriptor_permissions)
-                                    }
-                                )
-                            }
-                            getString(
-                                R.string.gatt_characteristic_entry,
-                                characteristic.uuid,
-                                if (properties.isEmpty()) {
-                                    getString(R.string.no_characteristic_properties)
-                                } else {
-                                    properties.joinToString(", ")
-                                },
-                                if (permissions.isEmpty()) {
-                                    getString(R.string.no_characteristic_permissions)
-                                } else {
-                                    permissions.joinToString(", ")
-                                },
-                                if (descriptors.isEmpty()) {
-                                    getString(R.string.no_gatt_descriptors)
-                                } else {
-                                    descriptors
-                                }
-                            )
-                        }
-                        getString(
-                            R.string.gatt_service_entry,
-                            service.uuid,
-                            serviceType(service),
-                            if (characteristics.isEmpty()) {
-                                getString(R.string.no_gatt_characteristics)
-                            } else {
-                                characteristics
-                            }
-                        )
-                    }
+                    formatGattMetadata(discoveredServices)
                 }
+                copyServicesButton.isEnabled = discoveredServices.isNotEmpty()
             }
         }
     }
@@ -195,6 +164,8 @@ class AdvertisementDetailsActivity : Activity() {
         connectionButton = findViewById(R.id.connection_button)
         servicesButton = findViewById(R.id.services_button)
         servicesStatus = findViewById(R.id.services_status)
+        copyServicesButton = findViewById(R.id.copy_services_button)
+        copyServicesButton.setOnClickListener { copyGattMetadata() }
         connectionButton.setOnClickListener {
             if (connected) disconnectDevice() else requestConnectionPermission()
         }
@@ -312,6 +283,7 @@ class AdvertisementDetailsActivity : Activity() {
         val gatt = bluetoothGatt ?: return
         connectionButton.isEnabled = false
         servicesButton.isEnabled = false
+        copyServicesButton.isEnabled = false
         serviceDiscoveryPending = false
         mainHandler.removeCallbacks(serviceDiscoveryTimeout)
         disconnectPending = true
@@ -338,6 +310,7 @@ class AdvertisementDetailsActivity : Activity() {
         mainHandler.removeCallbacks(serviceDiscoveryTimeout)
         mainHandler.removeCallbacks(disconnectTimeout)
         servicesButton.isEnabled = false
+        copyServicesButton.isEnabled = false
         servicesStatus.setText(R.string.services_unavailable_until_connected)
         connectionStatus.setText(messageResource)
         connectionButton.setText(R.string.connect_device)
@@ -351,12 +324,14 @@ class AdvertisementDetailsActivity : Activity() {
             return
         }
         servicesButton.isEnabled = false
+        copyServicesButton.isEnabled = false
         serviceDiscoveryPending = true
         servicesStatus.setText(R.string.service_discovery_in_progress)
         try {
             if (!gatt.discoverServices()) {
                 serviceDiscoveryPending = false
                 servicesButton.isEnabled = true
+                copyServicesButton.isEnabled = false
                 servicesStatus.setText(R.string.service_discovery_failed)
             } else {
                 mainHandler.postDelayed(serviceDiscoveryTimeout, CONNECTION_TIMEOUT_MILLIS)
@@ -364,8 +339,67 @@ class AdvertisementDetailsActivity : Activity() {
         } catch (_: SecurityException) {
             serviceDiscoveryPending = false
             servicesButton.isEnabled = true
+            copyServicesButton.isEnabled = false
             servicesStatus.setText(R.string.connection_permission_denied)
         }
+    }
+
+    private fun formatGattMetadata(services: List<BluetoothGattService>): String =
+        services.joinToString(separator = "\n\n") { service ->
+            val characteristics = service.characteristics.joinToString("\n") { characteristic ->
+                val properties = characteristicProperties(characteristic)
+                val permissions = characteristicPermissions(characteristic)
+                val descriptors = characteristic.descriptors.joinToString("\n") { descriptor ->
+                    getString(
+                        R.string.gatt_descriptor_entry,
+                        descriptor.uuid,
+                        descriptorPermissions(descriptor).ifEmpty {
+                            getString(R.string.no_descriptor_permissions)
+                        }
+                    )
+                }
+                getString(
+                    R.string.gatt_characteristic_entry,
+                    characteristic.uuid,
+                    properties.ifEmpty { listOf(getString(R.string.no_characteristic_properties)) }
+                        .joinToString(", "),
+                    permissions.ifEmpty { listOf(getString(R.string.no_characteristic_permissions)) }
+                        .joinToString(", "),
+                    descriptors.ifEmpty { getString(R.string.no_gatt_descriptors) }
+                )
+            }
+            getString(
+                R.string.gatt_service_entry,
+                service.uuid,
+                serviceType(service),
+                characteristics.ifEmpty { getString(R.string.no_gatt_characteristics) }
+            )
+        }
+
+    private fun copyGattMetadata() {
+        if (!connected) {
+            Toast.makeText(this, R.string.gatt_copy_requires_connection, Toast.LENGTH_SHORT).show()
+            return
+        }
+        val services = try {
+            bluetoothGatt?.services.orEmpty()
+        } catch (_: SecurityException) {
+            Toast.makeText(this, R.string.connection_permission_denied, Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (services.isEmpty()) {
+            Toast.makeText(this, R.string.gatt_copy_nothing_to_copy, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val report = getString(
+            R.string.gatt_metadata_report,
+            intent.getStringExtra(EXTRA_DEVICE_NAME) ?: getString(R.string.unnamed_device),
+            formatGattMetadata(services)
+        )
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.gatt_report_label), report))
+        Toast.makeText(this, R.string.gatt_metadata_copied, Toast.LENGTH_SHORT).show()
     }
 
     private fun characteristicProperties(characteristic: BluetoothGattCharacteristic): List<String> {
