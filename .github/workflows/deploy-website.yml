@@ -9,6 +9,8 @@ on:
       - styles.css
       - robots.txt
       - sitemap.xml
+      - assets/niknolig-intro-poster.svg
+      - public/videos/**
       - .github/workflows/deploy-website.yml
   workflow_dispatch:
 
@@ -29,7 +31,11 @@ jobs:
           mkdir "$RUNNER_TEMP/website"
           cp index.html styles.css robots.txt sitemap.xml "$RUNNER_TEMP/website/"
           mkdir "$RUNNER_TEMP/website/assets"
-          cp assets/niknolig-mark.svg "$RUNNER_TEMP/website/assets/"
+          cp assets/niknolig-mark.svg assets/niknolig-intro-poster.svg "$RUNNER_TEMP/website/assets/"
+          if [ -f public/videos/NIKNOLIG_Intro_10s_ohne_Sound.mp4 ]; then
+            mkdir -p "$RUNNER_TEMP/website/public/videos"
+            cp public/videos/NIKNOLIG_Intro_10s_ohne_Sound.mp4 "$RUNNER_TEMP/website/public/videos/"
+          fi
       - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
         with:

@@ -41,17 +41,29 @@
                     <a class="text-link" href="#kontakt">Kontakt aufnehmen <span aria-hidden="true">↗</span></a>
                 </div>
             </div>
-            <div class="hero-art" aria-hidden="true">
-                <div class="orbit orbit-one"></div>
-                <div class="orbit orbit-two"></div>
-                <div class="orbit orbit-three"></div>
-                <div class="core"><span>N</span></div>
-                <span class="orbit-label label-one">MENSCH</span>
-                <span class="orbit-label label-two">TECHNIK</span>
-                <span class="orbit-label label-three">VERTRAUEN</span>
-                <span class="spark spark-one"></span>
-                <span class="spark spark-two"></span>
-                <span class="spark spark-three"></span>
+            <div class="hero-visual">
+                <div class="hero-art" aria-hidden="true">
+                    <div class="orbit orbit-one"></div>
+                    <div class="orbit orbit-two"></div>
+                    <div class="orbit orbit-three"></div>
+                    <div class="core"><span>N</span></div>
+                    <span class="orbit-label label-one">MENSCH</span>
+                    <span class="orbit-label label-two">TECHNIK</span>
+                    <span class="orbit-label label-three">VERTRAUEN</span>
+                    <span class="spark spark-one"></span>
+                    <span class="spark spark-two"></span>
+                    <span class="spark spark-three"></span>
+                </div>
+                <video
+                    class="hero-video"
+                    muted
+                    playsinline
+                    loop
+                    preload="none"
+                    poster="assets/niknolig-intro-poster.svg"
+                    aria-label="NIKNOLIG Intro-Video ohne Ton">
+                    <source data-src="public/videos/NIKNOLIG_Intro_10s_ohne_Sound.mp4" type="video/mp4">
+                </video>
             </div>
             <div class="hero-foot">
                 <span>Eine Idee von NIKNOLIG</span>
@@ -135,5 +147,47 @@
         <p>Technologie, die Menschen stärkt.</p>
         <a class="back-top" href="#start">Zurück nach oben <span aria-hidden="true">↑</span></a>
     </footer>
+    <script>
+        const introVideo = document.querySelector(".hero-video");
+        const introSource = introVideo?.querySelector("source");
+        const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+        if (introVideo && introSource && !motionPreference.matches) {
+            fetch(introSource.dataset.src, { method: "HEAD" })
+                .then((response) => {
+                    if (!response.ok || motionPreference.matches) return;
+
+                    introSource.src = introSource.dataset.src;
+                    introVideo.preload = "metadata";
+                    introVideo.load();
+                    return introVideo.play();
+                })
+                .then(() => {
+                    if (!introVideo.paused) {
+                        introVideo.classList.add("is-playing");
+                    }
+                })
+                .catch(() => {
+                    introVideo.pause();
+                    introSource.removeAttribute("src");
+                });
+
+            introVideo.addEventListener("playing", () => {
+                introVideo.classList.add("is-playing");
+            });
+            introVideo.addEventListener("error", () => {
+                introVideo.classList.remove("is-playing");
+                introVideo.pause();
+            });
+            motionPreference.addEventListener("change", () => {
+                if (motionPreference.matches) {
+                    introVideo.pause();
+                    introVideo.classList.remove("is-playing");
+                    introSource.removeAttribute("src");
+                    introVideo.load();
+                }
+            });
+        }
+    </script>
 </body>
 </html>

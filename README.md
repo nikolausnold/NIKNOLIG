@@ -38,8 +38,10 @@ einen Build-Schritt noch externe JavaScript-Bibliotheken. Für günstiges Hostin
 GitHub Pages verwendet werden. Der Workflow
 [`Deploy website`](https://github.com/nikolausnold/NIKNOLIG/actions/workflows/deploy-website.yml)
 veröffentlicht bei Änderungen an der Website auf `main` nur `index.html` und
-`styles.css`, `robots.txt`, `sitemap.xml` und das Logo; ein manueller Start ist
-ebenfalls möglich. Aktiviere unter
+`styles.css`, `robots.txt`, `sitemap.xml` und die Website-Assets; ein manueller
+Start ist ebenfalls möglich. Ein Intro-Video wird aus
+`public/videos/NIKNOLIG_Intro_10s_ohne_Sound.mp4` mitveröffentlicht, sobald die
+Datei bereitgestellt wurde. Aktiviere unter
 [Repository-Einstellungen → Pages](https://github.com/nikolausnold/NIKNOLIG/settings/pages)
 als Veröffentlichungsquelle **GitHub Actions**. Nach einem erfolgreichen Lauf zeigt
 der Workflow die veröffentlichte URL an. `robots.txt` und `sitemap.xml` werden
