@@ -285,6 +285,7 @@ h2 span {
     transition: opacity 240ms ease;
 }
 
+.hero-video.is-loading,
 .hero-video.is-playing {
     opacity: 1;
 }

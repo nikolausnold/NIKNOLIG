@@ -158,31 +158,36 @@
                     if (!response.ok || motionPreference.matches) return;
 
                     introSource.src = introSource.dataset.src;
+                    introVideo.classList.add("is-loading");
                     introVideo.preload = "metadata";
                     introVideo.load();
                     return introVideo.play();
                 })
                 .then(() => {
                     if (!introVideo.paused) {
+                        introVideo.classList.remove("is-loading");
                         introVideo.classList.add("is-playing");
                     }
                 })
                 .catch(() => {
                     introVideo.pause();
+                    introVideo.classList.remove("is-loading", "is-playing");
                     introSource.removeAttribute("src");
+                    introVideo.load();
                 });
 
             introVideo.addEventListener("playing", () => {
+                introVideo.classList.remove("is-loading");
                 introVideo.classList.add("is-playing");
             });
             introVideo.addEventListener("error", () => {
-                introVideo.classList.remove("is-playing");
+                introVideo.classList.remove("is-loading", "is-playing");
                 introVideo.pause();
             });
             motionPreference.addEventListener("change", () => {
                 if (motionPreference.matches) {
                     introVideo.pause();
-                    introVideo.classList.remove("is-playing");
+                    introVideo.classList.remove("is-loading", "is-playing");
                     introSource.removeAttribute("src");
                     introVideo.load();
                 }
