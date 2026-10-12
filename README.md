@@ -1,9 +1,10 @@
 # NIKNOLIG
 
-Eigenständiges Android-Entwicklungsgerüst für NIKNOLIG und Elektro-Engel. Der
-aktuelle Bildschirm ist eine Vorschau mit einfacher BLE-Gerätesuche; Verbindung,
-Gerätevertrauen, Sicherheitsfreigaben und produktive Gerätefunktionen sind noch
-nicht implementiert.
+Eigenständiges Android-Entwicklungsgerüst für NIKNOLIG und Elektro-Engel. Die App
+bietet eine ausdrücklich gestartete BLE-Gerätesuche sowie einen separaten,
+interaktiven Elektro-Engel-Vorschaubereich mit fest vorbereiteten Beispielen.
+Verbindung, Gerätevertrauen, KI-Funktionen, Sicherheitsfreigaben und produktive
+Gerätefunktionen sind noch nicht implementiert.
 
 ## Build-Basis
 
@@ -17,6 +18,12 @@ Debug-Build starten:
 
 ```sh
 ./gradlew :app:assembleDebug
+```
+
+Die vorbereiteten Elektro-Engel-Beispiele sind als Android-Unit-Tests abgedeckt:
+
+```sh
+./gradlew :app:testDebugUnitTest
 ```
 
 Der [Android-Build-Workflow](https://github.com/nikolausnold/NIKNOLIG/actions/workflows/android-build.yml)
@@ -183,6 +190,13 @@ Indexierungsanfrage kannst du die Website in
 dort die Sitemap `https://nikolausnold.github.io/NIKNOLIG/sitemap.xml` einreichen.
 Verfügbarkeit und Kosten hängen von Repository-Sichtbarkeit und GitHub-Tarif ab.
 
+Der Abschnitt **Elektro-Engel** stellt aktuelle App-Funktionen den Zukunftsideen
+gegenüber. Die Android-App verlinkt zwischen Gerätesuche und Assistenzvorschau.
+Die auswählbaren App-Beispiele sind statische, allgemeine Texte; sie werden nicht
+von einer KI erzeugt und weder Geräte noch persönliche Aufgaben werden dadurch
+ausgelesen, gespeichert oder gesteuert. Geräte-, Maschinen- und Transportassistenz
+sind Vision und keine verfügbaren Integrationen.
+
 Vor einer öffentlichen Veröffentlichung müssen die rechtlich erforderlichen
 Betreiber- und Datenschutzangaben ergänzt und geprüft werden. Diese Angaben wurden
 nicht erfunden oder als fertige Rechtsseiten ausgegeben.
@@ -205,12 +219,14 @@ Geräteverbindung verwendet; auf älteren unterstützten Android-Versionen wird 
 die Suche die Standortberechtigung benötigt. Jede Suche endet spätestens
 nach 30 Sekunden, beim manuellen Stoppen oder beim Verlassen der Activity.
 
-Im Repository sind derzeit keine Unit- oder Instrumentierungstests vorhanden.
-Der Android-Workflow baut ein Debug-APK und prüft dessen Integrität; das ersetzt
-weder Funktionstests noch eine SecurityChain-Freigabe. Zustandsübergänge, Berechtigungen und Fehlerzustände der Gerätesuche sind noch nicht
-durch automatisierte Funktionstests abgedeckt. Vertrauen und Freigaben müssen vor
-jeder Verbindung explizit entworfen und getestet werden. KI-gestützte Experimente dürfen keine
-produktiven Sicherheitsregeln automatisch verändern.
+Automatisierte Unit-Tests prüfen die Elektro-Engel-Beispielkategorien und deren
+Katalogeinträge. BLE-Zustandsübergänge, Berechtigungen und Fehlerzustände sind
+weiterhin nicht durch automatisierte Funktionstests abgedeckt. Der Android-Workflow
+baut ein Debug-APK und prüft dessen Integrität; das ersetzt weder Funktionstests
+auf echten Geräten noch eine SecurityChain-Freigabe. Vertrauen und Freigaben müssen
+vor jeder künftigen Verbindung explizit entworfen und getestet werden.
+KI-gestützte Experimente dürfen keine produktiven Sicherheitsregeln automatisch
+verändern.
 
 Das Projekt ist damit noch nicht releasefähig. Es gibt keine verifizierte
 Produktionsfreigabe oder SecurityChain-P0-Testabdeckung.
