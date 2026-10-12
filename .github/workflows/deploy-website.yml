@@ -26,6 +26,8 @@ jobs:
         run: |
           mkdir "$RUNNER_TEMP/website"
           cp index.html styles.css "$RUNNER_TEMP/website/"
+          mkdir "$RUNNER_TEMP/website/assets"
+          cp assets/niknolig-mark.svg "$RUNNER_TEMP/website/assets/"
       - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
         with:
