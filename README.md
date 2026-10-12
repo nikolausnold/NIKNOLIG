@@ -35,5 +35,6 @@ Validation on 2026-10-12: this environment could not resolve the Android Gradle
 Plugin 8.11.1 from configured repositories, so the current source and tests
 could not be built locally. The earlier successful GitHub build at commit
 `e291d4d` predates the BLE changes and did not upload an APK artifact. The
-updated workflow must complete successfully before the current build and
-artifact are considered verified.
+updated run is blocked with `action_required` before creating any jobs; no
+current APK artifact exists until repository workflow approval allows that run
+to execute ([run #50](https://github.com/nikolausnold/NIKNOLIG/actions/runs/38233687841)).

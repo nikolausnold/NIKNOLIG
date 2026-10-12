@@ -61,7 +61,7 @@ class BleConnectionManager(
                 }
             })
             true
-        } catch (error: Throwable) {
+        } catch (error: Exception) {
             fail(error)
             false
         }
@@ -73,7 +73,7 @@ class BleConnectionManager(
             transport.stopScan()
             setState(BleConnectionState.IDLE)
             true
-        } catch (error: Throwable) {
+        } catch (error: Exception) {
             fail(error)
             false
         }
@@ -84,7 +84,7 @@ class BleConnectionManager(
         if (state == BleConnectionState.SCANNING) {
             try {
                 transport.stopScan()
-            } catch (error: Throwable) {
+            } catch (error: Exception) {
                 fail(error)
                 return false
             }
@@ -116,7 +116,7 @@ class BleConnectionManager(
                 }
             })
             true
-        } catch (error: Throwable) {
+        } catch (error: Exception) {
             fail(error)
             false
         }
@@ -128,7 +128,7 @@ class BleConnectionManager(
         return try {
             transport.disconnect()
             true
-        } catch (error: Throwable) {
+        } catch (error: Exception) {
             fail(error)
             false
         }
