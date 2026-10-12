@@ -10,14 +10,19 @@ val releaseSigningValues = listOf(
     providers.environmentVariable("ANDROID_KEY_PASSWORD").orNull
 )
 val releaseSigningConfigured = releaseSigningValues.all { !it.isNullOrBlank() }
+val configuredVersionCode = providers.environmentVariable("ANDROID_VERSION_CODE").orNull
+val appVersionCode = configuredVersionCode?.toIntOrNull() ?: 1
 require(releaseSigningConfigured || releaseSigningValues.all { it.isNullOrBlank() }) {
     "Provide all Android release signing environment variables or none."
+}
+require(configuredVersionCode == null || configuredVersionCode.toIntOrNull()?.let { it > 0 } == true) {
+    "ANDROID_VERSION_CODE must be a positive integer."
 }
 
 android {
     namespace = "com.niknolig.app"
-    compileSdk = 35
-    buildToolsVersion = "35.0.0"
+    compileSdk = 36
+    buildToolsVersion = "36.0.0"
 
     signingConfigs {
         if (releaseSigningConfigured) {
@@ -38,9 +43,9 @@ android {
     defaultConfig {
         applicationId = "com.niknolig.app"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        targetSdk = 36
+        versionCode = appVersionCode
+        versionName = providers.environmentVariable("ANDROID_VERSION_NAME").orElse("0.1.0").get()
     }
 
     buildTypes {

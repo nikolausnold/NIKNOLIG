@@ -17,6 +17,20 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+      - name: Install Android SDK 36
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+            "platforms;android-36" "build-tools;36.0.0"
+      - name: Set release version
+        run: |
+          set -euo pipefail
+          version_name="${GITHUB_REF_NAME#v}"
+          if [[ ! "$version_name" =~ ^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Release tags must use vMAJOR.MINOR.PATCH (for example, v1.0.0)."
+            exit 1
+          fi
+          echo "ANDROID_VERSION_NAME=$version_name" >> "$GITHUB_ENV"
+          echo "ANDROID_VERSION_CODE=$GITHUB_RUN_NUMBER" >> "$GITHUB_ENV"
       - name: Configure release signing
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}

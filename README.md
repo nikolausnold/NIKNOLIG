@@ -11,7 +11,7 @@ nicht implementiert.
 - Gradle Wrapper 8.13
 - Android Gradle Plugin 8.11.1
 - Kotlin Android Plugin 2.2.21
-- Android SDK / compile SDK 35
+- Android SDK / compile SDK 36
 
 Debug-Build starten:
 
@@ -27,8 +27,10 @@ Workflow-Run-Seite. Es enthält
 
 ## Android-Release-Build
 
-Ein signiertes Android App Bundle wird beim Pushen eines Tags im Format `v*`
-gebaut und als Workflow-Artefakt bereitgestellt. Dafür müssen in den
+Ein signiertes Android App Bundle wird beim Pushen eines Tags im Format
+`vMAJOR.MINOR.PATCH` (zum Beispiel `v1.0.0`) gebaut und als Workflow-Artefakt
+bereitgestellt. Die Tag-Version wird als App-Version übernommen; eine aufsteigende
+Buildnummer wird als Android-`versionCode` gesetzt. Dafür müssen in den
 [Repository-Secrets](https://github.com/nikolausnold/NIKNOLIG/settings/secrets/actions)
 vor dem Taggen diese Werte eingerichtet sein:
 
