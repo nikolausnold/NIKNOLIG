@@ -5,6 +5,6 @@
     <string name="assistant_description">Your assistant for transparent, controlled technology.</string>
     <string name="system_status_heading">SYSTEM STATUS</string>
     <string name="system_status">Development scaffold</string>
-    <string name="device_status">No devices connected</string>
+    <string name="device_status">Device integration not implemented</string>
     <string name="demo_notice">Preview — no device connection, security approval, or production feature is available yet.</string>
 </resources>

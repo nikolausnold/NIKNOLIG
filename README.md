@@ -18,10 +18,38 @@ Debug-Build starten:
 ./gradlew :app:assembleDebug
 ```
 
-Der Build wurde in der aktuellen Umgebung versucht. Gradle konnte das Android
-Gradle Plugin nicht aus Google Maven auflösen; die Google-Maven-Domain war über
-DNS nicht erreichbar. Daher ist ein erfolgreicher Android-Build noch nicht
-nachgewiesen.
+Ein früherer lokaler Buildversuch war durch nicht erreichbares Google Maven
+blockiert. Unabhängig davon waren die vorhandenen Android-CI-Läufe
+[Build #10, Versuch 2](https://github.com/nikolausnold/NIKNOLIG/actions/runs/38206899378)
+und [Build #12](https://github.com/nikolausnold/NIKNOLIG/actions/runs/38209774402)
+erfolgreich. Nur für #10 wurde dabei das
+[Debug-APK-Artefakt](https://github.com/nikolausnold/NIKNOLIG/actions/runs/38206899378/artifacts/11727961800)
+nachgewiesen. Diese Ergebnisse betreffen den damaligen Stand, nicht spätere
+Änderungen; Artefakte können ablaufen.
+
+## Prüfungen
+
+Der Workflow prüft Android-Lint und kompiliert App sowie Instrumentierungstests
+in einem Gradle-Aufruf:
+
+```sh
+./gradlew :app:lintDebug :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon
+```
+
+Das Kompilieren der Test-APK ist kein bestandener Laufzeittest. Mit einem
+verfügbaren Testgerät oder Emulator lassen sich die Tests ausführen:
+
+```sh
+./gradlew :app:connectedDebugAndroidTest --no-daemon
+```
+
+Die Tests prüfen Systemleisten-/Cutout-Abstände, wiederholte Insets,
+Activity-Neustart, den Vorschauhinweis und das Fehlen angeforderter
+Geräteberechtigungen. Für beide Insets-Zweige sind Android API 26–29 und
+API 30 oder neuer erforderlich; auf der jeweils anderen Version wird der
+betreffende Test übersprungen. CI startet derzeit keinen Emulator und führt
+diese Laufzeittests nicht aus. BLE, SecurityChain, arabisches RTL und weitere
+Fachfunktionen sind weiterhin nicht nachgewiesen.
 
 ## Geplante Grenzen
 

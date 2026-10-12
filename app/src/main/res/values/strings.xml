@@ -5,6 +5,6 @@
     <string name="assistant_description">Deine Assistenz für nachvollziehbare, kontrollierte Technik.</string>
     <string name="system_status_heading">SYSTEMSTATUS</string>
     <string name="system_status">Entwicklungsgerüst</string>
-    <string name="device_status">Keine Geräte verbunden</string>
+    <string name="device_status">Geräteintegration nicht implementiert</string>
     <string name="demo_notice">Vorschau – noch keine Geräteverbindung, Sicherheitsfreigabe oder produktive Funktion.</string>
 </resources>
