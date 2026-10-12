@@ -203,14 +203,15 @@ nicht erfunden oder als fertige Rechtsseiten ausgegeben.
 
 ## Entwicklungs- und Freigabestatus
 
-Die Android-App ist ein einzelner Activity-Prototyp mit ausdrücklich gestarteter,
-auf den Vordergrund beschränkter BLE-Gerätesuche. Die Suche zeigt ausgesendete
-Gerätenamen und Signalstärken nur vorübergehend an und verwendet Geräteadressen
-im Arbeitsspeicher zum Deduplizieren; Adressen werden nicht angezeigt. Die Suche endet nach
-spätestens 30 Sekunden, beim Stoppen oder beim Verlassen der Ansicht. Ergebnisse
-bleiben nach dem Stoppen bis zur nächsten Suche im Arbeitsspeicher sichtbar und
-werden beim Verlassen der Ansicht gelöscht, nicht dauerhaft gespeichert. Es gibt
-keine Geräteverbindung, keinen GATT-Zugriff,
+Die Android-App besteht aus zwei nativen Activities mit gemeinsamer Navigation:
+der NIKNOLIG-Gerätesuche und der statischen Elektro-Engel-Vorschau. Die ausdrücklich
+gestartete, auf den Vordergrund beschränkte BLE-Suche zeigt ausgesendete Gerätenamen
+und Signalstärken nur vorübergehend an und verwendet Geräteadressen im Arbeitsspeicher
+zum Deduplizieren; Adressen werden nicht angezeigt. Die Suche endet nach spätestens
+30 Sekunden, beim Stoppen oder beim Verlassen der Ansicht. Ergebnisse bleiben nach
+dem Stoppen bis zur nächsten Suche im Arbeitsspeicher sichtbar und werden beim
+Verlassen der Ansicht gelöscht, nicht dauerhaft gespeichert. Es gibt keine
+Geräteverbindung, keinen GATT-Zugriff,
 kein Lesen oder Schreiben von Gerätewerten, keine Authentifizierung, Autorisierung oder
 Gerätevertrauens- und Freigabeentscheidung. Auf Android 12 und höher werden
 BLE-Scan- und Adapterberechtigungen angefordert. Die Adapterberechtigung ist für
