@@ -11,7 +11,8 @@ Anzeigedetails und eine ausdrücklich vom Nutzer gestartete GATT-Verbindung.
 - Auf ausdrückliche Nutzerauswahl mit einem Sender verbinden und trennen.
 - Nach Verbindung und einer weiteren ausdrücklichen Auswahl GATT-Dienste,
   primären/sekundären Typ, Merkmale, deklarierte Eigenschaften und
-  Merkmal-/Deskriptor-Berechtigungen anzeigen und diese Metadaten kopieren.
+  Merkmal-/Deskriptor-Berechtigungen anzeigen, kopieren und auf ausdrückliche
+  Auswahl über Androids Teilen-Menü weitergeben.
 
 Eine Verbindung oder angezeigte GATT-Eigenschaft verifiziert weder Identität
 noch Vertrauenswürdigkeit. Die App liest oder schreibt keine Merkmalswerte und

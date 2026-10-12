@@ -76,6 +76,7 @@
     <string name="gatt_copy_requires_connection">Zum Kopieren muss eine Verbindung bestehen.</string>
     <string name="gatt_copy_nothing_to_copy">Keine GATT-Daten zum Kopieren verfügbar.</string>
     <string name="gatt_metadata_copied">GATT-Übersicht kopiert.</string>
+    <string name="share_gatt_metadata">GATT-Übersicht teilen</string>
     <string name="gatt_report_label">NIKNOLIG GATT-Übersicht</string>
     <string name="gatt_metadata_report">NIKNOLIG – GATT-Metadaten\nGerätename (nicht verifiziert): %1$s\n\n%2$s</string>
     <string name="primary_gatt_service">primär</string>

@@ -76,6 +76,7 @@
     <string name="gatt_copy_requires_connection">A connection is required to copy the overview.</string>
     <string name="gatt_copy_nothing_to_copy">No GATT metadata is available to copy.</string>
     <string name="gatt_metadata_copied">GATT overview copied.</string>
+    <string name="share_gatt_metadata">Share GATT overview</string>
     <string name="gatt_report_label">NIKNOLIG GATT overview</string>
     <string name="gatt_metadata_report">NIKNOLIG — GATT metadata\nDevice name (unverified): %1$s\n\n%2$s</string>
     <string name="primary_gatt_service">primary</string>

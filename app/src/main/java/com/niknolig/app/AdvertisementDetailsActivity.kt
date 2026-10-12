@@ -13,6 +13,7 @@ import android.bluetooth.le.ScanResult
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -28,6 +29,7 @@ class AdvertisementDetailsActivity : Activity() {
     private lateinit var servicesButton: Button
     private lateinit var servicesStatus: TextView
     private lateinit var copyServicesButton: Button
+    private lateinit var shareServicesButton: Button
     private val mainHandler = Handler(Looper.getMainLooper())
     private var bluetoothGatt: BluetoothGatt? = null
     private var connected = false
@@ -49,6 +51,7 @@ class AdvertisementDetailsActivity : Activity() {
             serviceDiscoveryPending = false
             servicesButton.isEnabled = connected
             copyServicesButton.isEnabled = false
+            shareServicesButton.isEnabled = false
             servicesStatus.setText(R.string.service_discovery_timed_out)
         }
     }
@@ -83,6 +86,7 @@ class AdvertisementDetailsActivity : Activity() {
                         connected = false
                         servicesButton.isEnabled = false
                         copyServicesButton.isEnabled = false
+                        shareServicesButton.isEnabled = false
                         gatt.close()
                         showDisconnected(R.string.connection_failed)
                     }
@@ -98,6 +102,7 @@ class AdvertisementDetailsActivity : Activity() {
                         servicesStatus.setText(R.string.services_not_inspected)
                         servicesButton.isEnabled = true
                         copyServicesButton.isEnabled = false
+                        shareServicesButton.isEnabled = false
                         connectionStatus.setText(R.string.connection_connected)
                         connectionButton.setText(R.string.disconnect_device)
                         connectionButton.isEnabled = true
@@ -114,6 +119,7 @@ class AdvertisementDetailsActivity : Activity() {
                         mainHandler.removeCallbacks(serviceDiscoveryTimeout)
                         servicesButton.isEnabled = false
                         copyServicesButton.isEnabled = false
+                        shareServicesButton.isEnabled = false
                         servicesStatus.setText(R.string.services_unavailable_until_connected)
                         gatt.close()
                         showDisconnected(
@@ -134,6 +140,7 @@ class AdvertisementDetailsActivity : Activity() {
                 servicesButton.isEnabled = true
                 if (status != BluetoothGatt.GATT_SUCCESS) {
                     copyServicesButton.isEnabled = false
+                    shareServicesButton.isEnabled = false
                     servicesStatus.setText(R.string.service_discovery_failed)
                     return@runOnUiThread
                 }
@@ -142,6 +149,7 @@ class AdvertisementDetailsActivity : Activity() {
                     gatt.services
                 } catch (_: SecurityException) {
                     copyServicesButton.isEnabled = false
+                    shareServicesButton.isEnabled = false
                     servicesStatus.setText(R.string.connection_permission_denied)
                     return@runOnUiThread
                 }
@@ -151,6 +159,7 @@ class AdvertisementDetailsActivity : Activity() {
                     formatGattMetadata(discoveredServices)
                 }
                 copyServicesButton.isEnabled = discoveredServices.isNotEmpty()
+                shareServicesButton.isEnabled = discoveredServices.isNotEmpty()
             }
         }
     }
@@ -166,6 +175,8 @@ class AdvertisementDetailsActivity : Activity() {
         servicesStatus = findViewById(R.id.services_status)
         copyServicesButton = findViewById(R.id.copy_services_button)
         copyServicesButton.setOnClickListener { copyGattMetadata() }
+        shareServicesButton = findViewById(R.id.share_services_button)
+        shareServicesButton.setOnClickListener { shareGattMetadata() }
         connectionButton.setOnClickListener {
             if (connected) disconnectDevice() else requestConnectionPermission()
         }
@@ -284,6 +295,7 @@ class AdvertisementDetailsActivity : Activity() {
         connectionButton.isEnabled = false
         servicesButton.isEnabled = false
         copyServicesButton.isEnabled = false
+        shareServicesButton.isEnabled = false
         serviceDiscoveryPending = false
         mainHandler.removeCallbacks(serviceDiscoveryTimeout)
         disconnectPending = true
@@ -311,6 +323,7 @@ class AdvertisementDetailsActivity : Activity() {
         mainHandler.removeCallbacks(disconnectTimeout)
         servicesButton.isEnabled = false
         copyServicesButton.isEnabled = false
+        shareServicesButton.isEnabled = false
         servicesStatus.setText(R.string.services_unavailable_until_connected)
         connectionStatus.setText(messageResource)
         connectionButton.setText(R.string.connect_device)
@@ -325,6 +338,7 @@ class AdvertisementDetailsActivity : Activity() {
         }
         servicesButton.isEnabled = false
         copyServicesButton.isEnabled = false
+        shareServicesButton.isEnabled = false
         serviceDiscoveryPending = true
         servicesStatus.setText(R.string.service_discovery_in_progress)
         try {
@@ -332,6 +346,7 @@ class AdvertisementDetailsActivity : Activity() {
                 serviceDiscoveryPending = false
                 servicesButton.isEnabled = true
                 copyServicesButton.isEnabled = false
+                shareServicesButton.isEnabled = false
                 servicesStatus.setText(R.string.service_discovery_failed)
             } else {
                 mainHandler.postDelayed(serviceDiscoveryTimeout, CONNECTION_TIMEOUT_MILLIS)
@@ -340,6 +355,7 @@ class AdvertisementDetailsActivity : Activity() {
             serviceDiscoveryPending = false
             servicesButton.isEnabled = true
             copyServicesButton.isEnabled = false
+            shareServicesButton.isEnabled = false
             servicesStatus.setText(R.string.connection_permission_denied)
         }
     }
@@ -377,29 +393,47 @@ class AdvertisementDetailsActivity : Activity() {
         }
 
     private fun copyGattMetadata() {
+        val report = buildGattMetadataReport() ?: return
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.gatt_report_label), report))
+        Toast.makeText(this, R.string.gatt_metadata_copied, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun shareGattMetadata() {
+        val report = buildGattMetadataReport() ?: return
+        startActivity(
+            Intent.createChooser(
+                Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_SUBJECT, getString(R.string.gatt_report_label))
+                    putExtra(Intent.EXTRA_TEXT, report)
+                },
+                getString(R.string.share_gatt_metadata)
+            )
+        )
+    }
+
+    private fun buildGattMetadataReport(): String? {
         if (!connected) {
             Toast.makeText(this, R.string.gatt_copy_requires_connection, Toast.LENGTH_SHORT).show()
-            return
+            return null
         }
         val services = try {
             bluetoothGatt?.services.orEmpty()
         } catch (_: SecurityException) {
             Toast.makeText(this, R.string.connection_permission_denied, Toast.LENGTH_SHORT).show()
-            return
+            return null
         }
         if (services.isEmpty()) {
             Toast.makeText(this, R.string.gatt_copy_nothing_to_copy, Toast.LENGTH_SHORT).show()
-            return
+            return null
         }
 
-        val report = getString(
+        return getString(
             R.string.gatt_metadata_report,
             intent.getStringExtra(EXTRA_DEVICE_NAME) ?: getString(R.string.unnamed_device),
             formatGattMetadata(services)
         )
-        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.gatt_report_label), report))
-        Toast.makeText(this, R.string.gatt_metadata_copied, Toast.LENGTH_SHORT).show()
     }
 
     private fun characteristicProperties(characteristic: BluetoothGattCharacteristic): List<String> {
