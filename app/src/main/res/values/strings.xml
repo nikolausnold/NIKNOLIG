@@ -39,5 +39,16 @@
     <string name="service_data_heading">DIENSTDATEN</string>
     <string name="service_data_entry">%1$s: %2$s</string>
     <string name="no_service_data">Keine Dienstdaten angekündigt.</string>
-    <string name="advertisement_only_notice">Diese Angaben stammen aus einer BLE-Ankündigung. Sie stellen keine Verbindung her und bestätigen weder Identität noch Vertrauenswürdigkeit des Senders.</string>
+    <string name="connection_not_started">Keine Verbindung aktiv.</string>
+    <string name="connect_device">Ungeprüft verbinden</string>
+    <string name="disconnect_device">Verbindung trennen</string>
+    <string name="connection_connecting">Verbindung wird aufgebaut …</string>
+    <string name="connection_connected">GATT-Verbindung aktiv – Identität nicht geprüft.</string>
+    <string name="connection_disconnecting">Verbindung wird getrennt …</string>
+    <string name="connection_disconnected">Verbindung getrennt.</string>
+    <string name="connection_failed">Verbindung fehlgeschlagen.</string>
+    <string name="connection_timed_out">Zeitüberschreitung beim Verbindungsaufbau.</string>
+    <string name="connection_unavailable">Für diesen Sender sind keine Verbindungsdaten verfügbar. Bitte neu suchen.</string>
+    <string name="connection_permission_denied">Die Bluetooth-Verbindungsberechtigung wurde nicht erteilt.</string>
+    <string name="advertisement_only_notice">Anzeigen und GATT-Verbindung bestätigen weder Identität noch Vertrauenswürdigkeit. Diese App liest oder schreibt keine Geräteeigenschaften und sendet keine Steuerbefehle.</string>
 </resources>

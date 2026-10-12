@@ -40,6 +40,28 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/connection_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_medium"
+            android:background="@color/dark_surface"
+            android:padding="@dimen/card_padding"
+            android:text="@string/connection_not_started"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/connection_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_small"
+            android:backgroundTint="@color/gold"
+            android:minHeight="52dp"
+            android:text="@string/connect_device"
+            android:textColor="@color/dark_background"
+            android:textStyle="bold" />
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_large"

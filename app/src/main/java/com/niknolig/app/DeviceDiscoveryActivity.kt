@@ -225,6 +225,7 @@ class DeviceDiscoveryActivity : Activity() {
                 putExtra(AdvertisementDetailsActivity.EXTRA_SERVICE_UUIDS, serviceUuids)
                 putExtra(AdvertisementDetailsActivity.EXTRA_MANUFACTURER_DATA, manufacturerData)
                 putExtra(AdvertisementDetailsActivity.EXTRA_SERVICE_DATA, serviceData)
+                putExtra(AdvertisementDetailsActivity.EXTRA_SCAN_RESULT, result)
             }
         )
     }
