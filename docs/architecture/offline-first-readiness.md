@@ -22,6 +22,7 @@ and `NICHT GETESTET` means runtime behavior has not been demonstrated.
 | BLE | TEILWEISE | Foreground, user-started discovery displays advertised name and signal strength for up to 30 seconds. Results are transient and cleared on leaving the Activity. |
 | Device connection / GATT | FEHLT | No connection manager, device authentication, GATT read/write, trust decision, or device control was found in this checkout. |
 | Durable offline outbox / sync | FEHLT | No queued mutations, sync worker, conflict model, provenance tracking, or retry state exists. |
+| Data-age / last-sync display | FEHLT | There is no synchronized data cache or last-successful-sync timestamp to display. |
 | Website offline behavior | FEHLT | The site is static but has no offline cache/service worker in this checkout. |
 | API for knowledge exchange | BLOCKIERT | `server/health-server.mjs` exposes only `/v1/health`; there is no data backend or verified Defense API. |
 | Local WLAN service | FEHLT | No local-network discovery or local service transport is implemented. |
@@ -29,6 +30,12 @@ and `NICHT GETESTET` means runtime behavior has not been demonstrated.
 | Satellite / mesh | FEHLT | No satellite hardware integration or general-purpose mesh transport is implemented or tested. |
 | NIKNOLIG Defense / NOLD Edge repositories | BLOCKIERT | GitHub account repository search exposed only `NIKNOLIG`; direct reads of the named Defense and NOLD Edge repositories returned 404. Their code, branches, APIs, and workflows could not be inspected. No changes were made outside NIKNOLIG. |
 | CI | TEILWEISE | Android build/test and website deploy workflows exist. The last observed `main` Android and website runs succeeded before the task-branch connectivity change. The task branch's Android run is `action_required` with no jobs; release signing/publication require configured approvals/secrets and separate review. |
+
+The Android build was attempted once locally for the connectivity change and stopped
+before project configuration because Gradle could not resolve Android Gradle Plugin
+8.11.1 from the configured repositories. GitHub Actions for the change requires
+approval and has no jobs yet; it is not evidence of a successful build. The successful
+`main` Android run predates this branch change.
 
 ## Connectivity status semantics
 
