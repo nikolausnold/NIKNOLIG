@@ -38,6 +38,25 @@
             android:textColor="@color/text_secondary"
             android:textSize="16sp" />
 
+        <Button
+            android:id="@+id/scan_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_large"
+            android:backgroundTint="@color/gold"
+            android:text="@string/start_scanning"
+            android:textColor="@color/dark_background" />
+
+        <TextView
+            android:id="@+id/scan_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_small"
+            android:accessibilityLiveRegion="polite"
+            android:text="@string/scan_idle"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -80,6 +99,17 @@
             android:background="@color/dark_surface"
             android:padding="@dimen/card_padding"
             android:text="@string/demo_notice"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/device_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_medium"
+            android:background="@color/dark_surface"
+            android:padding="@dimen/card_padding"
+            android:text="@string/no_devices_found"
             android:textColor="@color/text_primary"
             android:textSize="14sp" />
     </LinearLayout>
