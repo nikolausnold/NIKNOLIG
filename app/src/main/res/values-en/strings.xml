@@ -29,6 +29,13 @@
     <string name="advertisement_details_title">Broadcaster details</string>
     <string name="radio_measurements">RADIO MEASUREMENTS</string>
     <string name="signal_strength_value">Signal strength: %1$d dBm</string>
+    <string name="refresh_connection_rssi">Refresh connection strength</string>
+    <string name="connection_rssi_unavailable">Connection strength is available only during an active GATT connection.</string>
+    <string name="connection_rssi_not_measured">Not measured yet. Tap to refresh.</string>
+    <string name="connection_rssi_in_progress">Reading connection strength…</string>
+    <string name="connection_rssi_value">Current connection strength: %1$d dBm</string>
+    <string name="connection_rssi_failed">Connection strength could not be read.</string>
+    <string name="connection_rssi_timed_out">The RSSI request timed out.</string>
     <string name="transmit_power_value">Transmit power: %1$d dBm</string>
     <string name="transmit_power_unavailable">Transmit power: not advertised</string>
     <string name="advertised_services">ADVERTISED SERVICES</string>

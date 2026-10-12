@@ -133,6 +133,27 @@
             android:textSize="16sp" />
 
         <TextView
+            android:id="@+id/connection_rssi_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_small"
+            android:background="@color/dark_surface"
+            android:padding="@dimen/card_padding"
+            android:text="@string/connection_rssi_unavailable"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/connection_rssi_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_small"
+            android:backgroundTint="@color/dark_surface"
+            android:enabled="false"
+            android:text="@string/refresh_connection_rssi"
+            android:textColor="@color/gold" />
+
+        <TextView
             android:id="@+id/transmit_power"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

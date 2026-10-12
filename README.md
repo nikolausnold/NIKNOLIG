@@ -9,6 +9,8 @@ Anzeigedetails und eine ausdrücklich vom Nutzer gestartete GATT-Verbindung.
 - BLE-Sender suchen und Anzeigenamen, Signalstärke, Service-UUIDs sowie
   Hersteller- und Dienstdaten ansehen.
 - Auf ausdrückliche Nutzerauswahl mit einem Sender verbinden und trennen.
+- Während einer aktiven Verbindung die aktuelle BLE-Verbindungsstärke auf
+  ausdrückliche Auswahl abfragen.
 - Nach Verbindung und einer weiteren ausdrücklichen Auswahl GATT-Dienste,
   primären/sekundären Typ, Merkmale, deklarierte Eigenschaften und
   Merkmal-/Deskriptor-Berechtigungen anzeigen, kopieren und auf ausdrückliche
@@ -16,9 +18,9 @@ Anzeigedetails und eine ausdrücklich vom Nutzer gestartete GATT-Verbindung.
 
 Eine Verbindung oder angezeigte GATT-Eigenschaft verifiziert weder Identität
 noch Vertrauenswürdigkeit. Die App liest oder schreibt keine Merkmalswerte und
-sendet keine Steuerbefehle. Gerätevertrauen, sichere Freigaben, produktive
-Steuerung und ein Master-Funktionskatalog sind in diesem Checkout nicht
-implementiert.
+Deskriptorwerte und sendet keine Steuerbefehle. Gerätevertrauen, sichere
+Freigaben, produktive Steuerung und ein Master-Funktionskatalog sind in diesem
+Checkout nicht implementiert.
 
 ## Build-Basis
 

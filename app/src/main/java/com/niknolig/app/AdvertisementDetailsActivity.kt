@@ -30,6 +30,8 @@ class AdvertisementDetailsActivity : Activity() {
     private lateinit var servicesStatus: TextView
     private lateinit var copyServicesButton: Button
     private lateinit var shareServicesButton: Button
+    private lateinit var connectionRssiButton: Button
+    private lateinit var connectionRssiStatus: TextView
     private val mainHandler = Handler(Looper.getMainLooper())
     private var bluetoothGatt: BluetoothGatt? = null
     private var connected = false
@@ -37,6 +39,7 @@ class AdvertisementDetailsActivity : Activity() {
     private var disconnectRequested = false
     private var serviceDiscoveryPending = false
     private var disconnectPending = false
+    private var connectionRssiPending = false
     private val connectionTimeout = Runnable {
         val pendingGatt = bluetoothGatt ?: return@Runnable
         if (connectionPending) {
@@ -65,6 +68,13 @@ class AdvertisementDetailsActivity : Activity() {
             showDisconnected(R.string.disconnect_timed_out)
         }
     }
+    private val connectionRssiTimeout = Runnable {
+        if (connectionRssiPending) {
+            connectionRssiPending = false
+            connectionRssiButton.isEnabled = connected && !disconnectPending
+            connectionRssiStatus.setText(R.string.connection_rssi_timed_out)
+        }
+    }
 
     private val gattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
@@ -79,6 +89,7 @@ class AdvertisementDetailsActivity : Activity() {
                         mainHandler.removeCallbacks(connectionTimeout)
                         mainHandler.removeCallbacks(serviceDiscoveryTimeout)
                         mainHandler.removeCallbacks(disconnectTimeout)
+                        mainHandler.removeCallbacks(connectionRssiTimeout)
                         bluetoothGatt = null
                         connectionPending = false
                         serviceDiscoveryPending = false
@@ -87,6 +98,7 @@ class AdvertisementDetailsActivity : Activity() {
                         servicesButton.isEnabled = false
                         copyServicesButton.isEnabled = false
                         shareServicesButton.isEnabled = false
+                        resetConnectionRssi(R.string.connection_rssi_unavailable)
                         gatt.close()
                         showDisconnected(R.string.connection_failed)
                     }
@@ -103,6 +115,7 @@ class AdvertisementDetailsActivity : Activity() {
                         servicesButton.isEnabled = true
                         copyServicesButton.isEnabled = false
                         shareServicesButton.isEnabled = false
+                        resetConnectionRssi(R.string.connection_rssi_not_measured)
                         connectionStatus.setText(R.string.connection_connected)
                         connectionButton.setText(R.string.disconnect_device)
                         connectionButton.isEnabled = true
@@ -120,6 +133,7 @@ class AdvertisementDetailsActivity : Activity() {
                         servicesButton.isEnabled = false
                         copyServicesButton.isEnabled = false
                         shareServicesButton.isEnabled = false
+                        resetConnectionRssi(R.string.connection_rssi_unavailable)
                         servicesStatus.setText(R.string.services_unavailable_until_connected)
                         gatt.close()
                         showDisconnected(
@@ -162,6 +176,22 @@ class AdvertisementDetailsActivity : Activity() {
                 shareServicesButton.isEnabled = discoveredServices.isNotEmpty()
             }
         }
+
+        override fun onReadRemoteRssi(gatt: BluetoothGatt, rssi: Int, status: Int) {
+            runOnUiThread {
+                if (bluetoothGatt !== gatt || !connected || !connectionRssiPending) {
+                    return@runOnUiThread
+                }
+                mainHandler.removeCallbacks(connectionRssiTimeout)
+                connectionRssiPending = false
+                connectionRssiButton.isEnabled = true
+                connectionRssiStatus.text = if (status == BluetoothGatt.GATT_SUCCESS) {
+                    getString(R.string.connection_rssi_value, rssi)
+                } else {
+                    getString(R.string.connection_rssi_failed)
+                }
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -177,6 +207,9 @@ class AdvertisementDetailsActivity : Activity() {
         copyServicesButton.setOnClickListener { copyGattMetadata() }
         shareServicesButton = findViewById(R.id.share_services_button)
         shareServicesButton.setOnClickListener { shareGattMetadata() }
+        connectionRssiButton = findViewById(R.id.connection_rssi_button)
+        connectionRssiStatus = findViewById(R.id.connection_rssi_status)
+        connectionRssiButton.setOnClickListener { refreshConnectionRssi() }
         connectionButton.setOnClickListener {
             if (connected) disconnectDevice() else requestConnectionPermission()
         }
@@ -299,6 +332,7 @@ class AdvertisementDetailsActivity : Activity() {
         serviceDiscoveryPending = false
         mainHandler.removeCallbacks(serviceDiscoveryTimeout)
         disconnectPending = true
+        resetConnectionRssi(R.string.connection_rssi_unavailable)
         servicesStatus.setText(R.string.services_unavailable_until_connected)
         connectionStatus.setText(R.string.connection_disconnecting)
         disconnectRequested = true
@@ -324,10 +358,36 @@ class AdvertisementDetailsActivity : Activity() {
         servicesButton.isEnabled = false
         copyServicesButton.isEnabled = false
         shareServicesButton.isEnabled = false
+        resetConnectionRssi(R.string.connection_rssi_unavailable)
         servicesStatus.setText(R.string.services_unavailable_until_connected)
         connectionStatus.setText(messageResource)
         connectionButton.setText(R.string.connect_device)
         connectionButton.isEnabled = true
+    }
+
+    private fun refreshConnectionRssi() {
+        val gatt = bluetoothGatt
+        if (!connected || gatt == null || connectionRssiPending) return
+
+        connectionRssiPending = true
+        connectionRssiButton.isEnabled = false
+        connectionRssiStatus.setText(R.string.connection_rssi_in_progress)
+        try {
+            if (gatt.readRemoteRssi()) {
+                mainHandler.postDelayed(connectionRssiTimeout, CONNECTION_TIMEOUT_MILLIS)
+            } else {
+                resetConnectionRssi(R.string.connection_rssi_failed)
+            }
+        } catch (_: SecurityException) {
+            resetConnectionRssi(R.string.connection_permission_denied)
+        }
+    }
+
+    private fun resetConnectionRssi(messageResource: Int) {
+        mainHandler.removeCallbacks(connectionRssiTimeout)
+        connectionRssiPending = false
+        connectionRssiButton.isEnabled = connected && !disconnectPending
+        connectionRssiStatus.setText(messageResource)
     }
 
     private fun discoverServices() {

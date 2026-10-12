@@ -29,6 +29,13 @@
     <string name="advertisement_details_title">Senderdetails</string>
     <string name="radio_measurements">FUNKMESSWERTE</string>
     <string name="signal_strength_value">Empfangsstärke: %1$d dBm</string>
+    <string name="refresh_connection_rssi">Verbindungsstärke aktualisieren</string>
+    <string name="connection_rssi_unavailable">Verbindungsstärke nur bei aktiver GATT-Verbindung verfügbar.</string>
+    <string name="connection_rssi_not_measured">Noch nicht gemessen. Tippe zum Aktualisieren.</string>
+    <string name="connection_rssi_in_progress">Verbindungsstärke wird abgefragt …</string>
+    <string name="connection_rssi_value">Aktuelle Verbindungsstärke: %1$d dBm</string>
+    <string name="connection_rssi_failed">Verbindungsstärke konnte nicht abgefragt werden.</string>
+    <string name="connection_rssi_timed_out">Zeitüberschreitung bei der RSSI-Abfrage.</string>
     <string name="transmit_power_value">Sendeleistung: %1$d dBm</string>
     <string name="transmit_power_unavailable">Sendeleistung: nicht angegeben</string>
     <string name="advertised_services">ANGEKÜNDIGTE DIENSTE</string>
