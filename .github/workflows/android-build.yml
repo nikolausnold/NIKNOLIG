@@ -19,3 +19,20 @@ jobs:
           java-version: "17"
       - name: Assemble debug APK
         run: ./gradlew :app:assembleDebug --no-daemon
+      - name: Verify debug APK
+        run: |
+          apk="app/build/outputs/apk/debug/app-debug.apk"
+          if [[ ! -s "$apk" ]]; then
+            echo "::error::Expected debug APK was not created at $apk"
+            exit 1
+          fi
+          unzip -t "$apk" >/dev/null
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$apk"
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: niknolig-debug-apk-${{ github.run_id }}-${{ github.run_attempt }}
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
