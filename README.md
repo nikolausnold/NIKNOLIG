@@ -31,6 +31,19 @@ werden nicht über diesen Support bearbeitet; bitte wende dich dafür an den
 Zahlungsanbieter oder Händler. Sende keine Passwörter oder Zahlungsdaten an den
 technischen Support.
 
+## Website
+
+Die statische Website liegt in `index.html` und `styles.css`. Sie benötigt weder
+einen Build-Schritt noch externe JavaScript-Bibliotheken. Für günstiges Hosting kann
+GitHub Pages verwendet werden: Öffne in den Repository-Einstellungen **Pages**,
+wähle **Deploy from a branch**, `main` und den Ordner `/(root)`, und speichere die
+Einstellung. Die Website ist anschließend über die von GitHub Pages angezeigte URL
+erreichbar. Verfügbarkeit und Kosten hängen von Repository-Sichtbarkeit und GitHub-Tarif ab.
+
+Vor einer öffentlichen Veröffentlichung müssen die rechtlich erforderlichen
+Betreiber- und Datenschutzangaben ergänzt und geprüft werden. Diese Angaben wurden
+nicht erfunden oder als fertige Rechtsseiten ausgegeben.
+
 ## Geplante Grenzen
 
 Die App startet ohne Bluetooth-Berechtigungen oder Gerätezugriffe. Der
