@@ -24,6 +24,13 @@ Artifact `niknolig-debug-apk-<run_id>-<run_attempt>` unter **Artifacts** auf der
 Workflow-Run-Seite. Es enthält
 `app/build/outputs/apk/debug/app-debug.apk` und ist 14 Tage verfügbar.
 
+## Support
+
+Die App bietet technischen Support per E-Mail an **n_nold@hotmail.com**. Zahlungsfragen
+werden nicht über diesen Support bearbeitet; bitte wende dich dafür an den
+Zahlungsanbieter oder Händler. Sende keine Passwörter oder Zahlungsdaten an den
+technischen Support.
+
 ## Geplante Grenzen
 
 Die App startet ohne Bluetooth-Berechtigungen oder Gerätezugriffe. Der
