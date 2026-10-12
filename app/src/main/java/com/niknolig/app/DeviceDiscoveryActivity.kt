@@ -5,6 +5,7 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -151,6 +152,8 @@ class DeviceDiscoveryActivity : Activity() {
                     )
                     setTextColor(getColor(R.color.text_primary))
                     textSize = 16f
+                    isClickable = true
+                    isFocusable = true
                     setPadding(
                         resources.getDimensionPixelSize(R.dimen.card_padding),
                         resources.getDimensionPixelSize(R.dimen.space_medium),
@@ -158,6 +161,7 @@ class DeviceDiscoveryActivity : Activity() {
                         resources.getDimensionPixelSize(R.dimen.space_medium)
                     )
                     setBackgroundColor(getColor(R.color.dark_surface))
+                    setOnClickListener { showAdvertisementDetails(result) }
                 }
                 val params = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -167,6 +171,24 @@ class DeviceDiscoveryActivity : Activity() {
                 }
                 resultsContainer.addView(item, params)
             }
+    }
+
+    private fun showAdvertisementDetails(result: ScanResult) {
+        val record = result.scanRecord
+        val serviceUuids = record?.serviceUuids.orEmpty()
+            .map { it.uuid.toString() }
+            .toTypedArray()
+        startActivity(
+            Intent(this, AdvertisementDetailsActivity::class.java).apply {
+                putExtra(AdvertisementDetailsActivity.EXTRA_DEVICE_NAME, record?.deviceName)
+                putExtra(AdvertisementDetailsActivity.EXTRA_RSSI, result.rssi)
+                putExtra(
+                    AdvertisementDetailsActivity.EXTRA_TX_POWER,
+                    record?.txPowerLevel ?: Int.MIN_VALUE
+                )
+                putExtra(AdvertisementDetailsActivity.EXTRA_SERVICE_UUIDS, serviceUuids)
+            }
+        )
     }
 
     private fun deviceKey(result: ScanResult): String {

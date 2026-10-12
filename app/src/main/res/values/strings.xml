@@ -23,4 +23,13 @@
     <string name="no_devices_found">Noch keine Sender gefunden. Starte die Suche und halte ein BLE-Gerät in der Nähe.</string>
     <string name="unnamed_device">Unbenannter BLE-Sender</string>
     <string name="device_result">%1$s\nSignalstärke: %2$d dBm</string>
+    <string name="back_to_discovery">Zurück zur Suche</string>
+    <string name="advertisement_details_title">Senderdetails</string>
+    <string name="radio_measurements">FUNKMESSWERTE</string>
+    <string name="signal_strength_value">Empfangsstärke: %1$d dBm</string>
+    <string name="transmit_power_value">Sendeleistung: %1$d dBm</string>
+    <string name="transmit_power_unavailable">Sendeleistung: nicht angegeben</string>
+    <string name="advertised_services">ANGEKÜNDIGTE DIENSTE</string>
+    <string name="no_service_uuids">Der Sender hat keine Service-UUIDs angekündigt.</string>
+    <string name="advertisement_only_notice">Diese Angaben stammen aus einer BLE-Ankündigung. Sie stellen keine Verbindung her und bestätigen weder Identität noch Vertrauenswürdigkeit des Senders.</string>
 </resources>

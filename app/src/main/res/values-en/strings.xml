@@ -23,4 +23,13 @@
     <string name="no_devices_found">No broadcasters found yet. Start scanning and bring a BLE device nearby.</string>
     <string name="unnamed_device">Unnamed BLE broadcaster</string>
     <string name="device_result">%1$s\nSignal strength: %2$d dBm</string>
+    <string name="back_to_discovery">Back to discovery</string>
+    <string name="advertisement_details_title">Broadcaster details</string>
+    <string name="radio_measurements">RADIO MEASUREMENTS</string>
+    <string name="signal_strength_value">Signal strength: %1$d dBm</string>
+    <string name="transmit_power_value">Transmit power: %1$d dBm</string>
+    <string name="transmit_power_unavailable">Transmit power: not advertised</string>
+    <string name="advertised_services">ADVERTISED SERVICES</string>
+    <string name="no_service_uuids">The broadcaster did not advertise service UUIDs.</string>
+    <string name="advertisement_only_notice">These details come from a BLE advertisement. They do not connect to the broadcaster or verify its identity or trustworthiness.</string>
 </resources>
