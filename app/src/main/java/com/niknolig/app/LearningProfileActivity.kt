@@ -19,6 +19,7 @@ class LearningProfileActivity : Activity() {
     private lateinit var helpfulButton: Button
     private lateinit var unclearButton: Button
     private lateinit var responsePreview: TextView
+    private var isResettingLearningProfile = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,11 +43,13 @@ class LearningProfileActivity : Activity() {
         )
 
         learningEnabledSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isResettingLearningProfile) return@setOnCheckedChangeListener
             learningPreferences.edit().putBoolean(KEY_LEARNING_ENABLED, isChecked).apply()
             updateLearningControls()
         }
 
         responseStyleGroup.setOnCheckedChangeListener { _, checkedId ->
+            if (isResettingLearningProfile) return@setOnCheckedChangeListener
             val style = when (checkedId) {
                 R.id.response_style_step_by_step -> STYLE_STEP_BY_STEP
                 R.id.response_style_detailed -> STYLE_DETAILED
@@ -104,8 +107,14 @@ class LearningProfileActivity : Activity() {
             .setNegativeButton(android.R.string.cancel, null)
             .setPositiveButton(R.string.learning_clear_confirmation_action) { _, _ ->
                 learningPreferences.edit().clear().apply()
-                learningEnabledSwitch.isChecked = false
-                responseStyleGroup.check(R.id.response_style_concise)
+                isResettingLearningProfile = true
+                try {
+                    learningEnabledSwitch.isChecked = false
+                    responseStyleGroup.check(R.id.response_style_concise)
+                } finally {
+                    isResettingLearningProfile = false
+                }
+                updateResponsePreview(R.id.response_style_concise)
                 updateLearningControls()
             }
             .show()

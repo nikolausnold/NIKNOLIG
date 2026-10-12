@@ -19,7 +19,7 @@
     <string name="learning_profile_title">Lernprofil</string>
     <string name="learning_profile_description">Lege fest, wie Elektro-Engel dir antworten soll und ob einfache Rückmeldungen lokal gezählt werden dürfen.</string>
     <string name="learning_privacy_heading">DEINE DATEN BLEIBEN LOKAL</string>
-    <string name="learning_privacy_description">Diese Vorschau speichert nur deine gewählte Erklärungsart und – nach deiner Zustimmung – Gesamtzahlen für „hilfreich“ und „unklar“. Es werden keine Texte, Gesprächsinhalte, Zeitpunkte oder Gerätekennungen gespeichert oder übertragen.</string>
+    <string name="learning_privacy_description">Diese Vorschau speichert nur deine gewählte Erklärungsart und – nach deiner Zustimmung – Gesamtzahlen für „hilfreich“ und „unklar“. Es werden keine Texte, Gesprächsinhalte, Zeitpunkte oder Gerätekennungen gespeichert oder übertragen. Die Zähler trainieren kein Modell und verändern keine Antworten.</string>
     <string name="learning_opt_in">Lokale Rückmeldungen freiwillig zählen</string>
     <string name="response_style_heading">BEVORZUGTE ERKLÄRUNG</string>
     <string name="response_style_concise">Kurz und knapp</string>
