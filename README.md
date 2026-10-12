@@ -11,7 +11,7 @@ Anzeigedetails und eine ausdrücklich vom Nutzer gestartete GATT-Verbindung.
 - Auf ausdrückliche Nutzerauswahl mit einem Sender verbinden und trennen.
 - Nach Verbindung und einer weiteren ausdrücklichen Auswahl GATT-Dienste,
   primären/sekundären Typ, Merkmale, deklarierte Eigenschaften und
-  Deskriptor-Berechtigungen anzeigen.
+  Merkmal-/Deskriptor-Berechtigungen anzeigen.
 
 Eine Verbindung oder angezeigte GATT-Eigenschaft verifiziert weder Identität
 noch Vertrauenswürdigkeit. Die App liest oder schreibt keine Merkmalswerte und

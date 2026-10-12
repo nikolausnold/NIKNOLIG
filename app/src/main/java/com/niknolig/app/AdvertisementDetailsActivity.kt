@@ -140,6 +140,7 @@ class AdvertisementDetailsActivity : Activity() {
                     discoveredServices.joinToString(separator = "\n\n") { service ->
                         val characteristics = service.characteristics.joinToString("\n") { characteristic ->
                             val properties = characteristicProperties(characteristic)
+                            val permissions = characteristicPermissions(characteristic)
                             val descriptors = characteristic.descriptors.joinToString("\n") { descriptor ->
                                 getString(
                                     R.string.gatt_descriptor_entry,
@@ -156,6 +157,11 @@ class AdvertisementDetailsActivity : Activity() {
                                     getString(R.string.no_characteristic_properties)
                                 } else {
                                     properties.joinToString(", ")
+                                },
+                                if (permissions.isEmpty()) {
+                                    getString(R.string.no_characteristic_permissions)
+                                } else {
+                                    permissions.joinToString(", ")
                                 },
                                 if (descriptors.isEmpty()) {
                                     getString(R.string.no_gatt_descriptors)
@@ -417,6 +423,36 @@ class AdvertisementDetailsActivity : Activity() {
                 add(getString(R.string.descriptor_write_signed))
             }
             if (permissions and BluetoothGattDescriptor.PERMISSION_WRITE_SIGNED_MITM != 0) {
+                add(getString(R.string.descriptor_write_signed_mitm))
+            }
+        }
+    }
+
+    private fun characteristicPermissions(characteristic: BluetoothGattCharacteristic): List<String> {
+        val permissions = characteristic.permissions
+        return buildList {
+            if (permissions and BluetoothGattCharacteristic.PERMISSION_READ != 0) {
+                add(getString(R.string.descriptor_read))
+            }
+            if (permissions and BluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED != 0) {
+                add(getString(R.string.descriptor_read_encrypted))
+            }
+            if (permissions and BluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED_MITM != 0) {
+                add(getString(R.string.descriptor_read_encrypted_mitm))
+            }
+            if (permissions and BluetoothGattCharacteristic.PERMISSION_WRITE != 0) {
+                add(getString(R.string.descriptor_write))
+            }
+            if (permissions and BluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED != 0) {
+                add(getString(R.string.descriptor_write_encrypted))
+            }
+            if (permissions and BluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED_MITM != 0) {
+                add(getString(R.string.descriptor_write_encrypted_mitm))
+            }
+            if (permissions and BluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED != 0) {
+                add(getString(R.string.descriptor_write_signed))
+            }
+            if (permissions and BluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED_MITM != 0) {
                 add(getString(R.string.descriptor_write_signed_mitm))
             }
         }

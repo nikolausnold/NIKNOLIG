@@ -62,7 +62,7 @@
     <string name="no_gatt_characteristics">Keine Eigenschaften gemeldet.</string>
     <string name="no_characteristic_properties">Keine Eigenschaften angegeben</string>
     <string name="gatt_service_entry">Dienst %1$s (%2$s)\n%3$s</string>
-    <string name="gatt_characteristic_entry">  Merkmal %1$s — %2$s\n%3$s</string>
+    <string name="gatt_characteristic_entry">  Merkmal %1$s — Eigenschaften: %2$s\n    Berechtigungen: %3$s\n%4$s</string>
     <string name="characteristic_read">Lesen unterstützt</string>
     <string name="characteristic_write">Schreiben unterstützt</string>
     <string name="characteristic_write_no_response">Schreiben ohne Antwort</string>
@@ -71,6 +71,7 @@
     <string name="characteristic_broadcast">Broadcast unterstützt</string>
     <string name="characteristic_signed_write">Signiertes Schreiben unterstützt</string>
     <string name="characteristic_extended_properties">Erweiterte Eigenschaften deklariert</string>
+    <string name="no_characteristic_permissions">Berechtigungen nicht angegeben</string>
     <string name="primary_gatt_service">primär</string>
     <string name="secondary_gatt_service">sekundär</string>
     <string name="unknown_gatt_service_type">Typ unbekannt</string>
