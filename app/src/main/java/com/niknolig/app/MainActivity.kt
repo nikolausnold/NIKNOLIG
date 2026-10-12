@@ -59,6 +59,7 @@ class MainActivity : Activity() {
 
     override fun onStop() {
         stopScan(getString(R.string.scan_stopped))
+        clearDiscoveredDevices()
         super.onStop()
     }
 
@@ -114,6 +115,7 @@ class MainActivity : Activity() {
 
     private fun startScan() {
         if (activeScanCallback != null) return
+        clearDiscoveredDevices()
         if (!hasBluetoothPermissions()) {
             scanStatus.setText(R.string.scan_permission_required)
             return
@@ -134,7 +136,6 @@ class MainActivity : Activity() {
             return
         }
 
-        clearDiscoveredDevices()
         val callback = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) {
                 runOnUiThread {
@@ -241,7 +242,6 @@ class MainActivity : Activity() {
             scanner = null
             scanButton.setText(R.string.scan_start_button)
             scanStatus.text = status
-            clearDiscoveredDevices()
         }
     }
 

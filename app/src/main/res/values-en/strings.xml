@@ -8,6 +8,7 @@
     <string name="scan_idle">Device discovery has not been started.</string>
     <string name="scan_start_button">Search for nearby devices</string>
     <string name="scan_stop_button">Stop search</string>
+    <string name="scan_instructions">Turn on Bluetooth, start a search, and grant the requested permissions. Scanning stops after 30 seconds. Results remain visible until the next search or until you leave this screen.</string>
     <string name="scan_results_heading">FOUND DEVICES</string>
     <string name="scan_no_devices">No devices found yet.</string>
     <string name="scan_permission_required">Device search needs nearby Bluetooth access. Android may ask for scan and adapter access; no device connection will be made.</string>

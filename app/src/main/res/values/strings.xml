@@ -8,6 +8,7 @@
     <string name="scan_idle">Die Gerätesuche wurde noch nicht gestartet.</string>
     <string name="scan_start_button">Geräte in der Nähe suchen</string>
     <string name="scan_stop_button">Suche stoppen</string>
+    <string name="scan_instructions">Bluetooth einschalten, Suche starten und die Berechtigungsabfrage bestätigen. Die Suche endet nach 30 Sekunden. Ergebnisse bleiben bis zur nächsten Suche oder zum Verlassen dieser Ansicht sichtbar.</string>
     <string name="scan_results_heading">GEFUNDENE GERÄTE</string>
     <string name="scan_no_devices">Noch keine Geräte gefunden.</string>
     <string name="scan_permission_required">Für die Suche braucht die App Zugriff auf Bluetooth-Geräte in der Nähe. Android kann Scan- und Adapterzugriff abfragen; es wird keine Geräteverbindung hergestellt.</string>

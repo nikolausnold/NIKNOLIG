@@ -209,6 +209,7 @@ h2 span {
 .hero-actions {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 28px;
     margin-top: 32px;
 }

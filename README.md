@@ -25,6 +25,22 @@ Artifact `niknolig-debug-<run_id>-<run_attempt>` unter **Artifacts** auf der
 Workflow-Run-Seite. Es enthält
 `app/build/outputs/apk/debug/app-debug.apk` und ist 14 Tage verfügbar.
 
+### Android-Vorschau herunterladen und installieren
+
+Öffne den [Android-Build-Workflow](https://github.com/nikolausnold/NIKNOLIG/actions/workflows/android-build.yml),
+wähle den neuesten erfolgreichen Lauf und lade unter **Artifacts** das
+`niknolig-debug-…`-Archiv herunter. Entpacke es und installiere
+`app-debug.apk` auf einem Android-Gerät ab Android 8.0 (API 26). Android kann
+bestätigen lassen, dass du Installationen aus der verwendeten Download-App
+zulässt; erteile diese Freigabe nur für eine Quelle, der du vertraust.
+
+Falls noch kein erfolgreicher Lauf vorliegt, muss der Build zuerst auf GitHub
+Actions freigegeben und erfolgreich abgeschlossen werden. Der Debug-Download ist
+eine Vorschau, keine Play-Store-Version. Er baut, scannt höchstens 30 Sekunden
+nach BLE-Geräten und zeigt die Ergebnisse nach Stoppen der Suche weiter an. Eine
+neue Suche oder das Verlassen des Bildschirms löscht die Ergebnisse. Es gibt
+weiterhin keine Geräteverbindung oder Gerätesteuerung.
+
 ## Android-Release-Build
 
 Ein signiertes Android App Bundle wird beim Pushen eines Tags im Format
@@ -175,9 +191,12 @@ nicht erfunden oder als fertige Rechtsseiten ausgegeben.
 
 Die Android-App ist ein einzelner Activity-Prototyp mit ausdrücklich gestarteter,
 auf den Vordergrund beschränkter BLE-Gerätesuche. Die Suche zeigt ausgesendete
-Gerätenamen und Signalstärken nur vorübergehend an und endet beim Verlassen der
-Ansicht; Ergebnisse bleiben nur während einer laufenden Suche sichtbar und werden
-nicht dauerhaft gespeichert. Es gibt keine Geräteverbindung, keinen GATT-Zugriff,
+Gerätenamen und Signalstärken nur vorübergehend an und verwendet Geräteadressen
+im Arbeitsspeicher zum Deduplizieren; Adressen werden nicht angezeigt. Die Suche endet nach
+spätestens 30 Sekunden, beim Stoppen oder beim Verlassen der Ansicht. Ergebnisse
+bleiben nach dem Stoppen bis zur nächsten Suche im Arbeitsspeicher sichtbar und
+werden beim Verlassen der Ansicht gelöscht, nicht dauerhaft gespeichert. Es gibt
+keine Geräteverbindung, keinen GATT-Zugriff,
 kein Lesen oder Schreiben von Gerätewerten, keine Authentifizierung, Autorisierung oder
 Gerätevertrauens- und Freigabeentscheidung. Auf Android 12 und höher werden
 BLE-Scan- und Adapterberechtigungen angefordert. Die Adapterberechtigung ist für
