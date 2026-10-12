@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">NIKNOLIG</string>
     <string name="brand_name">NIKNOLIG</string>
+    <string name="brand_owner">NIKOLAUS NOLD</string>
+    <string name="brand_logo_description">NIKNOLIG-Logo: goldenes N mit Krone</string>
     <string name="assistant_name">Elektro-Engel</string>
     <string name="assistant_description">Deine Assistenz für nachvollziehbare, kontrollierte Technik.</string>
     <string name="system_status_heading">SYSTEMSTATUS</string>

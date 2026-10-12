@@ -77,23 +77,12 @@ a:focus-visible {
 .brand {
     display: inline-flex;
     align-items: center;
-    gap: 11px;
-    font-family: "Manrope", "Segoe UI", sans-serif;
-    font-size: 14px;
-    font-weight: 800;
-    letter-spacing: 0.13em;
 }
 
-.brand-mark {
-    display: grid;
-    width: 31px;
-    height: 31px;
-    place-items: center;
-    border: 1px solid rgba(200, 241, 105, 0.56);
-    border-radius: 9px;
-    color: var(--accent);
-    font-size: 14px;
-    letter-spacing: 0;
+.brand-logo {
+    display: block;
+    width: 190px;
+    height: auto;
 }
 
 .site-header nav {
@@ -667,16 +656,8 @@ h2 {
     font-size: 11px;
 }
 
-.site-footer .brand {
-    color: var(--text);
-    font-size: 12px;
-}
-
-.site-footer .brand-mark {
-    width: 27px;
-    height: 27px;
-    border-radius: 7px;
-    font-size: 12px;
+.site-footer .brand-logo {
+    width: 165px;
 }
 
 .site-footer p {
@@ -730,6 +711,10 @@ h2 {
 
     .site-header {
         min-height: 70px;
+    }
+
+    .site-header .brand-logo {
+        width: 145px;
     }
 
     .site-header nav {

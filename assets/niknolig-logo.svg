@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 112" role="img" aria-labelledby="title description">
+  <title id="title">NIKNOLIG — Nikolaus Nold</title>
+  <desc id="description">A dimensional gold N beneath a crown, beside the NIKNOLIG wordmark.</desc>
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff1bd"/>
+      <stop offset=".38" stop-color="#e8bd61"/>
+      <stop offset=".72" stop-color="#b98228"/>
+      <stop offset="1" stop-color="#f3d785"/>
+    </linearGradient>
+    <linearGradient id="face" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff0b7"/>
+      <stop offset=".48" stop-color="#dfad4e"/>
+      <stop offset="1" stop-color="#a56d1e"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(8 8)">
+    <rect width="96" height="96" rx="22" fill="#090b0a" stroke="#73551e" stroke-width="2"/>
+    <path d="m24 35 5-19 16 12L54 9l10 19 16-12 5 19-8 8H32z" fill="url(#gold)" stroke="#fff0b7" stroke-linejoin="round" stroke-width="1.5"/>
+    <path d="M30 37h50l-4 7H34z" fill="#b98228"/>
+    <path d="m25 51 12-2 24 26V51h12v38H61L37 64v25H25z" fill="#67451b"/>
+    <path d="m23 49 12-1 24 26V49h12v38H59L35 62v25H23z" fill="url(#face)"/>
+    <path d="m35 49 24 26V49h4v35z" fill="#fff0b7" opacity=".48"/>
+    <path d="M23 84h12v3H23z" fill="#b8f45a"/>
+  </g>
+  <text x="122" y="60" fill="#f6f3e9" font-family="Arial, Helvetica, sans-serif" font-size="39" font-weight="800" letter-spacing="4">NIKNOLIG</text>
+  <path d="M123 73h236" stroke="#d6a948" stroke-opacity=".68"/>
+  <text x="124" y="92" fill="#c9c5b8" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="600" letter-spacing="4.1">NIKOLAUS NOLD</text>
+</svg>

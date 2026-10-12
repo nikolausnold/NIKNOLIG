@@ -7,6 +7,7 @@ on:
     paths:
       - index.html
       - styles.css
+      - assets/**
       - .github/workflows/deploy-website.yml
   workflow_dispatch:
 
@@ -24,8 +25,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Prepare website
         run: |
-          mkdir "$RUNNER_TEMP/website"
+          mkdir -p "$RUNNER_TEMP/website/assets"
           cp index.html styles.css "$RUNNER_TEMP/website/"
+          cp assets/niknolig-logo.svg "$RUNNER_TEMP/website/assets/"
       - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
         with:

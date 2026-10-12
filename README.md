@@ -37,12 +37,21 @@ Die statische Website liegt in `index.html` und `styles.css`. Sie benötigt wede
 einen Build-Schritt noch externe JavaScript-Bibliotheken. Für günstiges Hosting kann
 GitHub Pages verwendet werden. Der Workflow
 [`Deploy website`](https://github.com/nikolausnold/NIKNOLIG/actions/workflows/deploy-website.yml)
-veröffentlicht bei Änderungen an der Website auf `main` nur `index.html` und
-`styles.css`; ein manueller Start ist ebenfalls möglich. Aktiviere unter
+veröffentlicht bei Änderungen an der Website auf `main` `index.html`,
+`styles.css` und das Markenlogo aus `assets/`; ein manueller Start ist ebenfalls
+möglich. Aktiviere unter
 [Repository-Einstellungen → Pages](https://github.com/nikolausnold/NIKNOLIG/settings/pages)
 als Veröffentlichungsquelle **GitHub Actions**. Nach einem erfolgreichen Lauf zeigt
 der Workflow die veröffentlichte URL an. Verfügbarkeit und Kosten hängen von
 Repository-Sichtbarkeit und GitHub-Tarif ab.
+
+## Branding
+
+Das NIKNOLIG-Wortzeichen und das gekrönte, dreidimensionale N verwenden Schwarz,
+Metallic-Gold und Neon-Grün. Das skalierbare Website-Logo liegt unter
+`assets/niknolig-logo.svg`. Android verwendet das passende Vektorsymbol aus
+`app/src/main/res/drawable/brand_emblem.xml` im App-Kopfbereich und als adaptives
+Launcher-Icon. Die Inhaberzeile **NIKOLAUS NOLD** erscheint, wo ausreichend Platz ist.
 
 Vor einer öffentlichen Veröffentlichung müssen die rechtlich erforderlichen
 Betreiber- und Datenschutzangaben ergänzt und geprüft werden. Diese Angaben wurden
