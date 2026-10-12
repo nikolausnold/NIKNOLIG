@@ -5,6 +5,7 @@
     android:fillViewport="true">
 
     <LinearLayout
+        android:id="@+id/ble_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -59,6 +60,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_small"
+                android:id="@+id/system_status"
                 android:text="@string/system_status"
                 android:textColor="@color/text_primary"
                 android:textSize="20sp"
@@ -68,10 +70,41 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_medium"
-                android:text="@string/device_status"
+                android:id="@+id/connection_status"
+                android:text="@string/ble_idle"
                 android:textColor="@color/text_primary"
                 android:textSize="16sp" />
         </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_large"
+            android:accessibilityHeading="true"
+            android:text="@string/nearby_devices_heading"
+            android:textColor="@color/gold"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/scan_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_small"
+            android:text="@string/scan_devices" />
+
+        <Button
+            android:id="@+id/disconnect_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/disconnect"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/devices_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
 
         <TextView
             android:layout_width="match_parent"
@@ -79,8 +112,19 @@
             android:layout_marginTop="@dimen/space_large"
             android:background="@color/dark_surface"
             android:padding="@dimen/card_padding"
-            android:text="@string/demo_notice"
+            android:text="@string/security_notice"
             android:textColor="@color/text_primary"
             android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/assistant_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_large"
+            android:backgroundTint="@color/gold"
+            android:contentDescription="@string/open_assistant"
+            android:text="@string/assistant_button"
+            android:textColor="@color/dark_background"
+            android:textStyle="bold" />
     </LinearLayout>
 </ScrollView>

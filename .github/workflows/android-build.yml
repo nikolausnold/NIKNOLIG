@@ -17,5 +17,14 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+      - name: Run unit tests
+        run: ./gradlew :app:testDebugUnitTest --no-daemon
       - name: Assemble debug APK
         run: ./gradlew :app:assembleDebug --no-daemon
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NIKNOLIG-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
