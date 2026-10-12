@@ -39,9 +39,11 @@ GitHub Pages verwendet werden. Der Workflow
 [`Deploy website`](https://github.com/nikolausnold/NIKNOLIG/actions/workflows/deploy-website.yml)
 veröffentlicht bei Änderungen an der Website auf `main` nur `index.html` und
 `styles.css`, `robots.txt`, `sitemap.xml` und die Website-Assets; ein manueller
-Start ist ebenfalls möglich. Ein Intro-Video wird aus
-`public/videos/NIKNOLIG_Intro_10s_ohne_Sound.mp4` mitveröffentlicht, sobald die
-Datei bereitgestellt wurde. Aktiviere unter
+Start ist ebenfalls möglich. Das lautlose, zehnsekündige NIKNOLIG-Intro ist als
+SVG/CSS-Animation in `assets/niknolig-intro.svg` umgesetzt, wird von GitHub Pages
+mitveröffentlicht und benötigt keine hochgeladene MP4-Datei.
+Bei aktivierter Einstellung für reduzierte Bewegung wird die Animation statisch
+als vollständiges Logo dargestellt. Aktiviere unter
 [Repository-Einstellungen → Pages](https://github.com/nikolausnold/NIKNOLIG/settings/pages)
 als Veröffentlichungsquelle **GitHub Actions**. Nach einem erfolgreichen Lauf zeigt
 der Workflow die veröffentlichte URL an. `robots.txt` und `sitemap.xml` werden
@@ -55,10 +57,20 @@ Vor einer öffentlichen Veröffentlichung müssen die rechtlich erforderlichen
 Betreiber- und Datenschutzangaben ergänzt und geprüft werden. Diese Angaben wurden
 nicht erfunden oder als fertige Rechtsseiten ausgegeben.
 
-## Geplante Grenzen
+## Entwicklungs- und Freigabestatus
 
-Die App startet ohne Bluetooth-Berechtigungen oder Gerätezugriffe. Der
-Implementierungsplan sieht vor, Sicherheitszustände, Berechtigungen und
-Gerätevertrauen erst mit expliziten Zustandsübergängen, Tests und nachvollziehbarer
-Freigabe einzuführen. KI-gestützte Experimente dürfen keine produktiven
-Sicherheitsregeln automatisch verändern.
+Die Android-App ist ein einzelner Activity-Prototyp. Es gibt derzeit keinen
+BLE-Client, Connection Manager, Verbindungszustandsautomaten, Authentifizierung,
+Autorisierung oder Gerätevertrauens- und Freigabemodell. Das Manifest deklariert
+keine Bluetooth-Berechtigungen; es werden keine Gerätezugriffe ausgeführt. Die
+Statusanzeige ist eine Vorschau und kein Nachweis einer Geräteverbindung.
+
+Im Repository sind derzeit keine Unit- oder Instrumentierungstests vorhanden.
+Der Android-Workflow baut ein Debug-APK und prüft dessen Integrität; das ersetzt
+weder Funktionstests noch eine SecurityChain-Freigabe. Zustandsübergänge,
+Berechtigungen, Fehlerzustände und Vertrauen müssen vor einer BLE-Implementierung
+explizit entworfen und getestet werden. KI-gestützte Experimente dürfen keine
+produktiven Sicherheitsregeln automatisch verändern.
+
+Das Projekt ist damit noch nicht releasefähig. Es gibt keine verifizierte
+Produktionsfreigabe oder SecurityChain-P0-Testabdeckung.

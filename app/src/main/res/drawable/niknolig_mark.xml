@@ -5,22 +5,25 @@
     android:viewportHeight="64">
     <group
         android:pivotX="32"
-        android:pivotY="32"
+        android:pivotY="36"
         android:rotation="-30">
         <path
             android:fillColor="@android:color/transparent"
-            android:pathData="M55,32 C55,39.46 44.7,45.5 32,45.5 C19.3,45.5 9,39.46 9,32 C9,24.54 19.3,18.5 32,18.5 C44.7,18.5 55,24.54 55,32 Z"
-            android:strokeColor="#CCC8F169"
-            android:strokeWidth="2.5" />
+            android:pathData="M57,36 C57,43.18 45.81,49 32,49 C18.19,49 7,43.18 7,36 C7,28.82 18.19,23 32,23 C45.81,23 57,28.82 57,36 Z"
+            android:strokeColor="#99E4B64E"
+            android:strokeWidth="1.5" />
     </group>
     <path
         android:fillColor="@android:color/transparent"
-        android:pathData="M21,44 L21,20 L43,44 L43,20"
-        android:strokeColor="@color/brand_accent"
+        android:pathData="M21,49 L21,25 L43,49 L43,25"
+        android:strokeColor="@color/gold"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
         android:strokeWidth="4.5" />
     <path
+        android:fillColor="@color/gold"
+        android:pathData="M22,21 L25,14 L30,19 L32,10 L35,19 L40,14 L43,21 L40,24 L25,24 Z" />
+    <path
         android:fillColor="@color/brand_accent"
-        android:pathData="M50,16 m-3,0 a3,3 0,1 0,6 0 a3,3 0,1 0,-6 0" />
+        android:pathData="M51,14 m-2,0 a2,2 0,1 0,4 0 a2,2 0,1 0,-4 0" />
 </vector>

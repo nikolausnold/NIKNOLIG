@@ -29,7 +29,7 @@
                 android:accessibilityHeading="true"
                 android:letterSpacing="0.12"
                 android:text="@string/brand_name"
-                android:textColor="@color/brand_accent"
+                android:textColor="@color/gold"
                 android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>
