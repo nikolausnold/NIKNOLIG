@@ -15,4 +15,26 @@
     <string name="support_email_body">Please describe your technical issue. Do not send passwords or payment details.</string>
     <string name="support_email_unavailable">No email app found on this device.</string>
     <string name="demo_notice">Preview — no device connection, security approval, or production feature is available yet.</string>
+    <string name="learning_profile_button">Learning profile and privacy</string>
+    <string name="learning_profile_title">Learning profile</string>
+    <string name="learning_profile_description">Choose how Elektro-Engel should explain things and whether simple feedback may be counted locally.</string>
+    <string name="learning_privacy_heading">YOUR DATA STAYS ON THIS DEVICE</string>
+    <string name="learning_privacy_description">This preview stores only your explanation-style choice and—after you opt in—aggregate counts for “helpful” and “unclear.” It does not store or transmit text, conversation content, timestamps, or device identifiers.</string>
+    <string name="learning_opt_in">Voluntarily count local feedback</string>
+    <string name="response_style_heading">PREFERRED EXPLANATION</string>
+    <string name="response_style_concise">Brief</string>
+    <string name="response_style_step_by_step">Step by step</string>
+    <string name="response_style_detailed">With more context</string>
+    <string name="response_style_preview_concise">Preview: “Open Settings and select Bluetooth.”</string>
+    <string name="response_style_preview_step_by_step">Preview:\n1. Open Settings.\n2. Tap Bluetooth.</string>
+    <string name="response_style_preview_detailed">Preview: Open Settings, select Bluetooth, and check whether Bluetooth is turned on. You can then see available devices nearby.</string>
+    <string name="learning_feedback_heading">OPTIONAL FEEDBACK</string>
+    <string name="learning_feedback_description">Try feedback on a sample answer. Only the aggregate count is stored, and only if you opted in above.</string>
+    <string name="learning_feedback_summary">Counted locally: helpful %1$d · unclear %2$d</string>
+    <string name="feedback_helpful_button">Sample: helpful</string>
+    <string name="feedback_unclear_button">Sample: unclear</string>
+    <string name="learning_clear_data_button">Delete learning profile and counts</string>
+    <string name="learning_clear_confirmation_title">Delete learning profile?</string>
+    <string name="learning_clear_confirmation_message">Your saved explanation style and both feedback counters will be deleted from this device. Local counting will be turned off.</string>
+    <string name="learning_clear_confirmation_action">Delete</string>
 </resources>
