@@ -71,10 +71,9 @@ wird für die Suche die Standortberechtigung benötigt.
 
 Im Repository sind derzeit keine Unit- oder Instrumentierungstests vorhanden.
 Der Android-Workflow baut ein Debug-APK und prüft dessen Integrität; das ersetzt
-weder Funktionstests noch eine SecurityChain-Freigabe. Zustandsübergänge,
-Berechtigungen und Fehlerzustände der Gerätesuche sind noch nicht durch automatisierte
-Funktionstests abgedeckt. Vertrauen und Freigaben müssen vor jeder Verbindung
-explizit entworfen und getestet werden. KI-gestützte Experimente dürfen keine
+weder Funktionstests noch eine SecurityChain-Freigabe. Zustandsübergänge, Berechtigungen und Fehlerzustände der Gerätesuche sind noch nicht
+durch automatisierte Funktionstests abgedeckt. Vertrauen und Freigaben müssen vor
+jeder Verbindung explizit entworfen und getestet werden. KI-gestützte Experimente dürfen keine
 produktiven Sicherheitsregeln automatisch verändern.
 
 Das Projekt ist damit noch nicht releasefähig. Es gibt keine verifizierte
