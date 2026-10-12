@@ -267,6 +267,7 @@ class AdvertisementDetailsActivity : Activity() {
         mainHandler.removeCallbacks(connectionTimeout)
         mainHandler.removeCallbacks(serviceDiscoveryTimeout)
         mainHandler.removeCallbacks(disconnectTimeout)
+        mainHandler.removeCallbacks(connectionRssiTimeout)
         bluetoothGatt?.let { gatt ->
             bluetoothGatt = null
             try {
