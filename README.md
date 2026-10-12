@@ -48,6 +48,30 @@ Vor einer öffentlichen Veröffentlichung müssen die rechtlich erforderlichen
 Betreiber- und Datenschutzangaben ergänzt und geprüft werden. Diese Angaben wurden
 nicht erfunden oder als fertige Rechtsseiten ausgegeben.
 
+## Lernkonzept für Elektro-Engel (Vorbereitung)
+
+Elektro-Engel soll mit der Zeit dazulernen, was für hilfreiche Unterstützung nötig
+ist. Das ist ein Entwicklungsziel, noch keine vorhandene Funktion. Die Vorbereitung
+trennt zwei Lernbereiche:
+
+- **Nutzerpräferenzen:** ausdrücklich freigegebene Einstellungen, die Antworten
+  persönlicher machen. Sie bleiben vom allgemeinen Fachwissen getrennt.
+- **Fachwissen:** neue Informationen und Verbesserungsvorschläge, die mit ihrer
+  Quelle und ihrem Prüfstatus erfasst und vor einer Nutzung überprüft werden.
+
+Vorgesehener Ablauf für neue Erkenntnisse: **sammeln → getrennt prüfen → gezielt
+freigeben → bei Bedarf zurücknehmen**. Nutzerfeedback oder automatisch erzeugte
+Vorschläge ändern weder produktives Verhalten noch Sicherheitsregeln selbstständig.
+Gerätevertrauen, Berechtigungen und Geräteaktionen bleiben unabhängig vom Lernsystem
+und erfordern später eigene, explizite Freigaben.
+
+Vor einer Implementierung müssen mindestens Einwilligung und Widerruf, Einsicht,
+Änderung und Löschung gespeicherter Präferenzen sowie Datenminimierung und
+Aufbewahrungsfristen festgelegt werden. Es gibt derzeit weder ein Lernmodell noch
+einen Lernspeicher oder eine Übertragung von Lerndaten. Die Umsetzung beginnt erst
+nach einer überprüfbaren lokalen Grundlage; externe Dienste oder Modelltraining
+sind damit nicht automatisch beschlossen.
+
 ## Geplante Grenzen
 
 Die App startet ohne Bluetooth-Berechtigungen oder Gerätezugriffe. Der
