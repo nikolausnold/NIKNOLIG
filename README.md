@@ -18,10 +18,10 @@ Debug-Build starten:
 ./gradlew :app:assembleDebug
 ```
 
-Der Build wurde in der aktuellen Umgebung versucht. Gradle konnte das Android
-Gradle Plugin nicht aus Google Maven auflösen; die Google-Maven-Domain war über
-DNS nicht erreichbar. Daher ist ein erfolgreicher Android-Build noch nicht
-nachgewiesen.
+Der lokale Buildversuch scheiterte, weil Gradle das Android Gradle Plugin aufgrund
+eines DNS-Problems nicht aus Google Maven auflösen konnte. Ein erfolgreicher
+Build wurde inzwischen in GitHub Actions nachgewiesen. Der Workflow lädt die
+Debug-APK nach dem Build als Artifact `niknolig-debug-apk` hoch.
 
 ## Geplante Grenzen
 
