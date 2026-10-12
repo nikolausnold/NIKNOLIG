@@ -1,0 +1,101 @@
+name: Android release bundle
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  release-bundle:
+    runs-on: ubuntu-24.04
+    environment:
+      name: android-release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Install Android SDK 36
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+            "platforms;android-36" "build-tools;36.0.0"
+      - name: Set release version
+        run: |
+          set -euo pipefail
+          version_name="${GITHUB_REF_NAME#v}"
+          version_pattern='^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$'
+          if [[ ! "$version_name" =~ $version_pattern ]]; then
+            echo "::error::Release tags must use vMAJOR.MINOR.PATCH."
+            exit 1
+          fi
+          echo "ANDROID_VERSION_NAME=$version_name" >> "$GITHUB_ENV"
+          echo "ANDROID_VERSION_CODE=$GITHUB_RUN_NUMBER" >> "$GITHUB_ENV"
+      - name: Configure release signing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          set -euo pipefail
+          for name in \
+            ANDROID_KEYSTORE_BASE64 \
+            ANDROID_KEYSTORE_PASSWORD \
+            ANDROID_KEY_ALIAS; do
+            if [[ -z "${!name}" ]]; then
+              printf '::error::Missing the %s environment secret.\n' "$name"
+              exit 1
+            fi
+          done
+
+          keystore="$RUNNER_TEMP/niknolig-release.p12"
+          if ! base64 --decode <<< "$ANDROID_KEYSTORE_BASE64" \
+            > "$keystore"; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 is not valid base64."
+            exit 1
+          fi
+          chmod 600 "$keystore"
+          keytool -list \
+            -keystore "$keystore" \
+            -storepass:env ANDROID_KEYSTORE_PASSWORD \
+            -alias "$ANDROID_KEY_ALIAS" >/dev/null
+          echo "ANDROID_KEYSTORE_PATH=$keystore" >> "$GITHUB_ENV"
+      - name: Build signed Android App Bundle
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for name in \
+            ANDROID_KEYSTORE_PASSWORD \
+            ANDROID_KEY_ALIAS \
+            ANDROID_KEY_PASSWORD; do
+            if [[ -z "${!name}" ]]; then
+              printf '::error::Missing the %s environment secret.\n' "$name"
+              exit 1
+            fi
+          done
+          ./gradlew :app:bundleRelease --no-daemon
+      - name: Verify signed Android App Bundle
+        run: |
+          bundle="app/build/outputs/bundle/release/app-release.aab"
+          if [[ ! -s "$bundle" ]]; then
+            echo "::error::Android App Bundle was not created at $bundle."
+            exit 1
+          fi
+          unzip -t "$bundle" >/dev/null
+          jarsigner -verify "$bundle"
+      - name: Upload signed Android App Bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: niknolig-release-aab-${{ github.ref_name }}
+          path: app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0

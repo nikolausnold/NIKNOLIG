@@ -17,6 +17,10 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+      - name: Install Android SDK 36
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+            "platforms;android-36" "build-tools;36.0.0"
       - name: Assemble debug APK
         run: ./gradlew :app:assembleDebug --no-daemon
       - name: Verify debug APK
@@ -27,11 +31,11 @@ jobs:
             exit 1
           fi
           unzip -t "$apk" >/dev/null
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$apk"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$apk"
       - name: Upload debug APK
         uses: actions/upload-artifact@v7
         with:
-          name: niknolig-debug-apk-${{ github.run_id }}-${{ github.run_attempt }}
+          name: niknolig-debug-${{ github.run_id }}-${{ github.run_attempt }}
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
