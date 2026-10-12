@@ -16,6 +16,10 @@ class MainActivity : Activity() {
         findViewById<Button>(R.id.support_contact_button).setOnClickListener {
             openTechnicalSupportEmail()
         }
+
+        findViewById<Button>(R.id.learning_profile_button).setOnClickListener {
+            startActivity(Intent(this, LearningProfileActivity::class.java))
+        }
     }
 
     private fun openTechnicalSupportEmail() {
