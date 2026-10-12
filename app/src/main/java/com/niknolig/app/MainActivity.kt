@@ -15,6 +15,8 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -27,6 +29,10 @@ class MainActivity : Activity() {
     private var scanner: BluetoothLeScanner? = null
     private var activeScanCallback: ScanCallback? = null
     private val discoveredDevices = LinkedHashMap<BluetoothDevice, TextView>()
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private val scanTimeout = Runnable {
+        stopScan(getString(R.string.scan_time_limit_reached))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -149,15 +155,20 @@ class MainActivity : Activity() {
                     .build(),
                 callback
             )
+            mainHandler.postDelayed(scanTimeout, SCAN_DURATION_MS)
         } catch (_: SecurityException) {
+            mainHandler.removeCallbacks(scanTimeout)
             activeScanCallback = null
             scanner = null
             scanButton.setText(R.string.scan_start_button)
+            clearDiscoveredDevices()
             scanStatus.setText(R.string.scan_permission_denied)
         } catch (_: IllegalStateException) {
+            mainHandler.removeCallbacks(scanTimeout)
             activeScanCallback = null
             scanner = null
             scanButton.setText(R.string.scan_start_button)
+            clearDiscoveredDevices()
             scanStatus.setText(R.string.scan_failed)
         }
     }
@@ -205,6 +216,7 @@ class MainActivity : Activity() {
     private fun stopScan(status: String) {
         val callback = activeScanCallback ?: return
         activeScanCallback = null
+        mainHandler.removeCallbacks(scanTimeout)
         try {
             scanner?.stopScan(callback)
         } catch (_: SecurityException) {
@@ -237,5 +249,6 @@ class MainActivity : Activity() {
         const val REQUEST_SCAN_PERMISSION = 1001
         const val MAX_DISPLAYED_DEVICES = 50
         const val MAX_DEVICE_NAME_LENGTH = 48
+        const val SCAN_DURATION_MS = 30_000L
     }
 }

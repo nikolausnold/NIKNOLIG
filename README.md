@@ -39,10 +39,17 @@ vor dem Taggen diese Werte eingerichtet sein:
 - `ANDROID_KEY_ALIAS`: Alias des Upload-Schlüssels
 - `ANDROID_KEY_PASSWORD`: Passwort des Upload-Schlüssels
 
+Lege dafür zuerst in den
+[Repository-Einstellungen → Environments](https://github.com/nikolausnold/NIKNOLIG/settings/environments)
+die Umgebung `android-release` an. Aktiviere dort erforderliche Reviewer und
+hinterlege die vier Werte als **Environment Secrets** dieser Umgebung, nicht als
+Repository-Secrets. Mit Review-Schutz wartet der Release-Job bis zur Freigabe.
+
 Der Release-Workflow prüft die Signatur des AAB. Der Keystore wird nur während
 des CI-Laufs in einem temporären Runner-Verzeichnis abgelegt; Schlüssel und
 Passwörter gehören weder ins Repository noch in Build-Logs. Ohne diese Secrets
-bricht der Release-Workflow ab. Ein lokaler `bundleRelease`-Build ohne
+oder eine gültige JKS/PKCS12-Datei mit passendem Alias bricht der Release-Workflow
+ab. Ein lokaler `bundleRelease`-Build ohne
 Signierungsvariablen ist nicht für einen Store-Upload verwendbar.
 
 Ein erfolgreich gebautes AAB ist noch keine Freigabe zur Veröffentlichung. Vor
@@ -95,7 +102,8 @@ nicht dauerhaft gespeichert. Es gibt keine Geräteverbindung, keinen GATT-Zugrif
 kein Lesen oder Schreiben von Gerätewerten, keine Authentifizierung, Autorisierung oder
 Gerätevertrauens- und Freigabeentscheidung. Auf Android 12 und höher wird nur die
 Berechtigung für BLE-Scans angefordert; auf älteren unterstützten Android-Versionen
-wird für die Suche die Standortberechtigung benötigt.
+wird für die Suche die Standortberechtigung benötigt. Jede Suche endet spätestens
+nach 30 Sekunden, beim manuellen Stoppen oder beim Verlassen der Activity.
 
 Im Repository sind derzeit keine Unit- oder Instrumentierungstests vorhanden.
 Der Android-Workflow baut ein Debug-APK und prüft dessen Integrität; das ersetzt

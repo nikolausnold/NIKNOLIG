@@ -13,8 +13,9 @@
     <string name="scan_permission_required">Permission is required to search for devices.</string>
     <string name="scan_permission_denied">Permission denied. Device discovery is unavailable without it.</string>
     <string name="scan_bluetooth_unavailable">Bluetooth is unavailable or turned off.</string>
-    <string name="scan_running">Search is running. No connection will be made.</string>
+    <string name="scan_running">Search is running (up to 30 seconds). No connection will be made.</string>
     <string name="scan_stopped">Search stopped. No device connection was made.</string>
+    <string name="scan_time_limit_reached">Search automatically stopped after 30 seconds.</string>
     <string name="scan_failed">Device search could not start. Please try again.</string>
     <string name="scan_unknown_device">Unnamed device</string>
     <string name="scan_device_result">%1$s — Signal strength %2$d dBm</string>
