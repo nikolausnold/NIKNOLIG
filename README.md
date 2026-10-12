@@ -55,6 +55,12 @@ ist. Das ist ein schrittweises Entwicklungsziel. Die Android-Vorschau enthält n
 ein begrenztes lokales Lernprofil, aber noch kein selbstlernendes Modell. Die
 Vorbereitung trennt drei Bereiche:
 
+**Leitlinie:** Menschen fühlen; Maschinen können viel, sollen aber Menschen
+unterstützen und nicht über sie bestimmen. Elektro-Engel beginnt mit kurzen
+Antworten, fragt bei Unsicherheit nach und behandelt wichtige Themen vorsichtig.
+Eine einzelne Rückmeldung oder Nutzungsänderung passt Antworten nicht automatisch
+an.
+
 - **Nutzungsmuster:** freiwillig freigegebene, möglichst grobe und nicht sensible
   Muster, die über „genutzt/nicht genutzt“ hinausgehen können: etwa wiederkehrende
   Schritte innerhalb einer Funktion, Stellen, an denen Abläufe abgebrochen oder
@@ -85,14 +91,20 @@ und erfordern später eigene, explizite Freigaben.
 
 Vor einer produktiven Ausweitung müssen mindestens Einwilligung und Widerruf, Einsicht,
 Änderung und Löschung gespeicherter Präferenzen sowie Datenminimierung und
-Aufbewahrungsfristen festgelegt werden. Die aktuelle Android-Vorschau speichert die
+Aufbewahrungsfristen festgelegt werden. Die aktuelle Android-Vorschau speichert eine
 bewusst gewählte Erklärungsart und zählt nach gesondertem Opt-in ausschließlich
-manuelle Rückmeldungen zu Beispielantworten lokal zusammen. Die Zähler lassen sich
+manuelle Rückmeldungen zu Beispielantworten (hilfreich, unklar oder Korrektur nötig)
+lokal zusammen. Korrekturtexte werden nicht gespeichert. Die Zähler lassen sich
 zusammen mit der Präferenz löschen. Eine automatische Aufbewahrungsfrist gibt es
 noch nicht; die Daten bleiben bis zur manuellen Löschung oder Deinstallation auf
 dem Gerät. Es gibt keine automatische Verhaltensmessung, Übertragung,
 Wikipedia-Import oder Modelltraining; die Zähler verändern Antworten nicht. Jede
 Erweiterung braucht eine eigene Prüfung und Freigabe.
+
+Eine spätere sitzungsübergreifende Fortsetzung soll nur über eine kurze, ausdrücklich
+angelegte und jederzeit einsehbare, änderbare und löschbare Projektzusammenfassung
+erfolgen – nicht über dauerhaft gespeicherte Gesprächsverläufe. Das ist noch nicht
+implementiert; sensible Inhalte gehören nicht in eine solche Zusammenfassung.
 
 ### Wikipedia als Wissensgerüst
 

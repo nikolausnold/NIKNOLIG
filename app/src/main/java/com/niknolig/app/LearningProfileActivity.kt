@@ -18,6 +18,7 @@ class LearningProfileActivity : Activity() {
     private lateinit var feedbackSummary: TextView
     private lateinit var helpfulButton: Button
     private lateinit var unclearButton: Button
+    private lateinit var correctionButton: Button
     private lateinit var responsePreview: TextView
     private var isResettingLearningProfile = false
 
@@ -30,6 +31,7 @@ class LearningProfileActivity : Activity() {
         feedbackSummary = findViewById(R.id.learning_feedback_summary)
         helpfulButton = findViewById(R.id.feedback_helpful_button)
         unclearButton = findViewById(R.id.feedback_unclear_button)
+        correctionButton = findViewById(R.id.feedback_correction_button)
         responsePreview = findViewById(R.id.response_style_preview)
 
         learningEnabledSwitch.isChecked =
@@ -61,6 +63,7 @@ class LearningProfileActivity : Activity() {
 
         helpfulButton.setOnClickListener { recordFeedback(KEY_HELPFUL_COUNT) }
         unclearButton.setOnClickListener { recordFeedback(KEY_UNCLEAR_COUNT) }
+        correctionButton.setOnClickListener { recordFeedback(KEY_CORRECTION_COUNT) }
         findViewById<Button>(R.id.clear_learning_data_button).setOnClickListener {
             confirmClearLearningData()
         }
@@ -73,13 +76,16 @@ class LearningProfileActivity : Activity() {
         val enabled = learningEnabledSwitch.isChecked
         helpfulButton.isEnabled = enabled
         unclearButton.isEnabled = enabled
+        correctionButton.isEnabled = enabled
 
         val helpfulCount = learningPreferences.getLong(KEY_HELPFUL_COUNT, 0)
         val unclearCount = learningPreferences.getLong(KEY_UNCLEAR_COUNT, 0)
+        val correctionCount = learningPreferences.getLong(KEY_CORRECTION_COUNT, 0)
         feedbackSummary.text = getString(
             R.string.learning_feedback_summary,
             helpfulCount,
-            unclearCount
+            unclearCount,
+            correctionCount
         )
     }
 
@@ -126,6 +132,7 @@ class LearningProfileActivity : Activity() {
         const val KEY_RESPONSE_STYLE = "response_style"
         const val KEY_HELPFUL_COUNT = "helpful_count"
         const val KEY_UNCLEAR_COUNT = "unclear_count"
+        const val KEY_CORRECTION_COUNT = "correction_count"
         const val STYLE_CONCISE = "concise"
         const val STYLE_STEP_BY_STEP = "step_by_step"
         const val STYLE_DETAILED = "detailed"
