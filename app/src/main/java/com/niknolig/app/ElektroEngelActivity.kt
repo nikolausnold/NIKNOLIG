@@ -12,11 +12,16 @@ class ElektroEngelActivity : Activity() {
     private val scenarioButtons = mutableListOf<Button>()
     private lateinit var previewTitle: TextView
     private lateinit var previewDescription: TextView
+    private lateinit var internetStatusMonitor: InternetStatusMonitor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_elektro_engel)
 
+        val internetStatus = findViewById<TextView>(R.id.internet_status)
+        internetStatusMonitor = InternetStatusMonitor(this) { status ->
+            internetStatus.setText(status.messageResource)
+        }
         val scrollView = findViewById<android.widget.ScrollView>(R.id.elektro_engel_scroll_view)
         findViewById<Button>(R.id.niknolig_nav_button).setOnClickListener { finish() }
         findViewById<Button>(R.id.elektro_engel_nav_button).setOnClickListener {
@@ -42,6 +47,16 @@ class ElektroEngelActivity : Activity() {
         }
         showScenario(0)
         setupLocalAssistant()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        internetStatusMonitor.start()
+    }
+
+    override fun onStop() {
+        internetStatusMonitor.stop()
+        super.onStop()
     }
 
     private fun showScenario(selectedIndex: Int) {

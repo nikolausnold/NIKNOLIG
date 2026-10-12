@@ -224,6 +224,23 @@ auf HTTPS validiert. Setze sie erst auf einen realen, mit gültigem Zertifikat
 geschützten Server. Der Health-Endpunkt ist nur die Verbindungsgrundlage; Kontozugang,
 Authentifizierung und zahlungsabhängige Berechtigungen sind nicht enthalten.
 
+### Offline-Status und künftige Synchronisierung
+
+Die Android-App zeigt den vom Betriebssystem erkannten Internetstatus auf beiden
+Bildschirmen an. „Internet verfügbar“ bedeutet nicht, dass der NIKNOLIG-Server
+erreichbar ist; dafür bleibt die ausdrücklich gestartete Health-Prüfung getrennt.
+Die gebündelte lokale Wissenshilfe und BLE-Gerätesuche benötigen diese Verbindung
+nicht. Es gibt in diesem Stand weder einen dauerhaften Sync-Auftragsbestand noch
+einen Wissensaustausch mit dem getrennten Defense-Projekt. Website-Inhalte sind
+ohne ausdrücklich eingerichteten Offline-Cache nicht als offline verfügbar
+garantiert.
+
+Bestandsaufnahme, Statusbedeutungen und der ausschließlich vorgeschlagene
+Schnittstellenvertrag stehen in
+[`docs/architecture/offline-first-readiness.md`](docs/architecture/offline-first-readiness.md).
+Der Vertrag ist nicht implementiert; er überträgt keine Fragen, Interessenprofile
+oder Gerätekennungen.
+
 Der Abschnitt **Elektro-Engel** stellt aktuelle App-Funktionen den Zukunftsideen
 gegenüber. Die Android-App verlinkt zwischen Gerätesuche und Assistenzvorschau.
 Die lokale Wissenshilfe in Website und App ordnet Fragen nach festen Schlüsselwörtern

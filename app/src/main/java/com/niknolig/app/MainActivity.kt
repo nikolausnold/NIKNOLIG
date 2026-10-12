@@ -28,6 +28,7 @@ class MainActivity : Activity() {
     private lateinit var scanStatus: TextView
     private lateinit var scanButton: Button
     private lateinit var scanResults: LinearLayout
+    private lateinit var internetStatusMonitor: InternetStatusMonitor
     private var scanner: BluetoothLeScanner? = null
     private var activeScanCallback: ScanCallback? = null
     private val discoveredDevices = LinkedHashMap<BluetoothDevice, TextView>()
@@ -44,6 +45,10 @@ class MainActivity : Activity() {
         scanStatus = findViewById(R.id.scan_status)
         scanButton = findViewById(R.id.device_scan_button)
         scanResults = findViewById(R.id.scan_results)
+        val internetStatus = findViewById<TextView>(R.id.internet_status)
+        internetStatusMonitor = InternetStatusMonitor(this) { status ->
+            internetStatus.setText(status.messageResource)
+        }
         findViewById<Button>(R.id.niknolig_nav_button).setOnClickListener {
             findViewById<android.widget.ScrollView>(R.id.main_scroll_view).smoothScrollTo(0, 0)
         }
@@ -69,7 +74,13 @@ class MainActivity : Activity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        internetStatusMonitor.start()
+    }
+
     override fun onStop() {
+        internetStatusMonitor.stop()
         stopScan(getString(R.string.scan_stopped))
         clearDiscoveredDevices()
         super.onStop()

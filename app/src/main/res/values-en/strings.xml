@@ -83,4 +83,9 @@
     <string name="server_connection_checking">Checking secure connection …</string>
     <string name="server_connection_success">HTTPS connection to the NIKNOLIG server is available.</string>
     <string name="server_connection_failed">Server unavailable or response invalid. Questions and interests were not sent.</string>
+    <string name="internet_status_offline">Offline: the local knowledge helper and BLE discovery remain available. Internet services are unavailable.</string>
+    <string name="internet_status_local_only">Local network available, internet not detected. Local features remain available.</string>
+    <string name="internet_status_unverified">Network available, internet access not verified. Local features remain available.</string>
+    <string name="internet_status_online">Internet available. This does not confirm that the NIKNOLIG server is reachable.</string>
+    <string name="internet_status_unknown">Internet status cannot currently be determined. Local features remain available.</string>
 </resources>
