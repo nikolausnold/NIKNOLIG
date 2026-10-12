@@ -19,7 +19,7 @@
     <string name="learning_profile_title">Learning profile</string>
     <string name="learning_profile_description">Choose how Elektro-Engel should explain things and whether simple feedback may be counted locally.</string>
     <string name="learning_privacy_heading">YOUR DATA STAYS ON THIS DEVICE</string>
-    <string name="learning_privacy_description">This preview stores only your explanation-style choice and—after you opt in—aggregate counts for “helpful” and “unclear.” It does not store or transmit text, conversation content, timestamps, or device identifiers. The counters do not train a model or change answers.</string>
+    <string name="learning_privacy_description">This preview stores only your explanation-style choice and—after you opt in—aggregate counts for “helpful” and “unclear.” It does not store or transmit text, conversation content, timestamps, or device identifiers. The data stays on this device until you delete it or uninstall the app. The counters do not train a model or change answers.</string>
     <string name="learning_opt_in">Voluntarily count local feedback</string>
     <string name="response_style_heading">PREFERRED EXPLANATION</string>
     <string name="response_style_concise">Brief</string>

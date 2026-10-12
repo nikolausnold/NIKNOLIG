@@ -83,14 +83,16 @@ Vorschläge ändern weder produktives Verhalten noch Sicherheitsregeln selbstst�
 Gerätevertrauen, Berechtigungen und Geräteaktionen bleiben unabhängig vom Lernsystem
 und erfordern später eigene, explizite Freigaben.
 
-Vor einer Implementierung müssen mindestens Einwilligung und Widerruf, Einsicht,
+Vor einer produktiven Ausweitung müssen mindestens Einwilligung und Widerruf, Einsicht,
 Änderung und Löschung gespeicherter Präferenzen sowie Datenminimierung und
 Aufbewahrungsfristen festgelegt werden. Die aktuelle Android-Vorschau speichert die
 bewusst gewählte Erklärungsart und zählt nach gesondertem Opt-in ausschließlich
 manuelle Rückmeldungen zu Beispielantworten lokal zusammen. Die Zähler lassen sich
-zusammen mit der Präferenz löschen. Es gibt keine automatische Verhaltensmessung,
-Übertragung, Wikipedia-Import oder Modelltraining; die Zähler verändern Antworten
-nicht. Jede Erweiterung braucht eine eigene Prüfung und Freigabe.
+zusammen mit der Präferenz löschen. Eine automatische Aufbewahrungsfrist gibt es
+noch nicht; die Daten bleiben bis zur manuellen Löschung oder Deinstallation auf
+dem Gerät. Es gibt keine automatische Verhaltensmessung, Übertragung,
+Wikipedia-Import oder Modelltraining; die Zähler verändern Antworten nicht. Jede
+Erweiterung braucht eine eigene Prüfung und Freigabe.
 
 ### Wikipedia als Wissensgerüst
 
