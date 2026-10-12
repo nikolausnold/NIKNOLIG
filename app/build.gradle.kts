@@ -1,3 +1,5 @@
+import java.net.URI
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -22,7 +24,7 @@ val configuredApiBaseUrl = providers.environmentVariable("NIKNOLIG_API_BASE_URL"
     .trim()
     .trimEnd('/')
 if (configuredApiBaseUrl.isNotEmpty()) {
-    val apiUrl = java.net.URI(configuredApiBaseUrl)
+    val apiUrl = URI(configuredApiBaseUrl)
     require(
         apiUrl.scheme == "https" &&
             !apiUrl.host.isNullOrBlank() &&
