@@ -101,10 +101,12 @@ dem Gerät. Es gibt keine automatische Verhaltensmessung, Übertragung,
 Wikipedia-Import oder Modelltraining; die Zähler verändern Antworten nicht. Jede
 Erweiterung braucht eine eigene Prüfung und Freigabe.
 
-Eine spätere sitzungsübergreifende Fortsetzung soll nur über eine kurze, ausdrücklich
-angelegte und jederzeit einsehbare, änderbare und löschbare Projektzusammenfassung
-erfolgen – nicht über dauerhaft gespeicherte Gesprächsverläufe. Das ist noch nicht
-implementiert; sensible Inhalte gehören nicht in eine solche Zusammenfassung.
+Sitzungsübergreifende Fortsetzung ist als manuell verfasste, lokal gespeicherte
+Zusammenfassung mit maximal 500 Zeichen verfügbar. Sie wird nur nach ausdrücklichem
+Speichern abgelegt, bleibt änderbar und wird beim Löschen des Lernprofils entfernt.
+Die Vorschau verwendet sie noch nicht automatisch und speichert keine vollständigen
+Gesprächsverläufe. Nutzer werden darauf hingewiesen, keine sensiblen Angaben
+einzutragen.
 
 ### Wikipedia als Wissensgerüst
 

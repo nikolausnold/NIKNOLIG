@@ -21,7 +21,7 @@
     <string name="assistant_principle_heading">PEOPLE FIRST</string>
     <string name="assistant_principle_description">People have feelings—technology should support people, not decide for them. Elektro-Engel defaults to brief replies, asks when unsure, and takes extra care with important topics. Feedback never changes answers automatically.</string>
     <string name="learning_privacy_heading">YOUR DATA STAYS ON THIS DEVICE</string>
-    <string name="learning_privacy_description">This preview stores only your explanation-style choice and—after you opt in—aggregate counts for “helpful,” “unclear,” and “correction needed.” It does not store or transmit text, conversation content, timestamps, or device identifiers. The data stays on this device until you delete it or uninstall the app. The counters do not train a model or change answers.</string>
+    <string name="learning_privacy_description">This preview stores your explanation-style choice and—only after you opt in—aggregate feedback counts. A session summary stores only what you deliberately enter. Conversation transcripts, timestamps, and device identifiers are not stored or transmitted. Everything stays on this device until you delete it or uninstall the app. The counters do not train a model or change answers.</string>
     <string name="learning_opt_in">Voluntarily count local feedback</string>
     <string name="response_style_heading">PREFERRED EXPLANATION</string>
     <string name="response_style_concise">Brief</string>
@@ -30,14 +30,21 @@
     <string name="response_style_preview_concise">Preview: “Open Settings and select Bluetooth.”</string>
     <string name="response_style_preview_step_by_step">Preview:\n1. Open Settings.\n2. Tap Bluetooth.</string>
     <string name="response_style_preview_detailed">Preview: Open Settings, select Bluetooth, and check whether Bluetooth is turned on. You can then see available devices nearby.</string>
+    <string name="session_summary_heading">CONTINUE A SESSION</string>
+    <string name="session_summary_description">Write a short summary (up to 500 characters) yourself to pick up later. It is stored locally only when you tap “Save summary.” Do not enter passwords, payment details, or other sensitive information. Elektro-Engel does not use it automatically in this preview.</string>
+    <string name="session_summary_hint">What is this about, and what is the next step?</string>
+    <string name="session_summary_save_button">Save summary</string>
+    <string name="session_summary_saved_status">Summary saved locally.</string>
+    <string name="session_summary_empty_status">Summary is empty; the saved version was removed.</string>
+    <string name="session_summary_cleared_status">Summary and learning profile deleted.</string>
     <string name="learning_feedback_heading">OPTIONAL FEEDBACK</string>
     <string name="learning_feedback_description">Try feedback on a sample answer. Only the aggregate count is stored, and only if you opted in above. Correction text is not stored.</string>
     <string name="learning_feedback_summary">Counted locally: helpful %1$d · unclear %2$d · correction needed %3$d</string>
     <string name="feedback_helpful_button">Sample: helpful</string>
     <string name="feedback_unclear_button">Sample: unclear</string>
     <string name="feedback_correction_button">Sample: correction needed</string>
-    <string name="learning_clear_data_button">Delete learning profile and counts</string>
+    <string name="learning_clear_data_button">Delete profile, summary, and counts</string>
     <string name="learning_clear_confirmation_title">Delete learning profile?</string>
-    <string name="learning_clear_confirmation_message">Your saved explanation style and all feedback counters will be deleted from this device. Local counting will be turned off.</string>
+    <string name="learning_clear_confirmation_message">Your saved explanation style, session summary, and all feedback counters will be deleted from this device. Local counting will be turned off.</string>
     <string name="learning_clear_confirmation_action">Delete</string>
 </resources>

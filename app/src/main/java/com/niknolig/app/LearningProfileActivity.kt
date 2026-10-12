@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.os.Bundle
 import android.widget.Button
+import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.Switch
 import android.widget.TextView
@@ -20,6 +21,8 @@ class LearningProfileActivity : Activity() {
     private lateinit var unclearButton: Button
     private lateinit var correctionButton: Button
     private lateinit var responsePreview: TextView
+    private lateinit var sessionSummaryInput: EditText
+    private lateinit var sessionSummaryStatus: TextView
     private var isResettingLearningProfile = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,9 +36,12 @@ class LearningProfileActivity : Activity() {
         unclearButton = findViewById(R.id.feedback_unclear_button)
         correctionButton = findViewById(R.id.feedback_correction_button)
         responsePreview = findViewById(R.id.response_style_preview)
+        sessionSummaryInput = findViewById(R.id.session_summary_input)
+        sessionSummaryStatus = findViewById(R.id.session_summary_status)
 
         learningEnabledSwitch.isChecked =
             learningPreferences.getBoolean(KEY_LEARNING_ENABLED, false)
+        sessionSummaryInput.setText(learningPreferences.getString(KEY_SESSION_SUMMARY, ""))
         responseStyleGroup.check(
             when (learningPreferences.getString(KEY_RESPONSE_STYLE, STYLE_CONCISE)) {
                 STYLE_STEP_BY_STEP -> R.id.response_style_step_by_step
@@ -64,6 +70,9 @@ class LearningProfileActivity : Activity() {
         helpfulButton.setOnClickListener { recordFeedback(KEY_HELPFUL_COUNT) }
         unclearButton.setOnClickListener { recordFeedback(KEY_UNCLEAR_COUNT) }
         correctionButton.setOnClickListener { recordFeedback(KEY_CORRECTION_COUNT) }
+        findViewById<Button>(R.id.save_session_summary_button).setOnClickListener {
+            saveSessionSummary()
+        }
         findViewById<Button>(R.id.clear_learning_data_button).setOnClickListener {
             confirmClearLearningData()
         }
@@ -106,6 +115,18 @@ class LearningProfileActivity : Activity() {
         updateLearningControls()
     }
 
+    private fun saveSessionSummary() {
+        val summary = sessionSummaryInput.text.toString().trim()
+        if (summary.isEmpty()) {
+            learningPreferences.edit().remove(KEY_SESSION_SUMMARY).apply()
+            sessionSummaryStatus.setText(R.string.session_summary_empty_status)
+            return
+        }
+
+        learningPreferences.edit().putString(KEY_SESSION_SUMMARY, summary).apply()
+        sessionSummaryStatus.setText(R.string.session_summary_saved_status)
+    }
+
     private fun confirmClearLearningData() {
         AlertDialog.Builder(this)
             .setTitle(R.string.learning_clear_confirmation_title)
@@ -117,10 +138,12 @@ class LearningProfileActivity : Activity() {
                 try {
                     learningEnabledSwitch.isChecked = false
                     responseStyleGroup.check(R.id.response_style_concise)
+                    sessionSummaryInput.text.clear()
                 } finally {
                     isResettingLearningProfile = false
                 }
                 updateResponsePreview(R.id.response_style_concise)
+                sessionSummaryStatus.setText(R.string.session_summary_cleared_status)
                 updateLearningControls()
             }
             .show()
@@ -133,6 +156,7 @@ class LearningProfileActivity : Activity() {
         const val KEY_HELPFUL_COUNT = "helpful_count"
         const val KEY_UNCLEAR_COUNT = "unclear_count"
         const val KEY_CORRECTION_COUNT = "correction_count"
+        const val KEY_SESSION_SUMMARY = "session_summary"
         const val STYLE_CONCISE = "concise"
         const val STYLE_STEP_BY_STEP = "step_by_step"
         const val STYLE_DETAILED = "detailed"
