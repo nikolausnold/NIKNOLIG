@@ -54,10 +54,21 @@ Elektro-Engel soll mit der Zeit dazulernen, was für hilfreiche Unterstützung n
 ist. Das ist ein Entwicklungsziel, noch keine vorhandene Funktion. Die Vorbereitung
 trennt zwei Lernbereiche:
 
+- **Nutzungsmuster:** freiwillig freigegebene, möglichst grobe und nicht sensible
+  Signale dazu, welche Funktionen genutzt werden und ob sie hilfreich waren. Sie
+  dienen nur dazu, Verbesserungsbedarf zu erkennen, nicht dazu, einzelne Personen
+  zu bewerten.
 - **Nutzerpräferenzen:** ausdrücklich freigegebene Einstellungen, die Antworten
   persönlicher machen. Sie bleiben vom allgemeinen Fachwissen getrennt.
 - **Fachwissen:** neue Informationen und Verbesserungsvorschläge, die mit ihrer
   Quelle und ihrem Prüfstatus erfasst und vor einer Nutzung überprüft werden.
+
+Für Nutzungsmuster gilt Datenminimierung: keine Gesprächsinhalte oder Rohtexte,
+Passwörter, Zahlungsdaten, genauen Standort- oder Gerätekennungen und keine
+Ableitung sensibler Merkmale. Erhebung setzt eine verständliche Einwilligung voraus
+und muss abschaltbar sein; Zweck, Speicherdauer, Einsicht und Löschung sind vor einer
+Implementierung festzulegen. Auch scheinbar harmlose oder zusammengefasste Daten
+werden nicht automatisch als anonym behandelt.
 
 Vorgesehener Ablauf für neue Erkenntnisse: **sammeln → getrennt prüfen → gezielt
 freigeben → bei Bedarf zurücknehmen**. Nutzerfeedback oder automatisch erzeugte
