@@ -72,7 +72,7 @@ class ElektroEngelActivity : Activity() {
         val savedProfile = preferences.getBoolean(INTEREST_PROFILE_ENABLED, false)
         consent.isChecked = savedProfile
         if (savedProfile) {
-            val selected = preferences.getStringSet(INTEREST_PROFILE_CATEGORIES, emptySet()).orEmpty()
+            val selected = preferences.getStringSet(INTEREST_PROFILE_CATEGORIES, mutableSetOf()).orEmpty()
             interests.forEach { (key, checkbox) -> checkbox.isChecked = key in selected }
             status.text = profileStatus(selected, interests)
         }
@@ -97,7 +97,7 @@ class ElektroEngelActivity : Activity() {
                 answerResource == R.string.local_assistant_fallback_answer &&
                 preferences.getBoolean(INTEREST_PROFILE_ENABLED, false)
             ) {
-                preferences.getStringSet(INTEREST_PROFILE_CATEGORIES, emptySet())
+                preferences.getStringSet(INTEREST_PROFILE_CATEGORIES, mutableSetOf())
                     .orEmpty()
                     .mapNotNull { key -> interests[key]?.text?.toString() }
             } else {
@@ -140,10 +140,10 @@ class ElektroEngelActivity : Activity() {
     }
 
     private fun interestCheckboxes(): Map<String, CheckBox> = mapOf(
-        INTEREST_WORK to findViewById(R.id.interest_work),
-        INTEREST_DEVICES to findViewById(R.id.interest_devices),
-        INTEREST_TRANSPORT to findViewById(R.id.interest_transport),
-        INTEREST_EVERYDAY to findViewById(R.id.interest_everyday)
+        INTEREST_WORK to findViewById<CheckBox>(R.id.interest_work),
+        INTEREST_DEVICES to findViewById<CheckBox>(R.id.interest_devices),
+        INTEREST_TRANSPORT to findViewById<CheckBox>(R.id.interest_transport),
+        INTEREST_EVERYDAY to findViewById<CheckBox>(R.id.interest_everyday)
     )
 
     private fun profileStatus(

@@ -23,6 +23,10 @@ class LocalAssistantCatalogTest {
             LocalAssistantCatalog.answerResourceFor("Wie lösche ich mein Profil?")
         )
         assertEquals(
+            R.string.local_assistant_privacy_answer,
+            LocalAssistantCatalog.answerResourceFor("How is my data processed?")
+        )
+        assertEquals(
             R.string.local_assistant_work_answer,
             LocalAssistantCatalog.answerResourceFor("Wie plane ich meine Arbeit?")
         )

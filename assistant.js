@@ -9,27 +9,27 @@
     };
     const answers = [
         {
-            terms: ["strom", "elektro", "sicherung", "steckdose", "kabel", "leitung", "brand", "rauch", "funke", "schlag", "bypass", "überbrück"],
+            terms: ["strom", "elektro", "electric", "sicherung", "fuse", "steckdose", "socket", "kabel", "cable", "leitung", "wire", "brand", "fire", "rauch", "smoke", "funke", "spark", "schlag", "shock", "bypass", "überbrück"],
             text: "Elektro-Engel gibt keine Anleitung zu elektrischen Arbeiten, Reparaturen oder dem Umgehen von Schutzmaßnahmen. Bei Rauch, Funken, Stromschlag oder akuter Gefahr: Abstand halten, nichts berühren und den Notruf 112 wählen. Wende dich sonst an eine Elektrofachkraft."
         },
         {
-            terms: ["datenschutz", "privat", "speicher", "löschen", "loeschen", "daten"],
+            terms: ["datenschutz", "privacy", "privat", "private", "speicher", "storage", "löschen", "loeschen", "delete", "daten", "data"],
             text: "Dein Interessenprofil ist optional und bleibt in diesem Browser. Du kannst es jederzeit ausschalten oder vollständig löschen. Fragen an diese lokale Vorschau werden nicht gespeichert."
         },
         {
-            terms: ["bluetooth", "gerät", "geraet", "maschine", "verbinden", "scan", "suche"],
+            terms: ["bluetooth", "gerät", "geraet", "device", "maschine", "machine", "verbinden", "connect", "scan", "suche", "search"],
             text: "Die Android-Vorschau kann ausgesendete Bluetooth-Geräte in der Nähe suchen. Sie verbindet sich nicht mit ihnen und liest oder steuert keine Gerätewerte. Eine Suche dauert höchstens 30 Sekunden."
         },
         {
-            terms: ["transport", "fahrt", "ziel", "termin"],
+            terms: ["transport", "fahrt", "trip", "ziel", "destination", "termin", "appointment"],
             text: "Als allgemeine Planungshilfe kannst du Ziel, Zeitfenster und benötigte Materialien notieren und die Angaben selbst mit allen Beteiligten abstimmen."
         },
         {
-            terms: ["arbeit", "aufgabe", "plan", "beruf"],
+            terms: ["arbeit", "aufgabe", "task", "plan", "beruf", "work", "job"],
             text: "Als allgemeine Planungshilfe kannst du Ziel, benötigte Informationen und Materialien sowie deinen selbst gewählten nächsten Schritt notieren."
         },
         {
-            terms: ["alltag", "erinner", "liste", "organis"],
+            terms: ["alltag", "everyday", "erinner", "remind", "liste", "list", "organis", "organiz"],
             text: "Du kannst Aufgaben nach deinen eigenen Prioritäten ordnen. Diese Vorschau speichert keine Aufgabenliste oder Erinnerungen."
         }
     ];
@@ -67,25 +67,18 @@
         }
     };
 
-    const readProfile = () => {
-        try {
-            const profile = JSON.parse(localStorage.getItem(profileStorageKey) || "null");
-            if (profile?.enabled !== true || !Array.isArray(profile.interests)) return [];
-            return profile.interests.filter((interest) => supportedInterests.has(interest));
-        } catch {
-            removeProfile();
-            interestStatus.textContent = "Der lokale Speicher ist nicht verfügbar. Das Interessenprofil bleibt aus.";
-            return [];
-        }
-    };
-
-    let savedInterests = readProfile();
+    let savedInterests = [];
     let profileEnabled = false;
+    let storageAvailable = true;
     try {
         const stored = JSON.parse(localStorage.getItem(profileStorageKey) || "null");
-        profileEnabled = stored?.enabled === true && Array.isArray(stored.interests);
+        if (stored?.enabled === true && Array.isArray(stored.interests)) {
+            savedInterests = stored.interests.filter((interest) => supportedInterests.has(interest));
+            profileEnabled = true;
+        }
     } catch {
-        profileEnabled = false;
+        storageAvailable = false;
+        interestStatus.textContent = "Der lokale Speicher ist nicht verfügbar. Das Interessenprofil bleibt aus.";
     }
     if (profileEnabled) {
         consentInput.checked = true;
@@ -93,7 +86,7 @@
             input.checked = savedInterests.includes(input.value);
         });
     }
-    setProfileStatus(savedInterests, profileEnabled);
+    if (storageAvailable) setProfileStatus(savedInterests, profileEnabled);
 
     consentInput.addEventListener("change", () => {
         if (!consentInput.checked) {
@@ -131,6 +124,7 @@
         } catch {
             profileEnabled = false;
             savedInterests = [];
+            storageAvailable = false;
             consentInput.checked = false;
             interestStatus.textContent = "Der lokale Speicher ist nicht verfügbar. Es wurden keine Themen gespeichert.";
         }
@@ -152,7 +146,8 @@
     questionForm.addEventListener("submit", (event) => {
         event.preventDefault();
         const question = questionInput.value.trim().toLocaleLowerCase("de");
-        const matchedAnswer = answers.find(({ terms }) => terms.some((term) => question.includes(term)));
+        const words = question.match(/\p{L}+/gu) || [];
+        const matchedAnswer = answers.find(({ terms }) => words.some((word) => terms.some((term) => word.startsWith(term))));
 
         if (matchedAnswer) {
             answerOutput.textContent = matchedAnswer.text;
