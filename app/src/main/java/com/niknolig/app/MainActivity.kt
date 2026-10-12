@@ -257,7 +257,6 @@ class MainActivity : Activity() {
             putExtra(Intent.EXTRA_SUBJECT, getString(R.string.support_email_subject))
             putExtra(Intent.EXTRA_TEXT, getString(R.string.support_email_body))
         }
-
         try {
             startActivity(emailIntent)
         } catch (_: ActivityNotFoundException) {

@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - index.html
+      - assistant.js
+      - assistant.test.cjs
       - privacy.html
       - styles.css
       - robots.txt
@@ -27,10 +29,12 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - name: Test local assistant
+        run: node --test assistant.test.cjs
       - name: Prepare website
         run: |
           mkdir "$RUNNER_TEMP/website"
-          cp index.html privacy.html styles.css robots.txt sitemap.xml \
+          cp index.html assistant.js privacy.html styles.css robots.txt sitemap.xml \
             "$RUNNER_TEMP/website/"
           mkdir "$RUNNER_TEMP/website/assets"
           cp assets/niknolig-mark.svg assets/niknolig-intro.svg \

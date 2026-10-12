@@ -54,4 +54,27 @@
     <string name="privacy_policy_url">https://nikolausnold.github.io/NIKNOLIG/privacy.html</string>
     <string name="privacy_policy_unavailable">Die Datenschutzerklärung kann nicht geöffnet werden.</string>
     <string name="demo_notice">Vorschau – die Suche zeigt nur vorübergehend ausgesendete Gerätenamen und Signalstärken. Es werden keine Verbindungen hergestellt und keine GATT-Werte gelesen oder geschrieben.</string>
+    <string name="local_assistant_heading">Elektro-Engel · lokale Wissenshilfe</string>
+    <string name="local_assistant_description">Stelle eine einfache Frage zu NIKNOLIG. Antworten kommen aus festen, geprüften Beispielen auf deinem Gerät – keine generative KI. Deine Frage wird weder gespeichert noch übertragen.</string>
+    <string name="local_assistant_question_hint">Deine Frage (maximal 500 Zeichen)</string>
+    <string name="local_assistant_ask_button">Lokal beantworten</string>
+    <string name="local_assistant_initial_answer">Fragen werden nur auf diesem Gerät anhand vorbereiteter Themen eingeordnet.</string>
+    <string name="local_assistant_empty_question">Gib zuerst eine Frage ein.</string>
+    <string name="local_assistant_electrical_safety">Elektro-Engel gibt keine Anleitung zu elektrischen Arbeiten, Reparaturen oder dem Umgehen von Schutzmaßnahmen. Bei Rauch, Funken, Stromschlag oder akuter Gefahr: Abstand halten, nichts berühren und den Notruf 112 wählen. Wende dich sonst an eine Elektrofachkraft.</string>
+    <string name="local_assistant_privacy_answer">Dein Interessenprofil ist optional und bleibt in dieser App auf deinem Gerät. Du kannst es jederzeit ausschalten oder vollständig löschen. Fragen an diese lokale Vorschau werden nicht gespeichert.</string>
+    <string name="local_assistant_devices_answer">Die Vorschau kann ausgesendete Bluetooth-Geräte in der Nähe suchen. Sie verbindet sich nicht mit ihnen und liest oder steuert keine Gerätewerte. Eine Suche dauert höchstens 30 Sekunden.</string>
+    <string name="local_assistant_transport_answer">Als allgemeine Planungshilfe kannst du Ziel, Zeitfenster und benötigte Materialien notieren und die Angaben selbst mit allen Beteiligten abstimmen.</string>
+    <string name="local_assistant_work_answer">Als allgemeine Planungshilfe kannst du das Ziel, benötigte Informationen und Materialien sowie deinen selbst gewählten nächsten Schritt notieren.</string>
+    <string name="local_assistant_everyday_answer">Du kannst Aufgaben nach deinen eigenen Prioritäten ordnen. Diese Vorschau speichert keine Aufgabenliste oder Erinnerungen.</string>
+    <string name="local_assistant_fallback_answer">Dazu habe ich in der geprüften lokalen Wissensbasis keine passende Antwort. Stelle eine Frage zu NIKNOLIG oder nutze den technischen Support. Die Vorschau erfindet keine Antwort.</string>
+    <string name="local_assistant_personalized_fallback">%1$s Deine freiwillig gespeicherten Interessengebiete: %2$s.</string>
+    <string name="interest_profile_heading">Dein User View · Interessengebiete</string>
+    <string name="interest_profile_description">Nur wenn du zustimmst, speichert die App deine ausgewählten allgemeinen Themen lokal, um sie bei unbeantworteten Fragen vorzuschlagen. Es werden keine Aktivitäten beobachtet und keine Fragen gespeichert. Keine sensiblen Angaben auswählen.</string>
+    <string name="interest_profile_consent">Ich möchte diese Themen auf diesem Gerät speichern und für Vorschläge verwenden.</string>
+    <string name="interest_profile_disabled_status">Interessenprofil aus; es sind keine Themen gespeichert.</string>
+    <string name="interest_profile_enabled_empty_status">Profil aktiv. Es wurden keine Interessengebiete ausgewählt.</string>
+    <string name="interest_profile_enabled_status">Profil aktiv auf diesem Gerät. Gespeicherte Themen: %1$s.</string>
+    <string name="interest_profile_cleared_status">Interessenprofil und gespeicherte Themen wurden gelöscht.</string>
+    <string name="interest_profile_save_button">Auswahl speichern</string>
+    <string name="interest_profile_clear_button">Zustimmung widerrufen und Profil löschen</string>
 </resources>

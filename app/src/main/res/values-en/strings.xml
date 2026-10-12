@@ -54,4 +54,27 @@
     <string name="privacy_policy_url">https://nikolausnold.github.io/NIKNOLIG/privacy.html</string>
     <string name="privacy_policy_unavailable">The privacy policy could not be opened.</string>
     <string name="demo_notice">Preview — discovery temporarily displays only broadcast device names and signal strengths. No connections are made and no GATT values are read or written.</string>
+    <string name="local_assistant_heading">Elektro-Engel · local knowledge helper</string>
+    <string name="local_assistant_description">Ask a simple question about NIKNOLIG. Answers use fixed, reviewed examples on your device — not generative AI. Your question is neither stored nor transmitted.</string>
+    <string name="local_assistant_question_hint">Your question (up to 500 characters)</string>
+    <string name="local_assistant_ask_button">Answer locally</string>
+    <string name="local_assistant_initial_answer">Questions are classified only on this device using prepared topics.</string>
+    <string name="local_assistant_empty_question">Enter a question first.</string>
+    <string name="local_assistant_electrical_safety">Elektro-Engel does not provide instructions for electrical work, repairs, or bypassing safety measures. If there is smoke, sparking, electric shock, or immediate danger: keep away, do not touch anything, and call your local emergency number. Otherwise, contact a qualified electrician.</string>
+    <string name="local_assistant_privacy_answer">Your interest profile is optional and stays on this device in the app. You can disable it or delete it at any time. Questions to this local preview are not stored.</string>
+    <string name="local_assistant_devices_answer">The preview can search for nearby Bluetooth devices that are broadcasting. It does not connect to them or read or control device values. A search lasts at most 30 seconds.</string>
+    <string name="local_assistant_transport_answer">As a general planning aid, note the destination, time window, and materials needed, then check the details with everyone involved.</string>
+    <string name="local_assistant_work_answer">As a general planning aid, note the goal, information and materials needed, and the next step you choose yourself.</string>
+    <string name="local_assistant_everyday_answer">You can organize tasks according to your own priorities. This preview does not store task lists or reminders.</string>
+    <string name="local_assistant_fallback_answer">I could not find a suitable answer in the reviewed local knowledge base. Ask about NIKNOLIG or contact technical support. This preview will not invent an answer.</string>
+    <string name="local_assistant_personalized_fallback">%1$s Your voluntarily saved areas of interest: %2$s.</string>
+    <string name="interest_profile_heading">Your User View · areas of interest</string>
+    <string name="interest_profile_description">Only with your consent, the app saves your selected general topics locally to suggest them for unanswered questions. No activities are monitored and no questions are saved. Do not select sensitive details.</string>
+    <string name="interest_profile_consent">I want to save these topics on this device and use them for suggestions.</string>
+    <string name="interest_profile_disabled_status">Interest profile is off; no topics are saved.</string>
+    <string name="interest_profile_enabled_empty_status">Profile is on. No areas of interest are selected.</string>
+    <string name="interest_profile_enabled_status">Profile is on for this device. Saved topics: %1$s.</string>
+    <string name="interest_profile_cleared_status">The interest profile and saved topics have been deleted.</string>
+    <string name="interest_profile_save_button">Save selection</string>
+    <string name="interest_profile_clear_button">Withdraw consent and delete profile</string>
 </resources>

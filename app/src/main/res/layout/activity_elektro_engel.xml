@@ -144,6 +144,130 @@
                 android:textSize="16sp" />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_large"
+            android:background="@color/dark_surface"
+            android:orientation="vertical"
+            android:padding="@dimen/card_padding">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true"
+                android:text="@string/local_assistant_heading"
+                android:textColor="@color/gold"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_small"
+                android:text="@string/local_assistant_description"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/assistant_question"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_medium"
+                android:hint="@string/local_assistant_question_hint"
+                android:importantForAutofill="no"
+                android:inputType="textCapSentences|textMultiLine|textNoSuggestions"
+                android:maxLength="500"
+                android:maxLines="3" />
+
+            <Button
+                android:id="@+id/assistant_ask_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_small"
+                android:text="@string/local_assistant_ask_button" />
+
+            <TextView
+                android:id="@+id/assistant_answer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_small"
+                android:accessibilityLiveRegion="polite"
+                android:text="@string/local_assistant_initial_answer"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_medium"
+                android:accessibilityHeading="true"
+                android:text="@string/interest_profile_heading"
+                android:textColor="@color/gold"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_small"
+                android:text="@string/interest_profile_description"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/interest_consent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/interest_profile_consent" />
+
+            <CheckBox
+                android:id="@+id/interest_work"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/preview_work_button" />
+
+            <CheckBox
+                android:id="@+id/interest_devices"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/preview_devices_button" />
+
+            <CheckBox
+                android:id="@+id/interest_transport"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/preview_transport_button" />
+
+            <CheckBox
+                android:id="@+id/interest_everyday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/preview_everyday_button" />
+
+            <TextView
+                android:id="@+id/interest_profile_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:text="@string/interest_profile_disabled_status"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/interest_profile_save_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_small"
+                android:text="@string/interest_profile_save_button" />
+
+            <Button
+                android:id="@+id/interest_profile_clear_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/interest_profile_clear_button" />
+        </LinearLayout>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
