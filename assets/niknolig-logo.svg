@@ -21,7 +21,7 @@
     <path d="m25 51 12-2 24 26V51h12v38H61L37 64v25H25z" fill="#67451b"/>
     <path d="m23 49 12-1 24 26V49h12v38H59L35 62v25H23z" fill="url(#face)"/>
     <path d="m35 49 24 26V49h4v35z" fill="#fff0b7" opacity=".48"/>
-    <path d="M23 84h12v3H23z" fill="#b8f45a"/>
+    <path d="M23 84h12v3H23z" fill="#c8f169"/>
   </g>
   <text x="122" y="60" fill="#f6f3e9" font-family="Arial, Helvetica, sans-serif" font-size="39" font-weight="800" letter-spacing="4">NIKNOLIG</text>
   <path d="M123 73h236" stroke="#d6a948" stroke-opacity=".68"/>
