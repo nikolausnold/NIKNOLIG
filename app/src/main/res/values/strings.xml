@@ -6,5 +6,20 @@
     <string name="system_status_heading">SYSTEMSTATUS</string>
     <string name="system_status">Entwicklungsgerüst</string>
     <string name="device_status">Keine Geräte verbunden</string>
-    <string name="demo_notice">Vorschau – noch keine Geräteverbindung, Sicherheitsfreigabe oder produktive Funktion.</string>
+    <string name="discover_devices">BLE-Geräte in der Nähe suchen</string>
+    <string name="home_notice">Die Gerätesuche zeigt erreichbare BLE-Sender an. Sie verbindet keine Geräte und erteilt keine Vertrauens- oder Sicherheitsfreigabe.</string>
+    <string name="back_to_home">Zur Übersicht</string>
+    <string name="discovery_title">Gerätesuche</string>
+    <string name="discovery_description">Suche nach BLE-Sendern in der Nähe. Die Anzeige erlaubt weder Verbindung noch Steuerung oder Vertrauensfreigabe.</string>
+    <string name="start_scan">Suche starten</string>
+    <string name="stop_scan">Suche beenden</string>
+    <string name="scan_not_started">Die Suche wurde noch nicht gestartet.</string>
+    <string name="scanning">Suche läuft …</string>
+    <string name="scan_failed">Die Bluetooth-Suche ist fehlgeschlagen. Bitte versuche es erneut.</string>
+    <string name="scan_permission_denied">Die erforderliche Berechtigung wurde nicht erteilt. Ohne sie kann nicht gesucht werden.</string>
+    <string name="bluetooth_unavailable">Bluetooth ist nicht verfügbar oder ausgeschaltet.</string>
+    <string name="nearby_devices">GEFUNDENE SENDER</string>
+    <string name="no_devices_found">Noch keine Sender gefunden. Starte die Suche und halte ein BLE-Gerät in der Nähe.</string>
+    <string name="unnamed_device">Unbenannter BLE-Sender</string>
+    <string name="device_result">%1$s\nSignalstärke: %2$d dBm</string>
 </resources>

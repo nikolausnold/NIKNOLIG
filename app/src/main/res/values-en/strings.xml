@@ -6,5 +6,20 @@
     <string name="system_status_heading">SYSTEM STATUS</string>
     <string name="system_status">Development scaffold</string>
     <string name="device_status">No devices connected</string>
-    <string name="demo_notice">Preview — no device connection, security approval, or production feature is available yet.</string>
+    <string name="discover_devices">Find nearby BLE devices</string>
+    <string name="home_notice">Device discovery shows nearby BLE broadcasters. It does not connect devices or grant trust or security approval.</string>
+    <string name="back_to_home">Back to overview</string>
+    <string name="discovery_title">Device discovery</string>
+    <string name="discovery_description">Search for nearby BLE broadcasters. Discovery does not connect to, control, or trust devices.</string>
+    <string name="start_scan">Start scan</string>
+    <string name="stop_scan">Stop scan</string>
+    <string name="scan_not_started">Scanning has not started.</string>
+    <string name="scanning">Scanning…</string>
+    <string name="scan_failed">Bluetooth scanning failed. Please try again.</string>
+    <string name="scan_permission_denied">The required permission was not granted. Scanning is unavailable without it.</string>
+    <string name="bluetooth_unavailable">Bluetooth is unavailable or turned off.</string>
+    <string name="nearby_devices">DISCOVERED BROADCASTERS</string>
+    <string name="no_devices_found">No broadcasters found yet. Start scanning and bring a BLE device nearby.</string>
+    <string name="unnamed_device">Unnamed BLE broadcaster</string>
+    <string name="device_result">%1$s\nSignal strength: %2$d dBm</string>
 </resources>
