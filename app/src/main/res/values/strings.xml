@@ -6,5 +6,13 @@
     <string name="system_status_heading">SYSTEMSTATUS</string>
     <string name="system_status">Entwicklungsgerüst</string>
     <string name="device_status">Keine Geräte verbunden</string>
+    <string name="support_heading">TECHNISCHER SUPPORT</string>
+    <string name="support_description">Bei technischen Fragen erreichst du uns unter n_nold@hotmail.com.</string>
+    <string name="support_payment_notice">Zahlungsfragen werden hier nicht bearbeitet. Bitte wende dich dafür direkt an den Zahlungsanbieter oder Händler. Sende keine Zahlungsdaten an den technischen Support.</string>
+    <string name="support_contact_button">Technischen Support kontaktieren</string>
+    <string name="support_email">n_nold@hotmail.com</string>
+    <string name="support_email_subject">Technische Supportanfrage – NIKNOLIG</string>
+    <string name="support_email_body">Bitte beschreibe dein technisches Problem. Sende keine Passwörter oder Zahlungsdaten.</string>
+    <string name="support_email_unavailable">Keine E-Mail-App auf diesem Gerät gefunden.</string>
     <string name="demo_notice">Vorschau – noch keine Geräteverbindung, Sicherheitsfreigabe oder produktive Funktion.</string>
 </resources>
