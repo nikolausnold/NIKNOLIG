@@ -6,7 +6,9 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothProfile
+import android.bluetooth.BluetoothGattService
 import android.bluetooth.le.ScanResult
 import android.content.pm.PackageManager
 import android.os.Build
@@ -138,6 +140,15 @@ class AdvertisementDetailsActivity : Activity() {
                     discoveredServices.joinToString(separator = "\n\n") { service ->
                         val characteristics = service.characteristics.joinToString("\n") { characteristic ->
                             val properties = characteristicProperties(characteristic)
+                            val descriptors = characteristic.descriptors.joinToString("\n") { descriptor ->
+                                getString(
+                                    R.string.gatt_descriptor_entry,
+                                    descriptor.uuid,
+                                    descriptorPermissions(descriptor).ifEmpty {
+                                        getString(R.string.no_descriptor_permissions)
+                                    }
+                                )
+                            }
                             getString(
                                 R.string.gatt_characteristic_entry,
                                 characteristic.uuid,
@@ -145,12 +156,18 @@ class AdvertisementDetailsActivity : Activity() {
                                     getString(R.string.no_characteristic_properties)
                                 } else {
                                     properties.joinToString(", ")
+                                },
+                                if (descriptors.isEmpty()) {
+                                    getString(R.string.no_gatt_descriptors)
+                                } else {
+                                    descriptors
                                 }
                             )
                         }
                         getString(
                             R.string.gatt_service_entry,
                             service.uuid,
+                            serviceType(service),
                             if (characteristics.isEmpty()) {
                                 getString(R.string.no_gatt_characteristics)
                             } else {
@@ -348,6 +365,9 @@ class AdvertisementDetailsActivity : Activity() {
     private fun characteristicProperties(characteristic: BluetoothGattCharacteristic): List<String> {
         val properties = characteristic.properties
         return buildList {
+            if (properties and BluetoothGattCharacteristic.PROPERTY_BROADCAST != 0) {
+                add(getString(R.string.characteristic_broadcast))
+            }
             if (properties and BluetoothGattCharacteristic.PROPERTY_READ != 0) {
                 add(getString(R.string.characteristic_read))
             }
@@ -363,8 +383,51 @@ class AdvertisementDetailsActivity : Activity() {
             if (properties and BluetoothGattCharacteristic.PROPERTY_INDICATE != 0) {
                 add(getString(R.string.characteristic_indicate))
             }
+            if (properties and BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE != 0) {
+                add(getString(R.string.characteristic_signed_write))
+            }
+            if (properties and BluetoothGattCharacteristic.PROPERTY_EXTENDED_PROPS != 0) {
+                add(getString(R.string.characteristic_extended_properties))
+            }
         }
     }
+
+    private fun descriptorPermissions(descriptor: BluetoothGattDescriptor): List<String> {
+        val permissions = descriptor.permissions
+        return buildList {
+            if (permissions and BluetoothGattDescriptor.PERMISSION_READ != 0) {
+                add(getString(R.string.descriptor_read))
+            }
+            if (permissions and BluetoothGattDescriptor.PERMISSION_READ_ENCRYPTED != 0) {
+                add(getString(R.string.descriptor_read_encrypted))
+            }
+            if (permissions and BluetoothGattDescriptor.PERMISSION_READ_ENCRYPTED_MITM != 0) {
+                add(getString(R.string.descriptor_read_encrypted_mitm))
+            }
+            if (permissions and BluetoothGattDescriptor.PERMISSION_WRITE != 0) {
+                add(getString(R.string.descriptor_write))
+            }
+            if (permissions and BluetoothGattDescriptor.PERMISSION_WRITE_ENCRYPTED != 0) {
+                add(getString(R.string.descriptor_write_encrypted))
+            }
+            if (permissions and BluetoothGattDescriptor.PERMISSION_WRITE_ENCRYPTED_MITM != 0) {
+                add(getString(R.string.descriptor_write_encrypted_mitm))
+            }
+            if (permissions and BluetoothGattDescriptor.PERMISSION_WRITE_SIGNED != 0) {
+                add(getString(R.string.descriptor_write_signed))
+            }
+            if (permissions and BluetoothGattDescriptor.PERMISSION_WRITE_SIGNED_MITM != 0) {
+                add(getString(R.string.descriptor_write_signed_mitm))
+            }
+        }
+    }
+
+    private fun serviceType(service: BluetoothGattService): String =
+        when (service.type) {
+            BluetoothGattService.SERVICE_TYPE_PRIMARY -> getString(R.string.primary_gatt_service)
+            BluetoothGattService.SERVICE_TYPE_SECONDARY -> getString(R.string.secondary_gatt_service)
+            else -> getString(R.string.unknown_gatt_service_type)
+        }
 
     @Suppress("DEPRECATION")
     private fun getScanResult(): ScanResult? =

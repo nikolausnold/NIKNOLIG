@@ -10,7 +10,8 @@ Anzeigedetails und eine ausdrücklich vom Nutzer gestartete GATT-Verbindung.
   Hersteller- und Dienstdaten ansehen.
 - Auf ausdrückliche Nutzerauswahl mit einem Sender verbinden und trennen.
 - Nach Verbindung und einer weiteren ausdrücklichen Auswahl GATT-Dienste,
-  Merkmale und deren deklarierte Eigenschaften anzeigen.
+  primären/sekundären Typ, Merkmale, deklarierte Eigenschaften und
+  Deskriptor-Berechtigungen anzeigen.
 
 Eine Verbindung oder angezeigte GATT-Eigenschaft verifiziert weder Identität
 noch Vertrauenswürdigkeit. Die App liest oder schreibt keine Merkmalswerte und
