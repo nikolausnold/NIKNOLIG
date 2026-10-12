@@ -178,6 +178,19 @@ class DeviceDiscoveryActivity : Activity() {
         val serviceUuids = record?.serviceUuids.orEmpty()
             .map { it.uuid.toString() }
             .toTypedArray()
+        val manufacturerData = record?.manufacturerSpecificData?.let { data ->
+            (0 until data.size()).map { index ->
+                val companyId = data.keyAt(index)
+                getString(
+                    R.string.manufacturer_data_entry,
+                    companyId,
+                    data.valueAt(index).toHexString()
+                )
+            }.toTypedArray()
+        }.orEmpty()
+        val serviceData = record?.serviceData?.map { (uuid, data) ->
+            getString(R.string.service_data_entry, uuid.uuid, data.toHexString())
+        }?.toTypedArray().orEmpty()
         startActivity(
             Intent(this, AdvertisementDetailsActivity::class.java).apply {
                 putExtra(AdvertisementDetailsActivity.EXTRA_DEVICE_NAME, record?.deviceName)
@@ -187,6 +200,8 @@ class DeviceDiscoveryActivity : Activity() {
                     record?.txPowerLevel ?: Int.MIN_VALUE
                 )
                 putExtra(AdvertisementDetailsActivity.EXTRA_SERVICE_UUIDS, serviceUuids)
+                putExtra(AdvertisementDetailsActivity.EXTRA_MANUFACTURER_DATA, manufacturerData)
+                putExtra(AdvertisementDetailsActivity.EXTRA_SERVICE_DATA, serviceData)
             }
         )
     }
@@ -199,6 +214,9 @@ class DeviceDiscoveryActivity : Activity() {
             record?.manufacturerSpecificData?.toString().orEmpty()
         ).joinToString("|")
     }
+
+    private fun ByteArray.toHexString(): String =
+        joinToString(separator = " ") { byte -> "%02X".format(byte.toInt() and 0xFF) }
 
     companion object {
         private const val REQUEST_BLE_PERMISSION = 100

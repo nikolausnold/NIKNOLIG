@@ -29,6 +29,20 @@ class AdvertisementDetailsActivity : Activity() {
         } else {
             serviceUuids.joinToString(separator = "\n")
         }
+
+        val manufacturerData = intent.getStringArrayExtra(EXTRA_MANUFACTURER_DATA).orEmpty()
+        findViewById<TextView>(R.id.manufacturer_data).text = if (manufacturerData.isEmpty()) {
+            getString(R.string.no_manufacturer_data)
+        } else {
+            manufacturerData.joinToString(separator = "\n")
+        }
+
+        val serviceData = intent.getStringArrayExtra(EXTRA_SERVICE_DATA).orEmpty()
+        findViewById<TextView>(R.id.service_data).text = if (serviceData.isEmpty()) {
+            getString(R.string.no_service_data)
+        } else {
+            serviceData.joinToString(separator = "\n")
+        }
     }
 
     companion object {
@@ -36,5 +50,7 @@ class AdvertisementDetailsActivity : Activity() {
         const val EXTRA_RSSI = "rssi"
         const val EXTRA_TX_POWER = "tx_power"
         const val EXTRA_SERVICE_UUIDS = "service_uuids"
+        const val EXTRA_MANUFACTURER_DATA = "manufacturer_data"
+        const val EXTRA_SERVICE_DATA = "service_data"
     }
 }

@@ -31,5 +31,11 @@
     <string name="transmit_power_unavailable">Transmit power: not advertised</string>
     <string name="advertised_services">ADVERTISED SERVICES</string>
     <string name="no_service_uuids">The broadcaster did not advertise service UUIDs.</string>
+    <string name="manufacturer_data_heading">MANUFACTURER DATA</string>
+    <string name="manufacturer_data_entry">Company ID 0x%1$04X: %2$s</string>
+    <string name="no_manufacturer_data">No manufacturer data advertised.</string>
+    <string name="service_data_heading">SERVICE DATA</string>
+    <string name="service_data_entry">%1$s: %2$s</string>
+    <string name="no_service_data">No service data advertised.</string>
     <string name="advertisement_only_notice">These details come from a BLE advertisement. They do not connect to the broadcaster or verify its identity or trustworthiness.</string>
 </resources>

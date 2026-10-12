@@ -31,5 +31,11 @@
     <string name="transmit_power_unavailable">Sendeleistung: nicht angegeben</string>
     <string name="advertised_services">ANGEKÜNDIGTE DIENSTE</string>
     <string name="no_service_uuids">Der Sender hat keine Service-UUIDs angekündigt.</string>
+    <string name="manufacturer_data_heading">HERSTELLERDATEN</string>
+    <string name="manufacturer_data_entry">Unternehmens-ID 0x%1$04X: %2$s</string>
+    <string name="no_manufacturer_data">Keine Herstellerdaten angekündigt.</string>
+    <string name="service_data_heading">DIENSTDATEN</string>
+    <string name="service_data_entry">%1$s: %2$s</string>
+    <string name="no_service_data">Keine Dienstdaten angekündigt.</string>
     <string name="advertisement_only_notice">Diese Angaben stammen aus einer BLE-Ankündigung. Sie stellen keine Verbindung her und bestätigen weder Identität noch Vertrauenswürdigkeit des Senders.</string>
 </resources>
