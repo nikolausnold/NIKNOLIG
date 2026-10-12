@@ -21,7 +21,7 @@ Debug-Build starten:
 
 Der [Android-Build-Workflow](https://github.com/nikolausnold/NIKNOLIG/actions/workflows/android-build.yml)
 erstellt und prüft die Debug-APK. Nach einem erfolgreichen Lauf findest du das
-Artifact `niknolig-debug-apk-<run_id>-<run_attempt>` unter **Artifacts** auf der
+Artifact `niknolig-debug-<run_id>-<run_attempt>` unter **Artifacts** auf der
 Workflow-Run-Seite. Es enthält
 `app/build/outputs/apk/debug/app-debug.apk` und ist 14 Tage verfügbar.
 

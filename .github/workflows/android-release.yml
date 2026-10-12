@@ -25,8 +25,9 @@ jobs:
         run: |
           set -euo pipefail
           version_name="${GITHUB_REF_NAME#v}"
-          if [[ ! "$version_name" =~ ^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]; then
-            echo "::error::Release tags must use vMAJOR.MINOR.PATCH (for example, v1.0.0)."
+          version_pattern='^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$'
+          if [[ ! "$version_name" =~ $version_pattern ]]; then
+            echo "::error::Release tags must use vMAJOR.MINOR.PATCH."
             exit 1
           fi
           echo "ANDROID_VERSION_NAME=$version_name" >> "$GITHUB_ENV"
@@ -37,7 +38,7 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -z "$ANDROID_KEYSTORE_BASE64" ]]; then
-            echo "::error::Configure the ANDROID_KEYSTORE_BASE64 repository secret before creating a release tag."
+            echo "::error::Missing keystore secret (ANDROID_KEYSTORE_BASE64)."
             exit 1
           fi
 
@@ -52,9 +53,12 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           set -euo pipefail
-          for name in ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+          for name in \
+            ANDROID_KEYSTORE_PASSWORD \
+            ANDROID_KEY_ALIAS \
+            ANDROID_KEY_PASSWORD; do
             if [[ -z "${!name}" ]]; then
-              echo "::error::Configure the $name repository secret before creating a release tag."
+              printf '::error::Missing the %s repository secret.\n' "$name"
               exit 1
             fi
           done
@@ -63,7 +67,7 @@ jobs:
         run: |
           bundle="app/build/outputs/bundle/release/app-release.aab"
           if [[ ! -s "$bundle" ]]; then
-            echo "::error::Expected Android App Bundle was not created at $bundle"
+            echo "::error::Android App Bundle was not created at $bundle."
             exit 1
           fi
           jarsigner -verify "$bundle"

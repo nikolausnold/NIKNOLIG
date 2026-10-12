@@ -15,7 +15,10 @@ val appVersionCode = configuredVersionCode?.toIntOrNull() ?: 1
 require(releaseSigningConfigured || releaseSigningValues.all { it.isNullOrBlank() }) {
     "Provide all Android release signing environment variables or none."
 }
-require(configuredVersionCode == null || configuredVersionCode.toIntOrNull()?.let { it > 0 } == true) {
+require(
+    configuredVersionCode == null ||
+        configuredVersionCode.toIntOrNull()?.let { it > 0 } == true
+) {
     "ANDROID_VERSION_CODE must be a positive integer."
 }
 
