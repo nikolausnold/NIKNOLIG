@@ -55,9 +55,11 @@ ist. Das ist ein Entwicklungsziel, noch keine vorhandene Funktion. Die Vorbereit
 trennt zwei Lernbereiche:
 
 - **Nutzungsmuster:** freiwillig freigegebene, möglichst grobe und nicht sensible
-  Signale dazu, welche Funktionen genutzt werden und ob sie hilfreich waren. Sie
-  dienen nur dazu, Verbesserungsbedarf zu erkennen, nicht dazu, einzelne Personen
-  zu bewerten.
+  Muster, die über „genutzt/nicht genutzt“ hinausgehen können: etwa wiederkehrende
+  Schritte innerhalb einer Funktion, Stellen, an denen Abläufe abgebrochen oder
+  wiederholt werden, freiwillige Korrekturen sowie grobe Rückmeldungen dazu, ob eine
+  Antwort hilfreich oder unklar war. So lassen sich Bedienhürden und gewünschte
+  Erklärungsweisen erkennen, ohne einzelne Personen zu bewerten.
 - **Nutzerpräferenzen:** ausdrücklich freigegebene Einstellungen, die Antworten
   persönlicher machen. Sie bleiben vom allgemeinen Fachwissen getrennt.
 - **Fachwissen:** neue Informationen und Verbesserungsvorschläge, die mit ihrer
@@ -68,7 +70,11 @@ Passwörter, Zahlungsdaten, genauen Standort- oder Gerätekennungen und keine
 Ableitung sensibler Merkmale. Erhebung setzt eine verständliche Einwilligung voraus
 und muss abschaltbar sein; Zweck, Speicherdauer, Einsicht und Löschung sind vor einer
 Implementierung festzulegen. Auch scheinbar harmlose oder zusammengefasste Daten
-werden nicht automatisch als anonym behandelt.
+werden nicht automatisch als anonym behandelt. Erfasst werden sollen nur
+zweckgebundene, abstrahierte Interaktionsmerkmale; daraus dürfen keine Diagnosen,
+Emotionen, Persönlichkeit oder andere sensible Eigenschaften abgeleitet werden.
+Mehr Kontext ist nicht automatisch besser: Jede zusätzliche Signalart braucht einen
+erklärten Zweck und eine eigene Prüfung auf Datenschutzrisiken.
 
 Vorgesehener Ablauf für neue Erkenntnisse: **sammeln → getrennt prüfen → gezielt
 freigeben → bei Bedarf zurücknehmen**. Nutzerfeedback oder automatisch erzeugte
