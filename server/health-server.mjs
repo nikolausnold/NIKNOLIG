@@ -21,6 +21,7 @@ export function createHealthServer({ allowedOrigin = "" } = {}) {
         response.setHeader("Referrer-Policy", "no-referrer");
 
         if (request.url !== "/v1/health") {
+            request.resume();
             response.writeHead(404).end();
             return;
         }

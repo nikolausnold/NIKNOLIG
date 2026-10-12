@@ -215,8 +215,9 @@ Ingress/Proxy erzwingen. Setze dort `NIKNOLIG_ALLOWED_ORIGIN` exakt auf
 `https://nikolausnold.github.io`, damit nur die Website browserseitig auf die
 Statusantwort zugreifen kann. `PORT` steuert den internen Listener.
 
-Die öffentliche Basisadresse ist kein Geheimnis. Für Android-Builds setze die
-GitHub-Actions-Repository-Variable `NIKNOLIG_API_BASE_URL` auf die HTTPS-Basisadresse;
+Die öffentliche Basisadresse ist kein Geheimnis. Für Android-Builds setze unter
+[Repository-Variablen](https://github.com/nikolausnold/NIKNOLIG/settings/variables/actions)
+die GitHub-Actions-Variable `NIKNOLIG_API_BASE_URL` auf die HTTPS-Basisadresse;
 Gradle lehnt HTTP, Zugangsdaten, Query und Fragment ab. Für die Website wird dieselbe
 Repository-Variable beim Pages-Deploy in `api-config.js` geschrieben und ebenfalls
 auf HTTPS validiert. Setze sie erst auf einen realen, mit gültigem Zertifikat

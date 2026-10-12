@@ -23,6 +23,8 @@ jobs:
         run: |
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
             "platforms;android-36" "build-tools;36.0.0"
+      - name: Run Android unit tests
+        run: ./gradlew :app:testDebugUnitTest --no-daemon
       - name: Assemble debug APK
         run: ./gradlew :app:assembleDebug --no-daemon
       - name: Verify debug APK
