@@ -7,6 +7,8 @@ on:
     paths:
       - index.html
       - styles.css
+      - robots.txt
+      - sitemap.xml
       - .github/workflows/deploy-website.yml
   workflow_dispatch:
 
@@ -25,7 +27,7 @@ jobs:
       - name: Prepare website
         run: |
           mkdir "$RUNNER_TEMP/website"
-          cp index.html styles.css "$RUNNER_TEMP/website/"
+          cp index.html styles.css robots.txt sitemap.xml "$RUNNER_TEMP/website/"
           mkdir "$RUNNER_TEMP/website/assets"
           cp assets/niknolig-mark.svg "$RUNNER_TEMP/website/assets/"
       - name: Upload website artifact
