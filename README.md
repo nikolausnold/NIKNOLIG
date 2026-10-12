@@ -1,8 +1,9 @@
 # NIKNOLIG
 
 Eigenständiges Android-Entwicklungsgerüst für NIKNOLIG und Elektro-Engel. Der
-aktuelle Bildschirm ist eine Vorschau; BLE, Gerätevertrauen,
-Sicherheitsfreigaben und produktive Funktionen sind noch nicht implementiert.
+aktuelle Bildschirm ist eine Vorschau mit einfacher BLE-Gerätesuche; Verbindung,
+Gerätevertrauen, Sicherheitsfreigaben und produktive Gerätefunktionen sind noch
+nicht implementiert.
 
 ## Build-Basis
 
@@ -23,6 +24,31 @@ erstellt und prüft die Debug-APK. Nach einem erfolgreichen Lauf findest du das
 Artifact `niknolig-debug-apk-<run_id>-<run_attempt>` unter **Artifacts** auf der
 Workflow-Run-Seite. Es enthält
 `app/build/outputs/apk/debug/app-debug.apk` und ist 14 Tage verfügbar.
+
+## Android-Release-Build
+
+Ein signiertes Android App Bundle wird beim Pushen eines Tags im Format `v*`
+gebaut und als Workflow-Artefakt bereitgestellt. Dafür müssen in den
+[Repository-Secrets](https://github.com/nikolausnold/NIKNOLIG/settings/secrets/actions)
+vor dem Taggen diese Werte eingerichtet sein:
+
+- `ANDROID_KEYSTORE_BASE64`: Base64-kodierter Upload-Keystore
+- `ANDROID_KEYSTORE_PASSWORD`: Keystore-Passwort
+- `ANDROID_KEY_ALIAS`: Alias des Upload-Schlüssels
+- `ANDROID_KEY_PASSWORD`: Passwort des Upload-Schlüssels
+
+Der Release-Workflow prüft die Signatur des AAB. Der Keystore wird nur während
+des CI-Laufs in einem temporären Runner-Verzeichnis abgelegt; Schlüssel und
+Passwörter gehören weder ins Repository noch in Build-Logs. Ohne diese Secrets
+bricht der Release-Workflow ab. Ein lokaler `bundleRelease`-Build ohne
+Signierungsvariablen ist nicht für einen Store-Upload verwendbar.
+
+Ein erfolgreich gebautes AAB ist noch keine Freigabe zur Veröffentlichung. Vor
+einem Store-Release sind unter anderem Datenschutz- und Betreiberangaben,
+Store-Eintrag und Daten-Sicherheitsdeklaration sowie Tests auf unterstützten
+Geräten und eine fachliche Sicherheitsfreigabe erforderlich. Die App bietet
+derzeit nur eine einfache BLE-Suche, keine produktive Geräteverbindung oder
+Gerätesteuerung.
 
 ## Support
 
