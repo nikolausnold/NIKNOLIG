@@ -16,7 +16,7 @@
     <string name="preview_work_description">Example: First define the goal. Then note the information and materials needed. Finally, decide for yourself what the next step should be.</string>
     <string name="preview_devices_button">Machines &amp; devices</string>
     <string name="preview_devices_title">Check device information</string>
-    <string name="preview_devices_description">Example: Find the instructions for the exact model and follow the manufacturer's safety information. This app does not read or control devices. Work on electrical systems must be done by a qualified electrician.</string>
+    <string name="preview_devices_description">Example: Find the instructions for the exact model and follow the manufacturer\'s safety information. This app does not read or control devices. Work on electrical systems must be done by a qualified electrician.</string>
     <string name="preview_transport_button">Transport</string>
     <string name="preview_transport_title">Prepare transport</string>
     <string name="preview_transport_description">Example: Set the destination, time window, and materials needed. Check the details yourself and coordinate changes with everyone involved.</string>
