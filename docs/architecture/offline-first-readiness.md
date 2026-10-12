@@ -175,21 +175,35 @@ review events, and monotonically increasing revision are authoritative and
 append-only. The server validates UUID format, enum values, timestamp bounds,
 maximum body size, HTTPS source URLs, authorization scopes, source/target pairing,
 and digest before it persists a proposal. A proposal's `messageId` is its stable
-idempotency identity; an exact retry returns the original receipt, while reusing
-the key with different content is rejected.
+idempotency identity and must equal the `Idempotency-Key` header; an exact retry
+returns the original receipt, while reusing the key with different content is
+rejected.
 
 ### Allowed content and conflict rules
 
-An explicitly submitted knowledge proposal may contain only:
+The client-submitted envelope contains only:
 
 - `messageId` and `schemaVersion`;
+- `sourceSystem`, `targetSystem`, `messageType`, and client `createdAt`;
 - an allow-listed `kind` and bounded, non-sensitive human-reviewed text;
-- `origin` (`NIKNOLIG` or `DEFENSE`) and `createdAt` / `updatedAt` UTC timestamps;
-- `source` metadata (`title`, canonical `url`, retrieval/revision date, license and
+- source metadata (`title`, canonical `url`, retrieval/revision date, license and
   attribution);
-- `reviewStatus` (`pending`, `approved`, or `rejected`), reviewer identity and
-  review timestamp when applicable;
-- a monotonically increasing `revision`.
+- `integrity` and the non-authoritative `authorization` consent/scope assertion
+  shown in the envelope example.
+
+The authenticated identity supplies the authoritative origin. Clients cannot
+submit or change `updatedAt`, `reviewStatus`, reviewer identity, server receipt
+time, or `revision`. The service creates those fields in its receipt and
+append-only review history; it increments revisions on accepted edits and returns
+the authoritative state on reads. Both client and server timestamps must be UTC
+RFC 3339 values with bounded clock skew; server receipt time is authoritative for
+ordering and retention.
+
+The API rejects unknown fields, unsupported schema versions, disallowed
+source/target pairs, malformed timestamps or URLs, oversized text/envelopes,
+missing scopes/consent, and an invalid digest. Source URLs must use HTTPS and
+must not embed credentials. Revision-precondition failures preserve both
+versions for a human to reconcile; they never select a winner automatically.
 
 Raw conversations, questions, interest profiles, device identifiers, credentials,
 location, and operational/weapon-related content are out of scope. Proposals remain
