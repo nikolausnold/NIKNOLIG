@@ -72,6 +72,31 @@ einen Lernspeicher oder eine Übertragung von Lerndaten. Die Umsetzung beginnt e
 nach einer überprüfbaren lokalen Grundlage; externe Dienste oder Modelltraining
 sind damit nicht automatisch beschlossen.
 
+### Wikipedia als Wissensgerüst
+
+Für den ersten Wissens-Prototyp kann Wikipedia als navigierbare Ausgangsbasis
+dienen, nicht als ungeprüfte Trainingssammlung oder alleinige Wahrheitsquelle.
+Vorgesehen ist eine kuratierte Themenauswahl statt eines vollständigen Dumps.
+Zu jedem übernommenen Eintrag gehören mindestens Artikeltitel, direkte URL,
+Revisionsstand und Abrufdatum sowie Prüfstatus und Lizenz-/Attributionshinweise.
+So bleiben Aussagen auf ihre Quelle zurückführbar und Änderungen am Artikel
+erkennbar.
+
+Neue Inhalte bleiben zunächst **ungeprüft**. Erst nach fachlicher Prüfung dürfen
+sie als begrenzte, zitierbare Wissensnotiz vorgeschlagen werden; Änderungen an der
+Wikipedia-Seite setzen die Prüfung zurück. Sicherheitskritische, medizinische,
+rechtliche oder aktuelle Aussagen brauchen zusätzlich belastbare Fachquellen und
+dürfen nie allein aus Wikipedia abgeleitet werden. Wikipedia-Inhalte werden nicht
+automatisch in ein Modelltraining übernommen und verändern weder Regeln noch
+Geräteaktionen.
+
+Bei jeder späteren Wiederverwendung müssen die Lizenz der konkreten Inhalte und
+die erforderliche Namensnennung, Lizenzverlinkung, Kennzeichnung von Änderungen
+und Weitergabeauflagen geprüft und eingehalten werden. Als Einstieg dienen
+[Wikipedia: Inhalte wiederverwenden](https://de.wikipedia.org/wiki/Wikipedia:Weiternutzung)
+und die [MediaWiki-Dokumentation zur Wiederverwendung von Inhalten](https://www.mediawiki.org/wiki/Wikimedia_APIs/Content_reuse).
+Ein Abruf oder Import ist derzeit nicht implementiert.
+
 ## Geplante Grenzen
 
 Die App startet ohne Bluetooth-Berechtigungen oder Gerätezugriffe. Der
