@@ -66,6 +66,37 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_large"
             android:accessibilityHeading="true"
+            android:text="@string/gatt_services_heading"
+            android:textColor="@color/gold"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/services_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_small"
+            android:backgroundTint="@color/dark_surface"
+            android:enabled="false"
+            android:text="@string/inspect_gatt_services"
+            android:textColor="@color/gold" />
+
+        <TextView
+            android:id="@+id/services_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_small"
+            android:background="@color/dark_surface"
+            android:padding="@dimen/card_padding"
+            android:text="@string/services_not_inspected"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_large"
+            android:accessibilityHeading="true"
             android:text="@string/radio_measurements"
             android:textColor="@color/gold"
             android:textSize="14sp"
@@ -158,6 +189,16 @@
             android:background="@color/dark_surface"
             android:padding="@dimen/card_padding"
             android:text="@string/advertisement_only_notice"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_medium"
+            android:background="@color/dark_surface"
+            android:padding="@dimen/card_padding"
+            android:text="@string/gatt_metadata_notice"
             android:textColor="@color/text_secondary"
             android:textSize="14sp" />
     </LinearLayout>

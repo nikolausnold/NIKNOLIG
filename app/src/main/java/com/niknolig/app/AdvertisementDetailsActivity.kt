@@ -5,6 +5,7 @@ import android.app.Activity
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
+import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.ScanResult
 import android.content.pm.PackageManager
@@ -18,11 +19,15 @@ import android.widget.TextView
 class AdvertisementDetailsActivity : Activity() {
     private lateinit var connectionStatus: TextView
     private lateinit var connectionButton: Button
+    private lateinit var servicesButton: Button
+    private lateinit var servicesStatus: TextView
     private val mainHandler = Handler(Looper.getMainLooper())
     private var bluetoothGatt: BluetoothGatt? = null
     private var connected = false
     private var connectionPending = false
     private var disconnectRequested = false
+    private var serviceDiscoveryPending = false
+    private var disconnectPending = false
     private val connectionTimeout = Runnable {
         val pendingGatt = bluetoothGatt ?: return@Runnable
         if (connectionPending) {
@@ -30,6 +35,23 @@ class AdvertisementDetailsActivity : Activity() {
             connectionPending = false
             pendingGatt.close()
             showDisconnected(R.string.connection_timed_out)
+        }
+    }
+    private val serviceDiscoveryTimeout = Runnable {
+        if (serviceDiscoveryPending) {
+            serviceDiscoveryPending = false
+            servicesButton.isEnabled = connected
+            servicesStatus.setText(R.string.service_discovery_timed_out)
+        }
+    }
+    private val disconnectTimeout = Runnable {
+        if (disconnectPending) {
+            val gatt = bluetoothGatt
+            bluetoothGatt = null
+            disconnectPending = false
+            connected = false
+            gatt?.close()
+            showDisconnected(R.string.disconnect_timed_out)
         }
     }
 
@@ -42,12 +64,30 @@ class AdvertisementDetailsActivity : Activity() {
                 }
 
                 when {
+                    status != BluetoothGatt.GATT_SUCCESS -> {
+                        mainHandler.removeCallbacks(connectionTimeout)
+                        mainHandler.removeCallbacks(serviceDiscoveryTimeout)
+                        mainHandler.removeCallbacks(disconnectTimeout)
+                        bluetoothGatt = null
+                        connectionPending = false
+                        serviceDiscoveryPending = false
+                        disconnectPending = false
+                        connected = false
+                        servicesButton.isEnabled = false
+                        gatt.close()
+                        showDisconnected(R.string.connection_failed)
+                    }
+
                     status == BluetoothGatt.GATT_SUCCESS &&
                         newState == BluetoothProfile.STATE_CONNECTED -> {
                         mainHandler.removeCallbacks(connectionTimeout)
+                        mainHandler.removeCallbacks(disconnectTimeout)
                         connectionPending = false
                         connected = true
                         disconnectRequested = false
+                        disconnectPending = false
+                        servicesStatus.setText(R.string.services_not_inspected)
+                        servicesButton.isEnabled = true
                         connectionStatus.setText(R.string.connection_connected)
                         connectionButton.setText(R.string.disconnect_device)
                         connectionButton.isEnabled = true
@@ -55,15 +95,68 @@ class AdvertisementDetailsActivity : Activity() {
 
                     newState == BluetoothProfile.STATE_DISCONNECTED -> {
                         mainHandler.removeCallbacks(connectionTimeout)
+                        mainHandler.removeCallbacks(disconnectTimeout)
                         bluetoothGatt = null
                         connectionPending = false
+                        serviceDiscoveryPending = false
+                        disconnectPending = false
                         connected = false
+                        mainHandler.removeCallbacks(serviceDiscoveryTimeout)
+                        servicesButton.isEnabled = false
+                        servicesStatus.setText(R.string.services_unavailable_until_connected)
                         gatt.close()
                         showDisconnected(
                             if (disconnectRequested) R.string.connection_disconnected
                             else R.string.connection_failed
                         )
                         disconnectRequested = false
+                    }
+                }
+            }
+        }
+
+        override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
+            runOnUiThread {
+                if (bluetoothGatt !== gatt || !connected) return@runOnUiThread
+                mainHandler.removeCallbacks(serviceDiscoveryTimeout)
+                serviceDiscoveryPending = false
+                servicesButton.isEnabled = true
+                if (status != BluetoothGatt.GATT_SUCCESS) {
+                    servicesStatus.setText(R.string.service_discovery_failed)
+                    return@runOnUiThread
+                }
+
+                val discoveredServices = try {
+                    gatt.services
+                } catch (_: SecurityException) {
+                    servicesStatus.setText(R.string.connection_permission_denied)
+                    return@runOnUiThread
+                }
+                servicesStatus.text = if (discoveredServices.isEmpty()) {
+                    getString(R.string.no_gatt_services)
+                } else {
+                    discoveredServices.joinToString(separator = "\n\n") { service ->
+                        val characteristics = service.characteristics.joinToString("\n") { characteristic ->
+                            val properties = characteristicProperties(characteristic)
+                            getString(
+                                R.string.gatt_characteristic_entry,
+                                characteristic.uuid,
+                                if (properties.isEmpty()) {
+                                    getString(R.string.no_characteristic_properties)
+                                } else {
+                                    properties.joinToString(", ")
+                                }
+                            )
+                        }
+                        getString(
+                            R.string.gatt_service_entry,
+                            service.uuid,
+                            if (characteristics.isEmpty()) {
+                                getString(R.string.no_gatt_characteristics)
+                            } else {
+                                characteristics
+                            }
+                        )
                     }
                 }
             }
@@ -77,9 +170,12 @@ class AdvertisementDetailsActivity : Activity() {
         findViewById<Button>(R.id.back_button).setOnClickListener { finish() }
         connectionStatus = findViewById(R.id.connection_status)
         connectionButton = findViewById(R.id.connection_button)
+        servicesButton = findViewById(R.id.services_button)
+        servicesStatus = findViewById(R.id.services_status)
         connectionButton.setOnClickListener {
             if (connected) disconnectDevice() else requestConnectionPermission()
         }
+        servicesButton.setOnClickListener { discoverServices() }
         findViewById<TextView>(R.id.device_name).text =
             intent.getStringExtra(EXTRA_DEVICE_NAME) ?: getString(R.string.unnamed_device)
         findViewById<TextView>(R.id.signal_strength).text =
@@ -131,6 +227,8 @@ class AdvertisementDetailsActivity : Activity() {
 
     override fun onDestroy() {
         mainHandler.removeCallbacks(connectionTimeout)
+        mainHandler.removeCallbacks(serviceDiscoveryTimeout)
+        mainHandler.removeCallbacks(disconnectTimeout)
         bluetoothGatt?.let { gatt ->
             bluetoothGatt = null
             try {
@@ -190,13 +288,20 @@ class AdvertisementDetailsActivity : Activity() {
     private fun disconnectDevice() {
         val gatt = bluetoothGatt ?: return
         connectionButton.isEnabled = false
+        servicesButton.isEnabled = false
+        serviceDiscoveryPending = false
+        mainHandler.removeCallbacks(serviceDiscoveryTimeout)
+        disconnectPending = true
+        servicesStatus.setText(R.string.services_unavailable_until_connected)
         connectionStatus.setText(R.string.connection_disconnecting)
         disconnectRequested = true
         try {
             gatt.disconnect()
+            mainHandler.postDelayed(disconnectTimeout, CONNECTION_TIMEOUT_MILLIS)
         } catch (_: SecurityException) {
             bluetoothGatt = null
             connected = false
+            disconnectPending = false
             gatt.close()
             showDisconnected(R.string.connection_permission_denied)
         }
@@ -205,9 +310,60 @@ class AdvertisementDetailsActivity : Activity() {
     private fun showDisconnected(messageResource: Int) {
         connected = false
         connectionPending = false
+        serviceDiscoveryPending = false
+        disconnectPending = false
+        mainHandler.removeCallbacks(serviceDiscoveryTimeout)
+        mainHandler.removeCallbacks(disconnectTimeout)
+        servicesButton.isEnabled = false
+        servicesStatus.setText(R.string.services_unavailable_until_connected)
         connectionStatus.setText(messageResource)
         connectionButton.setText(R.string.connect_device)
         connectionButton.isEnabled = true
+    }
+
+    private fun discoverServices() {
+        val gatt = bluetoothGatt
+        if (!connected || gatt == null) {
+            servicesStatus.setText(R.string.services_unavailable_until_connected)
+            return
+        }
+        servicesButton.isEnabled = false
+        serviceDiscoveryPending = true
+        servicesStatus.setText(R.string.service_discovery_in_progress)
+        try {
+            if (!gatt.discoverServices()) {
+                serviceDiscoveryPending = false
+                servicesButton.isEnabled = true
+                servicesStatus.setText(R.string.service_discovery_failed)
+            } else {
+                mainHandler.postDelayed(serviceDiscoveryTimeout, CONNECTION_TIMEOUT_MILLIS)
+            }
+        } catch (_: SecurityException) {
+            serviceDiscoveryPending = false
+            servicesButton.isEnabled = true
+            servicesStatus.setText(R.string.connection_permission_denied)
+        }
+    }
+
+    private fun characteristicProperties(characteristic: BluetoothGattCharacteristic): List<String> {
+        val properties = characteristic.properties
+        return buildList {
+            if (properties and BluetoothGattCharacteristic.PROPERTY_READ != 0) {
+                add(getString(R.string.characteristic_read))
+            }
+            if (properties and BluetoothGattCharacteristic.PROPERTY_WRITE != 0) {
+                add(getString(R.string.characteristic_write))
+            }
+            if (properties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE != 0) {
+                add(getString(R.string.characteristic_write_no_response))
+            }
+            if (properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY != 0) {
+                add(getString(R.string.characteristic_notify))
+            }
+            if (properties and BluetoothGattCharacteristic.PROPERTY_INDICATE != 0) {
+                add(getString(R.string.characteristic_indicate))
+            }
+        }
     }
 
     @Suppress("DEPRECATION")

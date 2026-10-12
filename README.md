@@ -1,8 +1,22 @@
 # NIKNOLIG
 
-Eigenständiges Android-Entwicklungsgerüst für NIKNOLIG und Elektro-Engel. Der
-aktuelle Bildschirm ist eine Vorschau; BLE, Gerätevertrauen,
-Sicherheitsfreigaben und produktive Funktionen sind noch nicht implementiert.
+Eigenständiges Android-Projekt für NIKNOLIG und Elektro-Engel. Die App bietet
+eine dunkle Oberfläche mit goldenen Akzenten, eine zeitlich begrenzte BLE-Suche,
+Anzeigedetails und eine ausdrücklich vom Nutzer gestartete GATT-Verbindung.
+
+## Implementierte BLE-Funktionen
+
+- BLE-Sender suchen und Anzeigenamen, Signalstärke, Service-UUIDs sowie
+  Hersteller- und Dienstdaten ansehen.
+- Auf ausdrückliche Nutzerauswahl mit einem Sender verbinden und trennen.
+- Nach Verbindung und einer weiteren ausdrücklichen Auswahl GATT-Dienste,
+  Merkmale und deren deklarierte Eigenschaften anzeigen.
+
+Eine Verbindung oder angezeigte GATT-Eigenschaft verifiziert weder Identität
+noch Vertrauenswürdigkeit. Die App liest oder schreibt keine Merkmalswerte und
+sendet keine Steuerbefehle. Gerätevertrauen, sichere Freigaben, produktive
+Steuerung und ein Master-Funktionskatalog sind in diesem Checkout nicht
+implementiert.
 
 ## Build-Basis
 
@@ -23,10 +37,9 @@ Gradle Plugin nicht aus Google Maven auflösen; die Google-Maven-Domain war übe
 DNS nicht erreichbar. Daher ist ein erfolgreicher Android-Build noch nicht
 nachgewiesen.
 
-## Geplante Grenzen
+## Sicherheitsgrenzen
 
-Die App startet ohne Bluetooth-Berechtigungen oder Gerätezugriffe. Der
-Implementierungsplan sieht vor, Sicherheitszustände, Berechtigungen und
-Gerätevertrauen erst mit expliziten Zustandsübergängen, Tests und nachvollziehbarer
-Freigabe einzuführen. KI-gestützte Experimente dürfen keine produktiven
-Sicherheitsregeln automatisch verändern.
+Bluetooth-Berechtigungen werden erst bei der jeweils vom Nutzer angeforderten
+Suche oder Verbindung abgefragt. GATT-Dienste werden nicht automatisch
+abgerufen, sondern nur auf ausdrückliche Auswahl während einer aktiven
+Verbindung.
