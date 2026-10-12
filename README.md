@@ -2,9 +2,9 @@
 
 Eigenständiges Android-Entwicklungsgerüst für NIKNOLIG und Elektro-Engel. Die App
 bietet eine ausdrücklich gestartete BLE-Gerätesuche sowie einen separaten,
-interaktiven Elektro-Engel-Vorschaubereich mit fest vorbereiteten Beispielen.
-Verbindung, Gerätevertrauen, KI-Funktionen, Sicherheitsfreigaben und produktive
-Gerätefunktionen sind noch nicht implementiert.
+interaktiven Elektro-Engel-Bereich mit fest vorbereiteten Beispielen und einer
+begrenzten lokalen Wissenshilfe. Es gibt keine generative KI, Verbindung,
+Gerätevertrauen, Sicherheitsfreigaben oder produktive Gerätefunktionen.
 
 ## Build-Basis
 
@@ -20,7 +20,8 @@ Debug-Build starten:
 ./gradlew :app:assembleDebug
 ```
 
-Die vorbereiteten Elektro-Engel-Beispiele sind als Android-Unit-Tests abgedeckt:
+Die Elektro-Engel-Beispiele und die Themenzuordnung der lokalen Wissenshilfe sind
+als Android-Unit-Tests abgedeckt:
 
 ```sh
 ./gradlew :app:testDebugUnitTest
@@ -189,13 +190,54 @@ Indexierungsanfrage kannst du die Website in
 [Google Search Console](https://search.google.com/search-console/) hinzufügen und
 dort die Sitemap `https://nikolausnold.github.io/NIKNOLIG/sitemap.xml` einreichen.
 Verfügbarkeit und Kosten hängen von Repository-Sichtbarkeit und GitHub-Tarif ab.
+Die statische, lokale Wissenshilfe liegt in `assistant.js`; vor dem Hochladen prüft
+der Pages-Workflow sie mit den integrierten Node.js-Tests.
+
+### Optionale Server-Verfügbarkeitsprüfung
+
+`server/health-server.mjs` stellt ohne zusätzliche Pakete ausschließlich
+`GET /v1/health` bereit. Es gibt keine Konten, Nutzdaten-Endpunkte oder
+Anfrageprotokollierung. Der optionale Client-Aufruf muss vom Nutzer gestartet werden
+und überträgt keine Fragen oder Interessen; Server/Netzwerkinfrastruktur sieht dabei
+die IP-Adresse und technische Verbindungsmetadaten. Ohne Konfiguration ist die
+Prüfung deaktiviert.
+
+Für lokale API-Tests:
+
+```sh
+node --test server/health-server.test.mjs
+```
+
+Für den Betrieb `node server/health-server.mjs` hinter einem vertrauenswürdigen
+TLS-Reverse-Proxy ausführen. Der Dienst bindet standardmäßig nur an `127.0.0.1`;
+bei Containerbetrieb den internen Host über `HOST` konfigurieren und TLS am
+Ingress/Proxy erzwingen. Setze dort `NIKNOLIG_ALLOWED_ORIGIN` exakt auf
+`https://nikolausnold.github.io`, damit nur die Website browserseitig auf die
+Statusantwort zugreifen kann. `PORT` steuert den internen Listener.
+
+Die öffentliche Basisadresse ist kein Geheimnis. Für Android-Builds setze unter
+[Repository-Variablen](https://github.com/nikolausnold/NIKNOLIG/settings/variables/actions)
+die GitHub-Actions-Variable `NIKNOLIG_API_BASE_URL` auf die HTTPS-Basisadresse;
+Gradle lehnt HTTP, Zugangsdaten, Query und Fragment ab. Für die Website wird dieselbe
+Repository-Variable beim Pages-Deploy in `api-config.js` geschrieben und ebenfalls
+auf HTTPS validiert. Setze sie erst auf einen realen, mit gültigem Zertifikat
+geschützten Server. Der Health-Endpunkt ist nur die Verbindungsgrundlage; Kontozugang,
+Authentifizierung und zahlungsabhängige Berechtigungen sind nicht enthalten.
 
 Der Abschnitt **Elektro-Engel** stellt aktuelle App-Funktionen den Zukunftsideen
 gegenüber. Die Android-App verlinkt zwischen Gerätesuche und Assistenzvorschau.
-Die auswählbaren App-Beispiele sind statische, allgemeine Texte; sie werden nicht
-von einer KI erzeugt und weder Geräte noch persönliche Aufgaben werden dadurch
-ausgelesen, gespeichert oder gesteuert. Geräte-, Maschinen- und Transportassistenz
-sind Vision und keine verfügbaren Integrationen.
+Die lokale Wissenshilfe in Website und App ordnet Fragen nach festen Schlüsselwörtern
+vorbereiteten Antworten zu; sie ist keine generative KI, speichert keine Fragen und
+sendet sie nicht an einen Server. Elektrische Arbeiten und das Umgehen von
+Schutzmaßnahmen werden ausdrücklich nicht angeleitet. Unbekannte Fragen erhalten
+keine erfundene Antwort.
+
+Ein freiwilliges Interessenprofil kann ausschließlich allgemeine Themen (Arbeit,
+Geräte, Transport, Alltag) speichern. Es bleibt nach ausdrücklicher Zustimmung
+lokal im Browser oder im internen App-Speicher, wird für Vorschläge verwendet und
+kann jederzeit widerrufen und gelöscht werden. Es gibt keine Beobachtung von
+Aktivitäten und kein automatisches Lernen aus Fragen oder Nutzung. Das Profil kann
+personenbezogen sein; die Datenschutzerklärung weist darauf hin.
 
 Vor einer öffentlichen Veröffentlichung müssen die rechtlich erforderlichen
 Betreiber- und Datenschutzangaben ergänzt und geprüft werden. Diese Angaben wurden
@@ -204,7 +246,7 @@ nicht erfunden oder als fertige Rechtsseiten ausgegeben.
 ## Entwicklungs- und Freigabestatus
 
 Die Android-App besteht aus zwei nativen Activities mit gemeinsamer Navigation:
-der NIKNOLIG-Gerätesuche und der statischen Elektro-Engel-Vorschau. Die ausdrücklich
+der NIKNOLIG-Gerätesuche und der Elektro-Engel-Vorschau samt lokaler Wissenshilfe. Die ausdrücklich
 gestartete, auf den Vordergrund beschränkte BLE-Suche zeigt ausgesendete Gerätenamen
 und Signalstärken nur vorübergehend an und verwendet Geräteadressen im Arbeitsspeicher
 zum Deduplizieren; Adressen werden nicht angezeigt. Die Suche endet nach spätestens
@@ -220,8 +262,10 @@ Geräteverbindung verwendet; auf älteren unterstützten Android-Versionen wird 
 die Suche die Standortberechtigung benötigt. Jede Suche endet spätestens
 nach 30 Sekunden, beim manuellen Stoppen oder beim Verlassen der Activity.
 
-Automatisierte Unit-Tests prüfen die Elektro-Engel-Beispielkategorien und deren
-Katalogeinträge. BLE-Zustandsübergänge, Berechtigungen und Fehlerzustände sind
+Automatisierte Unit-Tests prüfen die Elektro-Engel-Beispielkategorien, deren
+Katalogeinträge und die lokale Themenzuordnung einschließlich Sicherheitsgrenzen.
+Der Pages-Workflow prüft die Website-Wissenshilfe mit Node.js-Tests vor dem Upload.
+BLE-Zustandsübergänge, Berechtigungen und Fehlerzustände sind
 weiterhin nicht durch automatisierte Funktionstests abgedeckt. Der Android-Workflow
 baut ein Debug-APK und prüft dessen Integrität; das ersetzt weder Funktionstests
 auf echten Geräten noch eine SecurityChain-Freigabe. Vertrauen und Freigaben müssen

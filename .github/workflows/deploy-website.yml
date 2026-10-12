@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - index.html
+      - api-config.js
+      - assistant.js
+      - assistant.test.cjs
       - privacy.html
       - styles.css
       - robots.txt
@@ -27,10 +30,27 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - name: Test local assistant
+        run: node --test assistant.test.cjs
+      - name: Configure optional API endpoint
+        env:
+          NIKNOLIG_API_BASE_URL: ${{ vars.NIKNOLIG_API_BASE_URL }}
+        run: |
+          node --input-type=module -e '
+            import { writeFileSync } from "node:fs";
+            const baseUrl = (process.env.NIKNOLIG_API_BASE_URL || "").trim().replace(/\/+$/, "");
+            if (baseUrl) {
+              const url = new URL(baseUrl);
+              if (url.protocol !== "https:" || url.username || url.password || url.search || url.hash) {
+                throw new Error("NIKNOLIG_API_BASE_URL must be an HTTPS URL without credentials, query, or fragment.");
+              }
+            }
+            writeFileSync("api-config.js", `window.NIKNOLIG_API_BASE_URL = ${JSON.stringify(baseUrl)};\n`);
+          '
       - name: Prepare website
         run: |
           mkdir "$RUNNER_TEMP/website"
-          cp index.html privacy.html styles.css robots.txt sitemap.xml \
+          cp index.html api-config.js assistant.js privacy.html styles.css robots.txt sitemap.xml \
             "$RUNNER_TEMP/website/"
           mkdir "$RUNNER_TEMP/website/assets"
           cp assets/niknolig-mark.svg assets/niknolig-intro.svg \

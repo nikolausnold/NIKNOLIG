@@ -15,6 +15,8 @@
     <meta property="og:locale" content="de_DE">
     <link rel="icon" type="image/svg+xml" href="assets/niknolig-mark.svg">
     <link rel="stylesheet" href="styles.css">
+    <script src="api-config.js"></script>
+    <script src="assistant.js" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#main">Zum Inhalt springen</a>
@@ -101,7 +103,7 @@
                 <div>
                     <p class="eyebrow">Technologie, die Menschen stärkt</p>
                     <h2 id="assistant-title">Elektro-Engel.<br><span>Hilfe, die mitdenkt.</span></h2>
-                    <p>Die Vision: Menschen bei Arbeit und Alltag unterstützen, Technik verständlicher machen und Möglichkeiten eröffnen. Heute ist das eine Vorschau — keine KI oder Geräteassistenz.</p>
+                    <p>Die Vision: Menschen bei Arbeit und Alltag unterstützen, Technik verständlicher machen und Möglichkeiten eröffnen. Heute gibt es nur eine lokale, regelbasierte Wissenshilfe — keine generative KI oder Geräteassistenz.</p>
                 </div>
                 <span class="assistant-index" aria-hidden="true">N° 01 · VISION</span>
             </div>
@@ -110,7 +112,7 @@
                     <p class="eyebrow">Heute in der Android-Vorschau</p>
                     <h3>Begrenzte BLE-Gerätesuche</h3>
                     <p>Du startest die Suche selbst. Sie läuft höchstens 30 Sekunden und zeigt ausgesendete Gerätenamen und Signalstärken vorübergehend an.</p>
-                    <p class="capability-boundary">Keine Verbindung, keine Gerätewerte, keine Steuerung und keine Elektro-Engel-KI.</p>
+                    <p class="capability-boundary">Keine Verbindung, keine Gerätewerte, keine Steuerung und keine generative KI.</p>
                 </article>
                 <article class="capability-card capability-future">
                     <p class="eyebrow">Zukunftsvision — noch nicht verfügbar</p>
@@ -149,8 +151,47 @@
                     <span class="future-label">Zukunftsidee</span>
                 </article>
             </div>
+            <section class="local-helper" aria-labelledby="local-helper-title">
+                <div>
+                    <p class="eyebrow">Lokal auf deinem Gerät · Vorschau</p>
+                    <h3 id="local-helper-title">Einfache Fragen an Elektro-Engel</h3>
+                    <p>Diese begrenzte Wissenshilfe ordnet Fragen festen, geprüften Antworten zu. Sie nutzt keine generative KI. Deine Frage bleibt in deinem Browser und wird nicht gespeichert.</p>
+                </div>
+                <form id="assistant-form">
+                    <label for="assistant-question">Deine Frage (maximal 500 Zeichen)</label>
+                    <textarea id="assistant-question" name="question" maxlength="500" rows="3" required autocomplete="off"></textarea>
+                    <button class="button button-primary" type="submit">Lokal beantworten</button>
+                </form>
+                <p id="assistant-answer" class="local-helper-answer" role="status" aria-live="polite">Stelle eine Frage zu NIKNOLIG, Datenschutz, Gerätesuche, Arbeit oder Alltag.</p>
+                <div class="api-connection">
+                    <p>Optionale Verbindung zum NIKNOLIG-Server prüfen. Dabei erhält der Server technisch notwendigerweise deine IP-Adresse. Es werden keine Frage oder Interessen übertragen.</p>
+                    <button class="button button-secondary" id="api-check" type="button">Serververbindung prüfen</button>
+                    <p id="api-status" class="local-helper-status" role="status" aria-live="polite">Serververbindung ist noch nicht konfiguriert.</p>
+                </div>
+                <form id="interest-profile-form">
+                    <fieldset>
+                        <legend>Dein User View · Interessengebiete</legend>
+                        <p>Nur mit deiner Zustimmung speichern wir ausgewählte allgemeine Themen in diesem Browser, um sie für Vorschläge zu nutzen. Wir beobachten keine Aktivitäten und speichern keine Fragen. Bitte keine sensiblen Angaben auswählen.</p>
+                        <label class="consent-option">
+                            <input id="interest-consent" type="checkbox">
+                            Ich möchte meine ausgewählten Themen lokal speichern und für Vorschläge verwenden.
+                        </label>
+                        <div class="interest-options">
+                            <label><input type="checkbox" name="interest" value="work"> Arbeit</label>
+                            <label><input type="checkbox" name="interest" value="devices"> Geräte</label>
+                            <label><input type="checkbox" name="interest" value="transport"> Transport</label>
+                            <label><input type="checkbox" name="interest" value="everyday"> Alltag</label>
+                        </div>
+                    </fieldset>
+                    <div class="local-helper-actions">
+                        <button class="button button-primary" type="submit">Auswahl speichern</button>
+                        <button class="button button-secondary" id="interest-clear" type="button">Zustimmung widerrufen und Profil löschen</button>
+                    </div>
+                    <p id="interest-status" class="local-helper-status" role="status" aria-live="polite">Interessenprofil aus; es sind keine Themen gespeichert.</p>
+                </form>
+            </section>
             <div class="assistant-actions">
-                <p>Die App bietet aktuell nur Gerätesuche — keine dieser Assistenzfunktionen und keine Maschinen- oder Gerätesteuerung.</p>
+                <p>Die App bietet Gerätesuche und dieselbe begrenzte lokale Wissenshilfe — keine generative KI, Maschinen- oder Gerätesteuerung.</p>
                 <a class="button button-primary" href="https://github.com/nikolausnold/NIKNOLIG/actions/workflows/android-build.yml">Android-Vorschau ansehen <span aria-hidden="true">↗</span></a>
             </div>
         </section>

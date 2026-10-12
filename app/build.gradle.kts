@@ -16,6 +16,26 @@ val releaseSigningValues = listOf(
 val releaseSigningConfigured = releaseSigningValues.all { !it.isNullOrBlank() }
 val configuredVersionCode = providers.environmentVariable("ANDROID_VERSION_CODE").orNull
 val appVersionCode = configuredVersionCode?.toIntOrNull() ?: 1
+val configuredApiBaseUrl = providers.environmentVariable("NIKNOLIG_API_BASE_URL")
+    .orElse("")
+    .get()
+    .trim()
+    .trimEnd('/')
+if (configuredApiBaseUrl.isNotEmpty()) {
+    val apiUrl = java.net.URI(configuredApiBaseUrl)
+    require(
+        apiUrl.scheme == "https" &&
+            !apiUrl.host.isNullOrBlank() &&
+            apiUrl.userInfo == null &&
+            apiUrl.query == null &&
+            apiUrl.fragment == null
+    ) {
+        "NIKNOLIG_API_BASE_URL must be an HTTPS URL without credentials, query, or fragment."
+    }
+}
+val escapedApiBaseUrl = configuredApiBaseUrl
+    .replace("\\", "\\\\")
+    .replace("\"", "\\\"")
 require(releaseSigningConfigured || releaseSigningValues.all { it.isNullOrBlank() }) {
     "Provide all Android release signing environment variables or none."
 }
@@ -30,6 +50,10 @@ android {
     namespace = "com.niknolig.app"
     compileSdk = 36
     buildToolsVersion = "36.0.0"
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     signingConfigs {
         if (releaseSigningConfigured) {
@@ -54,6 +78,7 @@ android {
         targetSdk = 36
         versionCode = appVersionCode
         versionName = providers.environmentVariable("ANDROID_VERSION_NAME").orElse("0.1.0").get()
+        buildConfigField("String", "API_BASE_URL", "\"$escapedApiBaseUrl\"")
     }
 
     buildTypes {
