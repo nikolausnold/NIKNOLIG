@@ -9,6 +9,8 @@ const NIKNOLIG_AUDIENCE = "test-niknolig-audience";
 const DEFENSE_AUDIENCE = "test-defense-audience";
 const NATIVE_AUDIENCE = "test-native-audience";
 const DEFENSE_ORIGIN = "https://defense.example";
+const TURNSTILE_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+const OPENAI_URL = "https://api.openai.com/v1/responses";
 const CLIENTS = [
     {
         audience: ACCESS_AUDIENCE,
@@ -176,7 +178,7 @@ function mockExternalServices({
     const originalFetch = globalThis.fetch;
     globalThis.fetch = async (url, options = {}) => {
         calls.push({ url: String(url), options });
-        if (String(url).includes("challenges.cloudflare.com")) {
+        if (String(url) === TURNSTILE_URL) {
             const body = new URLSearchParams(options.body);
             const valid = turnstile && body.get("response") === "valid-turnstile-token";
             return Response.json({
@@ -184,21 +186,11 @@ function mockExternalServices({
                 hostname: valid ? turnstileHostname : "invalid.example",
                 action: valid ? turnstileAction : "other"
             });
-
-            test("rejects a valid application's token when used with another application's origin", async () => {
-                const calls = mockExternalServices();
-                const response = await worker.fetch(makeRequest({
-                    origin: ORIGIN,
-                    accessToken: await createAccessToken({ audience: DEFENSE_AUDIENCE })
-                }), makeEnvironment());
-                assert.equal(response.status, 403);
-                assert.equal(calls.some(({ url }) => url.includes("api.openai.com")), false);
-            });
         }
         if (String(url) === `https://${ACCESS_TEAM_DOMAIN}/cdn-cgi/access/certs`) {
             return Response.json({ keys: [accessJwk] });
         }
-        if (String(url) === "https://api.openai.com/v1/responses") {
+        if (String(url) === OPENAI_URL) {
             if (provider === "timeout") throw new Error("mocked timeout");
             if (provider === "malformed") return Response.json({ output: [] });
             return provider
@@ -325,8 +317,8 @@ test("requires a valid Cloudflare Access JWT with trusted issuer, audience, sign
         makeEnvironment({ AI_CLIENTS_JSON: JSON.stringify(CLIENTS.slice(1)) })
     );
     assert.equal(missingConfiguration.status, 401);
-    assert.equal(calls.some(({ url }) => url.includes("api.openai.com")), false);
-    assert.equal(calls.some(({ url }) => url.includes("challenges.cloudflare.com")), false);
+    assert.equal(calls.some(({ url }) => url === OPENAI_URL), false);
+    assert.equal(calls.some(({ url }) => url === TURNSTILE_URL), false);
 });
 
 test("sends only the explicit current question to the fixed OpenAI endpoint", async () => {
@@ -338,7 +330,7 @@ test("sends only the explicit current question to the fixed OpenAI endpoint", as
     assert.match(result.requestId, /^[0-9a-f-]{36}$/i);
     assert.equal(response.headers.get("access-control-allow-credentials"), "true");
 
-    const verificationCall = calls.find(({ url }) => url.includes("challenges.cloudflare.com"));
+    const verificationCall = calls.find(({ url }) => url === TURNSTILE_URL);
     assert.equal(new URLSearchParams(verificationCall.options.body).get("remoteip"), "203.0.113.10");
     const providerCall = calls.find(({ url }) => url === "https://api.openai.com/v1/responses");
     assert.ok(providerCall);
@@ -393,6 +385,16 @@ test("selects an isolated application profile and model only from the signed aud
     assert.equal("conversation" in sent, false);
 });
 
+test("rejects a valid application's token when used with another application's origin", async () => {
+    const calls = mockExternalServices();
+    const response = await worker.fetch(makeRequest({
+        origin: ORIGIN,
+        accessToken: await createAccessToken({ audience: DEFENSE_AUDIENCE })
+    }), makeEnvironment());
+    assert.equal(response.status, 403);
+    assert.equal(calls.some(({ url }) => url === OPENAI_URL), false);
+});
+
 test("allows a configured native client without browser Origin or Turnstile", async () => {
     const calls = mockExternalServices();
     const response = await worker.fetch(makeRequest({
@@ -400,7 +402,7 @@ test("allows a configured native client without browser Origin or Turnstile", as
         accessToken: await createAccessToken({ audience: NATIVE_AUDIENCE })
     }), makeEnvironment({ TURNSTILE_SECRET_KEY: "" }));
     assert.equal(response.status, 200);
-    assert.equal(calls.some(({ url }) => url.includes("challenges.cloudflare.com")), false);
+    assert.equal(calls.some(({ url }) => url === TURNSTILE_URL), false);
     const providerCall = calls.find(({ url }) => url === "https://api.openai.com/v1/responses");
     const sent = JSON.parse(providerCall.options.body);
     assert.equal(sent.model, "gpt-4.1-nano");
