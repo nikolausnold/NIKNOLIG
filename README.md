@@ -258,6 +258,18 @@ auf HTTPS validiert. Setze sie erst auf einen realen, mit gültigem Zertifikat
 geschützten Server. Der Health-Endpunkt ist nur die Verbindungsgrundlage; Kontozugang,
 Authentifizierung und zahlungsabhängige Berechtigungen sind nicht enthalten.
 
+### OpenAI-KI-Integration: BLOCKIERT
+
+Website und Android-App verwenden weiterhin nur ihre lokalen vorbereiteten
+Antworten. Es gibt keinen KI-Endpunkt und keine OpenAI-Anfragen. Der aktuelle
+Health-Server hat weder Nutzerauthentifizierung noch Missbrauchs- und Kostenlimits
+und ist nicht als produktives KI-Backend freigegeben. Ein OpenAI-Schlüssel darf
+niemals in GitHub Pages, Website- oder Android-Code abgelegt werden.
+Backend-Entwurf, notwendige Infrastruktur, Datenschutz und offene Freigaben:
+[`docs/architecture/openai-assistant-readiness.md`](docs/architecture/openai-assistant-readiness.md).
+Bis diese Voraussetzungen geprüft und bereitgestellt sind, bleibt die Assistenz
+lokal.
+
 ### Offline-Status und künftige Synchronisierung
 
 Die Android-App zeigt den vom Betriebssystem erkannten Internetstatus auf beiden
@@ -279,7 +291,9 @@ Der Abschnitt **Elektro-Engel** stellt aktuelle App-Funktionen den Zukunftsideen
 gegenüber. Die Android-App verlinkt zwischen Gerätesuche und Assistenzvorschau.
 Die lokale Wissenshilfe in Website und App ordnet Fragen nach festen Schlüsselwörtern
 vorbereiteten Antworten zu; sie ist keine generative KI, speichert keine Fragen und
-sendet sie nicht an einen Server. Elektrische Arbeiten und das Umgehen von
+sendet sie nicht an einen Server. Eine künftige OpenAI-Integration ist ausdrücklich
+BLOCKIERT und darf erst nach den dokumentierten Backend-, Datenschutz- und
+Sicherheitsfreigaben aktiviert werden. Elektrische Arbeiten und das Umgehen von
 Schutzmaßnahmen werden ausdrücklich nicht angeleitet. Unbekannte Fragen erhalten
 keine erfundene Antwort.
 
