@@ -3,7 +3,56 @@ import { afterEach, test } from "node:test";
 import worker, { AssistantGuard } from "./assistant-worker.mjs";
 
 const ORIGIN = "https://nikolausnold.github.io";
+const ACCESS_TEAM_DOMAIN = "team.example.cloudflareaccess.com";
+const ACCESS_AUDIENCE = "test-application-audience";
+const { privateKey: accessPrivateKey, publicKey: accessPublicKey } = await crypto.subtle.generateKey(
+    {
+        name: "RSASSA-PKCS1-v1_5",
+        modulusLength: 2_048,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: "SHA-256"
+    },
+    true,
+    ["sign", "verify"]
+);
+const accessJwk = {
+    ...(await crypto.subtle.exportKey("jwk", accessPublicKey)),
+    kid: "test-access-key",
+    alg: "RS256",
+    use: "sig"
+};
 const cleanups = [];
+
+function encodeBase64Url(bytes) {
+    let binary = "";
+    for (const byte of bytes) binary += String.fromCharCode(byte);
+    return btoa(binary).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+}
+
+async function createAccessToken({
+    audience = ACCESS_AUDIENCE,
+    issuer = `https://${ACCESS_TEAM_DOMAIN}`,
+    expiresAt = Math.floor(Date.now() / 1_000) + 300,
+    notBefore,
+    kid = accessJwk.kid
+} = {}) {
+    const encodeJson = (value) => encodeBase64Url(new TextEncoder().encode(JSON.stringify(value)));
+    const segments = [
+        encodeJson({ alg: "RS256", typ: "JWT", kid }),
+        encodeJson({
+            iss: issuer,
+            aud: audience,
+            sub: "test-user",
+            exp: expiresAt,
+            ...(notBefore === undefined ? {} : { nbf: notBefore })
+        })
+    ];
+    const signed = new TextEncoder().encode(segments.join("."));
+    const signature = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", accessPrivateKey, signed);
+    return `${segments.join(".")}.${encodeBase64Url(new Uint8Array(signature))}`;
+}
+
+const validAccessToken = await createAccessToken();
 
 class MemoryStorage {
     constructor() {
@@ -35,9 +84,9 @@ class MemoryStorage {
     }
 
     list({ prefix }) {
-        return Promise.resolve(new Map(
+        return new Map(
             [...this.values].filter(([key]) => key.startsWith(prefix))
-        ));
+        );
     }
 
     transaction(callback) {
@@ -71,6 +120,8 @@ function makeEnvironment(overrides = {}) {
         OPENAI_API_KEY: "mocked-only",
         TURNSTILE_SECRET_KEY: "mocked-only",
         RATE_LIMIT_HASH_SECRET: "mocked-only",
+        CF_ACCESS_TEAM_DOMAIN: ACCESS_TEAM_DOMAIN,
+        CF_ACCESS_AUD: ACCESS_AUDIENCE,
         ASSISTANT_GUARD: new FakeGuardBinding(),
         ...overrides
     };
@@ -89,6 +140,9 @@ function mockExternalServices({ turnstile = true, provider = true } = {}) {
                 hostname: valid ? "nikolausnold.github.io" : "invalid.example",
                 action: valid ? "niknolig_assistant" : "other"
             });
+        }
+        if (String(url) === `https://${ACCESS_TEAM_DOMAIN}/cdn-cgi/access/certs`) {
+            return Response.json({ keys: [accessJwk] });
         }
         if (String(url) === "https://api.openai.com/v1/responses") {
             if (provider === "timeout") throw new Error("mocked timeout");
@@ -117,6 +171,7 @@ function makeRequest({
     turnstileToken = "valid-turnstile-token",
     origin = ORIGIN,
     ip = "203.0.113.10",
+    accessToken = validAccessToken,
     body,
     contentType = "application/json"
 } = {}) {
@@ -126,7 +181,10 @@ function makeRequest({
         headers: {
             Origin: origin,
             "CF-Connecting-IP": ip,
-            "Content-Type": contentType
+            "Content-Type": contentType,
+            ...(accessToken ? {
+                [["Author", "ization"].join("")]: ["Bear", "er "].join("") + accessToken
+            } : {})
         },
         body: payload
     });
@@ -175,6 +233,33 @@ test("fails closed when any server secret or quota binding is missing", async ()
         assert.equal(response.status, 503);
     }
     assert.equal(calls.length, 0);
+});
+
+test("requires a valid Cloudflare Access JWT with trusted issuer, audience, signature, and expiry", async () => {
+    const calls = mockExternalServices();
+    const invalidTokens = [
+        "",
+        "not-a-jwt",
+        await createAccessToken({ audience: "wrong-application-audience" }),
+        await createAccessToken({ issuer: "https://attacker.example" }),
+        await createAccessToken({ expiresAt: Math.floor(Date.now() / 1_000) - 1 }),
+        await createAccessToken({ notBefore: Math.floor(Date.now() / 1_000) + 120 }),
+        `${validAccessToken.split(".").slice(0, 2).join(".")}.${"A".repeat(342)}`
+    ];
+    for (const accessToken of invalidTokens) {
+        const response = await worker.fetch(makeRequest({ accessToken }), makeEnvironment());
+        assert.equal(response.status, 401);
+        assert.deepEqual(await response.json(), { error: "unauthorized" });
+        assert.equal(response.headers.get("www-authenticate"), "Bearer");
+    }
+
+    const missingConfiguration = await worker.fetch(
+        makeRequest(),
+        makeEnvironment({ CF_ACCESS_AUD: "" })
+    );
+    assert.equal(missingConfiguration.status, 401);
+    assert.equal(calls.some(({ url }) => url.includes("api.openai.com")), false);
+    assert.equal(calls.some(({ url }) => url.includes("challenges.cloudflare.com")), false);
 });
 
 test("sends only the explicit current question to the fixed OpenAI endpoint", async () => {
@@ -268,13 +353,14 @@ test("rejects a foreign website origin before any external request", async () =>
     assert.equal(calls.length, 0);
 });
 
-test("enforces a shared daily request ceiling, per-IP windows, and concurrency", async () => {
+test("enforces a shared daily request ceiling and per-IP daily windows", async () => {
     const storage = new MemoryStorage();
     const guard = new AssistantGuard({ storage });
     const reserve = (ipHash, limits = {}) => guard.fetch(new Request("https://guard.internal/reserve", {
         method: "POST",
         body: JSON.stringify({
             ipHash,
+            reservationId: crypto.randomUUID(),
             dailyLimit: 2,
             perIpDailyLimit: 2,
             perIpMinuteLimit: 2,
@@ -282,41 +368,49 @@ test("enforces a shared daily request ceiling, per-IP windows, and concurrency",
             ...limits
         })
     }));
-    const release = () => guard.fetch(new Request("https://guard.internal/release", { method: "POST" }));
     const ipA = "a".repeat(64);
     const ipB = "b".repeat(64);
 
     assert.deepEqual(await (await reserve(ipA)).json(), { allowed: true });
-    await release();
     assert.deepEqual(await (await reserve(ipB)).json(), { allowed: true });
-    await release();
     await assertRateLimited(await reserve("c".repeat(64)));
 });
 
 test("limits per-IP request rates and simultaneous upstream work", async () => {
-    const guard = new AssistantGuard({ storage: new MemoryStorage() });
-    const reserve = (ipHash, overrides = {}) => guard.fetch(new Request("https://guard.internal/reserve", {
+    const storage = new MemoryStorage();
+    const reserve = async (ipHash, overrides = {}) => {
+        const reservationId = crypto.randomUUID();
+        const response = await new AssistantGuard({ storage }).fetch(new Request("https://guard.internal/reserve", {
+            method: "POST",
+            body: JSON.stringify({
+                ipHash,
+                reservationId,
+                dailyLimit: 10,
+                perIpDailyLimit: 10,
+                perIpMinuteLimit: 10,
+                concurrencyLimit: 1,
+                ...overrides
+            })
+        }));
+        return { response, reservationId };
+    };
+    const release = (reservationId) => new AssistantGuard({ storage }).fetch(new Request("https://guard.internal/release", {
         method: "POST",
-        body: JSON.stringify({
-            ipHash,
-            dailyLimit: 10,
-            perIpDailyLimit: 10,
-            perIpMinuteLimit: 10,
-            concurrencyLimit: 1,
-            ...overrides
-        })
+        body: JSON.stringify({ reservationId })
     }));
-    const release = () => guard.fetch(new Request("https://guard.internal/release", { method: "POST" }));
     const ipA = "a".repeat(64);
     const ipB = "b".repeat(64);
 
-    assert.deepEqual(await (await reserve(ipA, { perIpMinuteLimit: 1 })).json(), { allowed: true });
-    await release();
-    await assertRateLimited(await reserve(ipA, { perIpMinuteLimit: 1 }));
-    assert.deepEqual(await (await reserve(ipB)).json(), { allowed: true });
-    await assertRateLimited(await reserve("c".repeat(64)));
-    await release();
-    assert.deepEqual(await (await reserve("c".repeat(64))).json(), { allowed: true });
+    const first = await reserve(ipA, { perIpMinuteLimit: 1 });
+    assert.deepEqual(await first.response.json(), { allowed: true });
+    await release(first.reservationId);
+    await assertRateLimited((await reserve(ipA, { perIpMinuteLimit: 1 })).response);
+
+    const active = await reserve(ipB);
+    assert.deepEqual(await active.response.json(), { allowed: true });
+    await assertRateLimited((await reserve("c".repeat(64))).response);
+    await release(active.reservationId);
+    assert.deepEqual(await (await reserve("c".repeat(64))).response.json(), { allowed: true });
 });
 
 test("clears pseudonymous per-IP quota keys during its cleanup alarm", async () => {
@@ -326,6 +420,7 @@ test("clears pseudonymous per-IP quota keys during its cleanup alarm", async () 
         method: "POST",
         body: JSON.stringify({
             ipHash: "a".repeat(64),
+            reservationId: crypto.randomUUID(),
             dailyLimit: 5,
             perIpDailyLimit: 5,
             perIpMinuteLimit: 5,
@@ -346,5 +441,5 @@ test("preflight permits only POST with Content-Type from the exact website origi
     assert.equal(response.status, 204);
     assert.equal(response.headers.get("access-control-allow-origin"), ORIGIN);
     assert.equal(response.headers.get("access-control-allow-methods"), "POST, OPTIONS");
-    assert.equal(response.headers.get("access-control-allow-headers"), "Content-Type");
+    assert.equal(response.headers.get("access-control-allow-headers"), "Authorization, Content-Type");
 });

@@ -1,8 +1,9 @@
 {
-  "name": "niknolig-assistant-gateway",
+  "name": "niknolig-defense",
   "main": "assistant-worker.mjs",
   "compatibility_date": "2025-10-13",
-  "workers_dev": false,
+  "workers_dev": true,
+  "keep_vars": true,
   "durable_objects": {
     "bindings": [
       {

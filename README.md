@@ -260,13 +260,14 @@ Authentifizierung und zahlungsabhängige Berechtigungen sind nicht enthalten.
 
 ### OpenAI-KI-Integration: Gateway vorbereitet, Produktstart BLOCKIERT
 
-Ein separater Cloudflare Worker mit Turnstile-Prüfung, Durable-Object-Quoten und
-serverseitigem OpenAI-Aufruf ist implementiert und lokal getestet, aber weder
-deployt noch mit der Website oder Android-App verbunden. Der Pages-Assistent
-bleibt lokal; Fragen werden nicht übertragen. Der Worker benötigt Cloudflare-
-Secrets, ein autorisiertes Deployment, Provider-Ausgabenlimits und Datenschutz-
-sowie Sicherheitsfreigaben. Turnstile und Quoten sind Missbrauchsschutz, keine
-Nutzer-Authentifizierung; CORS ist ebenfalls keine Authentifizierung. Ein
+Ein separater Cloudflare Worker mit Cloudflare-Access-JWT-Prüfung, Turnstile,
+Durable-Object-Quoten und serverseitigem OpenAI-Aufruf ist implementiert und
+lokal getestet. Der Cloudflare-Account und ein Deployment wurden in dieser
+Sitzung nicht verifiziert; Website und Android-App sind nicht verbunden. Der
+Pages-Assistent bleibt lokal; Fragen werden nicht übertragen. Für den Betrieb
+braucht es konfigurierte Access-Identität, Secrets, Kostenlimits sowie Datenschutz-
+und Sicherheitsfreigaben. Turnstile und Quoten sind zusätzlicher Missbrauchsschutz,
+keine Nutzer-Authentifizierung; CORS ist ebenfalls keine Authentifizierung. Ein
 OpenAI-Schlüssel gehört ausschließlich in Cloudflares Secret Store, niemals in
 GitHub Pages, Website- oder Android-Code.
 

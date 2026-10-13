@@ -13,6 +13,10 @@ const MAX_CONCURRENT_REQUESTS = 2;
 const PROVIDER_TIMEOUT_MS = 20_000;
 const TURNSTILE_TIMEOUT_MS = 5_000;
 const OPENAI_MODEL = "gpt-4.1-mini";
+const ACCESS_TOKEN_TIMEOUT_MS = 5_000;
+const ACCESS_JWKS_CACHE_MS = 300_000;
+
+let cachedAccessJwks;
 
 const ASSISTANT_INSTRUCTIONS = [
     "Du bist Elektro-Engel, eine zivile, allgemeine Assistenz von NIKNOLIG.",
@@ -145,7 +149,121 @@ async function verifyTurnstile(token, remoteIp, env) {
         result.action === "niknolig_assistant";
 }
 
-async function readProviderResponse(response) {
+function decodeBase64Url(value) {
+    if (!/^[A-Za-z0-9_-]+$/.test(value)) throw new TypeError("invalid_token");
+    const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, "="));
+    return Uint8Array.from(decoded, (character) => character.charCodeAt(0));
+}
+
+function parseJsonSegment(segment) {
+    return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(decodeBase64Url(segment)));
+}
+
+function getAccessConfiguration(env) {
+    const teamDomain = env.CF_ACCESS_TEAM_DOMAIN;
+    const audience = env.CF_ACCESS_AUD;
+    if (
+        typeof teamDomain !== "string" ||
+        !/^[a-z0-9.-]{1,253}$/i.test(teamDomain) ||
+        teamDomain.startsWith(".") ||
+        teamDomain.endsWith(".") ||
+        teamDomain.includes("..") ||
+        typeof audience !== "string" ||
+        audience.length < 1 ||
+        audience.length > 256
+    ) return null;
+
+    const issuer = `https://${teamDomain}`;
+    const url = new URL(`${issuer}/cdn-cgi/access/certs`);
+    if (url.hostname !== teamDomain || url.protocol !== "https:") return null;
+    return { audience, issuer, jwksUrl: url.href };
+}
+
+async function loadAccessKeys(jwksUrl) {
+    const now = Date.now();
+    if (cachedAccessJwks?.url === jwksUrl && cachedAccessJwks.expiresAt > now) {
+        return cachedAccessJwks.keys;
+    }
+
+    const response = await fetch(jwksUrl, {
+        redirect: "error",
+        signal: AbortSignal.timeout(ACCESS_TOKEN_TIMEOUT_MS)
+    });
+    if (!response.ok) throw new Error("access_keys_unavailable");
+    const payload = await readProviderResponse(response, 32_768);
+    if (!Array.isArray(payload.keys) || payload.keys.length < 1 || payload.keys.length > 16) {
+        throw new Error("invalid_access_keys");
+    }
+    cachedAccessJwks = {
+        url: jwksUrl,
+        expiresAt: now + ACCESS_JWKS_CACHE_MS,
+        keys: payload.keys
+    };
+    return payload.keys;
+}
+
+async function verifyAccessToken(request, env) {
+    const configuration = getAccessConfiguration(env);
+    if (!configuration) return false;
+
+    const authorization = request.headers.get("Authorization") || "";
+    if (!authorization.toLowerCase().startsWith("bearer ")) return false;
+    const token = authorization.slice(7).trim();
+    if (token.length < 1 || token.length > 8_192) return false;
+    const segments = token.split(".");
+    if (segments.length !== 3) return false;
+
+    try {
+        const header = parseJsonSegment(segments[0]);
+        const claims = parseJsonSegment(segments[1]);
+        if (
+            header.alg !== "RS256" ||
+            typeof header.kid !== "string" ||
+            header.kid.length < 1 ||
+            header.kid.length > 256 ||
+            claims.iss !== configuration.issuer ||
+            !(claims.aud === configuration.audience ||
+                (Array.isArray(claims.aud) && claims.aud.includes(configuration.audience))) ||
+            typeof claims.sub !== "string" ||
+            claims.sub.length < 1 ||
+            !Number.isInteger(claims.exp) ||
+            claims.exp <= Math.floor(Date.now() / 1_000) ||
+            (claims.nbf !== undefined &&
+                (!Number.isInteger(claims.nbf) || claims.nbf > Math.floor(Date.now() / 1_000) + 30)) ||
+            (claims.iat !== undefined &&
+                (!Number.isInteger(claims.iat) || claims.iat > Math.floor(Date.now() / 1_000) + 30))
+        ) return false;
+
+        const jwks = await loadAccessKeys(configuration.jwksUrl);
+        const jwk = jwks.find((key) =>
+            key.kid === header.kid &&
+            key.kty === "RSA" &&
+            (!key.alg || key.alg === "RS256") &&
+            (!key.use || key.use === "sig")
+        );
+        if (!jwk) return false;
+
+        const publicKey = await crypto.subtle.importKey(
+            "jwk",
+            jwk,
+            { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+            false,
+            ["verify"]
+        );
+        const signedContent = new TextEncoder().encode(`${segments[0]}.${segments[1]}`);
+        return await crypto.subtle.verify(
+            "RSASSA-PKCS1-v1_5",
+            publicKey,
+            decodeBase64Url(segments[2]),
+            signedContent
+        );
+    } catch {
+        return false;
+    }
+}
+
+async function readProviderResponse(response, maxBytes = MAX_PROVIDER_RESPONSE_BYTES) {
     if (!response.body) return null;
     const reader = response.body.getReader();
     const chunks = [];
@@ -155,7 +273,7 @@ async function readProviderResponse(response) {
             const { done, value } = await reader.read();
             if (done) break;
             totalBytes += value.byteLength;
-            if (totalBytes > MAX_PROVIDER_RESPONSE_BYTES) {
+            if (totalBytes > maxBytes) {
                 await reader.cancel();
                 return null;
             }
@@ -207,32 +325,46 @@ async function hashIp(ip, secret) {
 async function reserveRequest(env, ipHash) {
     const id = env.ASSISTANT_GUARD.idFromName("global");
     const guard = env.ASSISTANT_GUARD.get(id);
+    const reservationId = crypto.randomUUID();
     const response = await guard.fetch("https://guard.internal/reserve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             ipHash,
+            reservationId,
             dailyLimit: MAX_DAILY_REQUESTS,
             perIpDailyLimit: MAX_REQUESTS_PER_IP_PER_DAY,
             perIpMinuteLimit: MAX_REQUESTS_PER_IP_PER_MINUTE,
             concurrencyLimit: MAX_CONCURRENT_REQUESTS
         })
     });
-    return response.json();
+    return { ...await response.json(), reservationId };
 }
 
-async function releaseRequest(env) {
+async function releaseRequest(env, reservationId) {
     const id = env.ASSISTANT_GUARD.idFromName("global");
     const guard = env.ASSISTANT_GUARD.get(id);
-    await guard.fetch("https://guard.internal/release", { method: "POST" });
+    await guard.fetch("https://guard.internal/release", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reservationId })
+    });
 }
 
 async function handleAssistant(request, env, origin) {
-    if (!env.OPENAI_API_KEY || !env.TURNSTILE_SECRET_KEY || !env.RATE_LIMIT_HASH_SECRET || !env.ASSISTANT_GUARD) {
+    if (
+        !env.OPENAI_API_KEY ||
+        !env.TURNSTILE_SECRET_KEY ||
+        !env.RATE_LIMIT_HASH_SECRET ||
+        !env.ASSISTANT_GUARD
+    ) {
         return jsonResponse(503, { error: "service_unavailable" }, origin);
     }
     if (request.method !== "POST") {
         return jsonResponse(405, { error: "method_not_allowed" }, origin, { Allow: "POST, OPTIONS" });
+    }
+    if (!await verifyAccessToken(request, env)) {
+        return jsonResponse(401, { error: "unauthorized" }, origin, { "WWW-Authenticate": "Bearer" });
     }
     const contentType = request.headers.get("content-type")?.toLowerCase() || "";
     if (!/^application\/json(?:\s*;|$)/.test(contentType)) {
@@ -301,9 +433,9 @@ async function handleAssistant(request, env, origin) {
         return jsonResponse(503, { error: "service_unavailable" }, origin);
     } finally {
         try {
-            await releaseRequest(env);
+            await releaseRequest(env, reservation.reservationId);
         } catch {
-            // Quotas remain consumed if the guard cannot release the concurrency slot.
+            // Expired reservations are removed by the next durable quota transaction.
         }
     }
 }
@@ -311,14 +443,22 @@ async function handleAssistant(request, env, origin) {
 export class AssistantGuard {
     constructor(ctx) {
         this.ctx = ctx;
-        this.activeRequests = 0;
     }
 
     async fetch(request) {
         if (request.method !== "POST") return new Response(null, { status: 405 });
         const path = new URL(request.url).pathname;
         if (path === "/release") {
-            this.activeRequests = Math.max(0, this.activeRequests - 1);
+            let payload;
+            try {
+                payload = await request.json();
+            } catch {
+                return new Response(null, { status: 400 });
+            }
+            if (typeof payload.reservationId !== "string" || !/^[0-9a-f-]{36}$/i.test(payload.reservationId)) {
+                return new Response(null, { status: 400 });
+            }
+            await this.ctx.storage.delete(`active:${payload.reservationId}`);
             return Response.json({ released: true });
         }
         if (path !== "/reserve") return new Response(null, { status: 404 });
@@ -332,6 +472,8 @@ export class AssistantGuard {
         if (
             typeof payload.ipHash !== "string" ||
             !/^[a-f0-9]{64}$/.test(payload.ipHash) ||
+            typeof payload.reservationId !== "string" ||
+            !/^[0-9a-f-]{36}$/i.test(payload.reservationId) ||
             !Number.isInteger(payload.dailyLimit) ||
             !Number.isInteger(payload.perIpDailyLimit) ||
             !Number.isInteger(payload.perIpMinuteLimit) ||
@@ -345,14 +487,21 @@ export class AssistantGuard {
         const alarm = await this.ctx.storage.getAlarm();
         if (alarm === null) await this.ctx.storage.setAlarm(now + 86_400_000);
         let allowed;
-        let reservedActiveSlot = false;
-        try {
-            allowed = await this.ctx.storage.transaction(async (transaction) => {
+        allowed = await this.ctx.storage.transaction(async (transaction) => {
                 const globalEntry = await transaction.get("global") || { day, count: 0 };
                 const ipEntry = await transaction.get(ipKey) || { day, dailyCount: 0, minute, minuteCount: 0 };
                 if (globalEntry.day !== day) Object.assign(globalEntry, { day, count: 0 });
                 if (ipEntry.day !== day) Object.assign(ipEntry, { day, dailyCount: 0 });
                 if (ipEntry.minute !== minute) Object.assign(ipEntry, { minute, minuteCount: 0 });
+                const activeEntries = await transaction.list({ prefix: "active:" });
+                let activeCount = 0;
+                for (const [key, expiresAt] of activeEntries) {
+                    if (typeof expiresAt !== "number" || expiresAt <= now) {
+                        await transaction.delete(key);
+                    } else {
+                        activeCount += 1;
+                    }
+                }
 
                 if (globalEntry.count >= payload.dailyLimit || ipEntry.dailyCount >= payload.perIpDailyLimit) {
                     const tomorrow = new Date(`${day}T00:00:00.000Z`).getTime() + 86_400_000;
@@ -361,23 +510,18 @@ export class AssistantGuard {
                 if (ipEntry.minuteCount >= payload.perIpMinuteLimit) {
                     return { allowed: false, retryAfter: Math.max(1, 60 - Math.floor((now % 60_000) / 1_000)) };
                 }
-                if (this.activeRequests >= payload.concurrencyLimit) {
+                if (activeCount >= payload.concurrencyLimit) {
                     return { allowed: false, retryAfter: 10 };
                 }
 
                 globalEntry.count += 1;
                 ipEntry.dailyCount += 1;
                 ipEntry.minuteCount += 1;
-                this.activeRequests += 1;
-                reservedActiveSlot = true;
                 await transaction.put("global", globalEntry);
                 await transaction.put(ipKey, ipEntry);
+                await transaction.put(`active:${payload.reservationId}`, now + 30_000);
                 return { allowed: true };
-            });
-        } catch (error) {
-            if (reservedActiveSlot) this.activeRequests = Math.max(0, this.activeRequests - 1);
-            throw error;
-        }
+        });
         if (!allowed.allowed) return Response.json(allowed);
 
         return Response.json({ allowed: true });
@@ -411,7 +555,7 @@ export default {
                     ...SECURITY_HEADERS,
                     "Access-Control-Allow-Origin": WEBSITE_ORIGIN,
                     "Access-Control-Allow-Methods": "POST, OPTIONS",
-                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Allow-Headers": "Authorization, Content-Type",
                     "Access-Control-Max-Age": "600",
                     Vary: "Origin"
                 }

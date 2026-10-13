@@ -20,32 +20,40 @@ integration scope.
   assistant network client or sign-in flow.
 - `workers/assistant-worker.mjs` now contains an isolated Cloudflare Worker with
   `POST /v1/assistant/responses`, the existing fixed `GET /v1/health` response,
-  exact Pages-origin CORS, Turnstile verification, and a SQLite Durable Object
-  enforcing shared daily, per-IP, and concurrency limits. Its tests use mocked
-  external services only.
-- `workers/wrangler.jsonc` configures the Worker and Durable Object, but no
-  Cloudflare account, secrets, production route, provider budget, deployment, or
-  legal/privacy approval is configured. No identity provider is configured.
+  exact Pages-origin CORS, Cloudflare Access JWT verification, Turnstile
+  verification, and a SQLite Durable Object enforcing shared daily, per-IP, and
+  durable concurrency limits. Its tests use mocked external services only.
+- `workers/wrangler.jsonc` targets the user-provided script slug
+  `niknolig-defense` and its stated `workers.dev` hostname. Cloudflare access is
+  not available in this session, so neither the account/script identity nor its
+  active deployment/assets were independently verified. The repository contains
+  no secret values or Access issuer/audience configuration. The Defense
+  repository and its product policy were not inspected; this Worker still has
+  the civilian Elektro-Engel prompt and is not approved for the Defense product.
 
 The existing Node health server remains health-only and is not modified. The
-Worker is a separately deployable gateway scaffold, not a live AI service.
+Worker is gateway code in this repository, not evidence that the remote
+`niknolig-defense` deployment contains or runs this code.
 GitHub Pages must never call OpenAI directly or contain an OpenAI key. The
-Worker's Turnstile challenge, quotas, and concurrency cap are abuse controls,
-not user authentication; CORS does not authenticate users. It must not be used
-for account-specific permissions or sensitive input.
+Worker now verifies Cloudflare Access JWT signature (RS256), issuer, audience,
+expiry, and not-before claims before processing assistant requests. Turnstile,
+quotas, and concurrency are additional abuse controls, not authentication; CORS
+does not authenticate users. The Access login/application and client token flow
+are not configured, and the endpoint must not be used for sensitive input.
 
 ## Target request flow
 
 ```text
 Website (not connected)
-  └─ explicit AI-use choice + single-use Turnstile token
+  └─ explicit AI-use choice + Cloudflare Access JWT + Turnstile token
        └─ HTTPS Cloudflare Worker + Durable Object quotas
             └─ OpenAI Responses API (Worker secret)
 ```
 
-The website and Android assistants remain local and available without network
-access. The website has no Turnstile widget, consent interface, or Worker URL
-configured and therefore does not invoke this endpoint. Android is not connected.
+The civilian website and Android assistants remain local and available without
+network access. The website has no Turnstile widget, Access-token flow, consent
+interface, or Worker URL configured and therefore does not invoke this endpoint.
+Android is not connected.
 Do not silently fall back from local answers to a remote model.
 
 ## Implemented Worker contract (undeployed)
@@ -56,11 +64,15 @@ be deployed or enabled until the remaining setup and release gates are approved.
 
 ### `POST /v1/assistant/responses`
 
-- Require HTTPS and exact
-  `Origin: https://nikolausnold.github.io`. Require a valid Turnstile token
-  verified server-side for the expected hostname and action. A fixed-origin
-  header is forgeable outside browsers; Turnstile is an abuse barrier, not proof
-  of identity or user consent. CORS is only a browser policy.
+- Require HTTPS, exact
+  `Origin: https://nikolausnold.github.io`, and an `Authorization` bearer
+  containing a Cloudflare Access JWT. Verify RS256 signature against the
+  configured team's HTTPS JWKS, exact issuer and audience, expiry, not-before,
+  and nonempty subject. Access is the authentication layer; a fixed-origin
+  header is forgeable and is not authorization.
+- Require a valid Turnstile token verified server-side for the expected hostname
+  and action. This is additional abuse protection, not proof of identity or user
+  consent. CORS is only a browser policy.
 - A SQLite Durable Object enforces a shared maximum of 100 requests reaching
   Turnstile verification
   per UTC day, 12 requests per pseudonymous IP per day, 3 per IP per minute,
@@ -97,8 +109,9 @@ user control, retention/deletion design, and a new privacy review.
 
 ### Additional abuse and cost controls required before deployment
 
-The Worker implements fixed IP/global request quotas, concurrency limiting, a
-single-use Turnstile check, a fixed model, and a 300-token output ceiling.
+The Worker implements Access JWT validation, fixed IP/global request quotas,
+durable concurrency leases, a single-use Turnstile check, a fixed model, and a
+300-token output ceiling.
 The service owner must also configure Cloudflare edge rate limiting for all
 requests, including malformed requests that do not reach the Durable Object.
 Before deployment, provision an OpenAI project/key, provider spend controls and
@@ -153,10 +166,12 @@ is not a security boundary.
 2. Create a restricted OpenAI project/key for the Worker only; review model and
    provider data controls. Store the key in Cloudflare's secret manager, rotate
    it, and prove it never enters build artifacts or logs.
-3. Configure Turnstile for the exact Pages hostname and verify its action. Keep
-   the Worker CORS origin exact. If account-specific permissions or entitlements
-   become necessary, select and configure an identity provider; the current
-   Worker does not authenticate users. Android remains disconnected.
+3. Configure the Cloudflare Access application, team domain, audience, allowed
+   users, and a browser login/token flow that works with the deployed API
+   hostname. Set `CF_ACCESS_TEAM_DOMAIN` and `CF_ACCESS_AUD` as non-secret
+   Worker variables. Separately configure Turnstile for the exact Pages hostname
+   and action, and keep the Worker CORS origin exact. Android remains
+   disconnected.
 4. Approve request/response limits, quotas, cost ceiling, provider terms, data
    retention, privacy language, age/accessibility behavior, abuse handling, and
    safety policy with the responsible operators and qualified reviewers.
@@ -175,9 +190,13 @@ is not a security boundary.
 
 ## Current decision
 
-The Worker gateway code, fixed model, and mock test suite are present, but no
-provider key, Cloudflare resources, deployment, spend policy, or legal/privacy
-approval is configured. Product clients still make no OpenAI calls. The safe
-next action is for an authorized operator to provision account resources,
-configure secrets and budgets, obtain approvals, and explicitly deploy; only
-then may the separately reviewed and consented website client be implemented.
+The Worker gateway code, fixed model, Access JWT verification, and mock test
+suite are present. Cloudflare's remote state cannot be checked from this
+session; no secrets or Access settings are present in repository config, and
+there is no deployment verification, client connection, or legal/privacy
+approval. Product clients still make no OpenAI calls. The source currently
+describes the civilian Elektro-Engel assistant and must not be deployed to the
+Defense product until its policy, hostname/assets, and Access application are
+confirmed. The authorized operator must inspect the current Worker first; only
+after preserving its existing behavior and obtaining approvals may the
+appropriate client be connected.
