@@ -8,6 +8,7 @@ const ACCESS_AUDIENCE = "test-application-audience";
 const NIKNOLIG_AUDIENCE = "test-niknolig-audience";
 const DEFENSE_AUDIENCE = "test-defense-audience";
 const NATIVE_AUDIENCE = "test-native-audience";
+const DEFENSE_ORIGIN = "https://defense.example";
 const CLIENTS = [
     {
         audience: ACCESS_AUDIENCE,
@@ -23,22 +24,24 @@ const CLIENTS = [
         profile: "niknolig",
         model: "gpt-4.1-nano",
         origins: [ORIGIN],
-        turnstileAction: "niknolig_assistant"
+        turnstileAction: "niknolig_assistant",
+        maxOutputTokens: 120
     },
     {
         audience: DEFENSE_AUDIENCE,
         clientId: "niknolig-defense",
         profile: "defense",
         model: "gpt-4.1-mini",
-        origins: [ORIGIN],
-        turnstileAction: "niknolig_assistant"
+        origins: [DEFENSE_ORIGIN],
+        turnstileAction: "defense_assistant"
     },
     {
         audience: NATIVE_AUDIENCE,
         clientId: "niknolig-android",
         profile: "niknolig",
         model: "gpt-4.1-nano",
-        origins: []
+        origins: [],
+        maxOutputTokens: 120
     }
 ];
 const { privateKey: accessPrivateKey, publicKey: accessPublicKey } = await crypto.subtle.generateKey(
@@ -163,7 +166,12 @@ function makeEnvironment(overrides = {}) {
     };
 }
 
-function mockExternalServices({ turnstile = true, provider = true } = {}) {
+function mockExternalServices({
+    turnstile = true,
+    provider = true,
+    turnstileHostname = "nikolausnold.github.io",
+    turnstileAction = "niknolig_assistant"
+} = {}) {
     const calls = [];
     const originalFetch = globalThis.fetch;
     globalThis.fetch = async (url, options = {}) => {
@@ -173,8 +181,18 @@ function mockExternalServices({ turnstile = true, provider = true } = {}) {
             const valid = turnstile && body.get("response") === "valid-turnstile-token";
             return Response.json({
                 success: valid,
-                hostname: valid ? "nikolausnold.github.io" : "invalid.example",
-                action: valid ? "niknolig_assistant" : "other"
+                hostname: valid ? turnstileHostname : "invalid.example",
+                action: valid ? turnstileAction : "other"
+            });
+
+            test("rejects a valid application's token when used with another application's origin", async () => {
+                const calls = mockExternalServices();
+                const response = await worker.fetch(makeRequest({
+                    origin: ORIGIN,
+                    accessToken: await createAccessToken({ audience: DEFENSE_AUDIENCE })
+                }), makeEnvironment());
+                assert.equal(response.status, 403);
+                assert.equal(calls.some(({ url }) => url.includes("api.openai.com")), false);
             });
         }
         if (String(url) === `https://${ACCESS_TEAM_DOMAIN}/cdn-cgi/access/certs`) {
@@ -197,6 +215,7 @@ function mockExternalServices({ turnstile = true, provider = true } = {}) {
     cleanups.push(() => {
         globalThis.fetch = originalFetch;
     });
+
     return calls;
 }
 
@@ -288,6 +307,7 @@ test("requires a valid Cloudflare Access JWT with trusted issuer, audience, sign
         "",
         "not-a-jwt",
         await createAccessToken({ audience: "wrong-application-audience" }),
+        await createAccessToken({ audience: [ACCESS_AUDIENCE, DEFENSE_AUDIENCE] }),
         await createAccessToken({ issuer: "https://attacker.example" }),
         await createAccessToken({ expiresAt: Math.floor(Date.now() / 1_000) - 1 }),
         await createAccessToken({ notBefore: Math.floor(Date.now() / 1_000) + 120 }),
@@ -333,6 +353,12 @@ test("sends only the explicit current question to the fixed OpenAI endpoint", as
     assert.equal("previous_response_id" in sent, false);
 });
 
+test("keeps the existing versioned assistant endpoint as a compatible alias", async () => {
+    mockExternalServices();
+    const response = await worker.fetch(makeRequest({ path: "/v1/assistant/responses" }), makeEnvironment());
+    assert.equal(response.status, 200);
+});
+
 test("accepts Cloudflare's signed access assertion header for an Access-protected route", async () => {
     mockExternalServices();
     const response = await worker.fetch(makeRequest({ accessHeader: true }), makeEnvironment());
@@ -340,8 +366,12 @@ test("accepts Cloudflare's signed access assertion header for an Access-protecte
 });
 
 test("selects an isolated application profile and model only from the signed audience", async () => {
-    const calls = mockExternalServices();
+    const calls = mockExternalServices({
+        turnstileHostname: "defense.example",
+        turnstileAction: "defense_assistant"
+    });
     const response = await worker.fetch(makeRequest({
+        origin: DEFENSE_ORIGIN,
         accessToken: await createAccessToken({ audience: DEFENSE_AUDIENCE }),
         body: JSON.stringify({
             question: "Wie kann ich mich zivil vorbereiten?",
@@ -371,7 +401,27 @@ test("allows a configured native client without browser Origin or Turnstile", as
     assert.equal(response.status, 200);
     assert.equal(calls.some(({ url }) => url.includes("challenges.cloudflare.com")), false);
     const providerCall = calls.find(({ url }) => url === "https://api.openai.com/v1/responses");
-    assert.equal(JSON.parse(providerCall.options.body).model, "gpt-4.1-nano");
+    const sent = JSON.parse(providerCall.options.body);
+    assert.equal(sent.model, "gpt-4.1-nano");
+    assert.equal(sent.max_output_tokens, 120);
+});
+
+test("fails closed on malformed or unauthorized server-side client mappings", async () => {
+    const calls = mockExternalServices();
+    const invalidMappings = [
+        "{",
+        JSON.stringify([{ ...CLIENTS[0], model: "arbitrary-model" }]),
+        JSON.stringify([{ ...CLIENTS[0], origins: ["http://insecure.example"] }]),
+        JSON.stringify([CLIENTS[0], { ...CLIENTS[1], audience: ACCESS_AUDIENCE }])
+    ];
+    for (const AI_CLIENTS_JSON of invalidMappings) {
+        const response = await worker.fetch(
+            makeRequest(),
+            makeEnvironment({ AI_CLIENTS_JSON })
+        );
+        assert.equal(response.status, 503);
+    }
+    assert.equal(calls.length, 0);
 });
 
 test("rejects missing consent, unknown history fields, and obvious sensitive inputs before provider access", async () => {
@@ -475,6 +525,28 @@ test("enforces a shared daily request ceiling and per-IP daily windows", async (
     assert.deepEqual(await (await reserve(ipA)).json(), { allowed: true });
     assert.deepEqual(await (await reserve(ipB)).json(), { allowed: true });
     await assertRateLimited(await reserve("c".repeat(64)));
+});
+
+test("keeps per-application daily quotas isolated while retaining the shared platform ceiling", async () => {
+    const storage = new MemoryStorage();
+    const reserve = (clientId) => new AssistantGuard({ storage }).fetch(
+        new Request("https://guard.internal/reserve", {
+            method: "POST",
+            body: JSON.stringify({
+                ipHash: "a".repeat(64),
+                clientId,
+                reservationId: crypto.randomUUID(),
+                dailyLimit: 10,
+                appDailyLimit: 1,
+                perIpDailyLimit: 10,
+                perIpMinuteLimit: 10,
+                concurrencyLimit: 10
+            })
+        })
+    );
+    assert.deepEqual(await (await reserve("niknolig-web")).json(), { allowed: true });
+    await assertRateLimited(await reserve("niknolig-web"));
+    assert.deepEqual(await (await reserve("niknolig-defense")).json(), { allowed: true });
 });
 
 test("limits per-IP request rates and simultaneous upstream work", async () => {

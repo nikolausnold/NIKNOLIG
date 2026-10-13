@@ -258,25 +258,27 @@ auf HTTPS validiert. Setze sie erst auf einen realen, mit gültigem Zertifikat
 geschützten Server. Der Health-Endpunkt ist nur die Verbindungsgrundlage; Kontozugang,
 Authentifizierung und zahlungsabhängige Berechtigungen sind nicht enthalten.
 
-### OpenAI-KI-Integration: Gateway vorbereitet, Produktstart BLOCKIERT
+### OpenAI-KI-Integration: zentrales Gateway vorbereitet, Produktstart BLOCKIERT
 
-Ein separater Cloudflare Worker mit Cloudflare-Access-JWT-Prüfung, Turnstile,
-Durable-Object-Quoten und serverseitigem OpenAI-Aufruf ist implementiert und
-lokal getestet. Der Cloudflare-Account und ein Deployment wurden in dieser
-Sitzung nicht verifiziert; Website und Android-App sind nicht verbunden. Der
-Pages-Assistent bleibt lokal; Fragen werden nicht übertragen. Für den Betrieb
-braucht es konfigurierte Access-Identität, Secrets, Kostenlimits sowie Datenschutz-
-und Sicherheitsfreigaben. Turnstile und Quoten sind zusätzlicher Missbrauchsschutz,
-keine Nutzer-Authentifizierung; CORS ist ebenfalls keine Authentifizierung. Ein
-OpenAI-Schlüssel gehört ausschließlich in Cloudflares Secret Store, niemals in
-GitHub Pages, Website- oder Android-Code.
+Ein zentraler Cloudflare Worker unterstützt versionierte, per Cloudflare-Access-
+Audience getrennte App-Profile, serverseitig konfigurierbare Modelle,
+browserseitiges Turnstile und Durable-Object-Quoten. Das Gateway ist lokal mit
+Mocks getestet, aber weder live verifiziert noch deployed. Der Pages-Assistent
+und Android bleiben lokal/offline-first; sie senden keine Fragen. Access-Flow,
+Worker-Konfiguration/Secrets, Kostenkontrollen sowie Datenschutz- und
+Sicherheitsfreigaben fehlen weiterhin. Turnstile, Quoten und CORS ersetzen keine
+Authentifizierung. Ein OpenAI-Schlüssel gehört ausschließlich in Cloudflares
+Secret Store, niemals in GitHub Pages, Website- oder Android-Code.
 
 Worker-Architektur, Deployment-Schritte und verbleibende manuelle Freigaben:
 [`docs/architecture/cloudflare-assistant-gateway.md`](docs/architecture/cloudflare-assistant-gateway.md).
 Die aktualisierte Bestandsaufnahme bleibt hier:
 [`docs/architecture/openai-assistant-readiness.md`](docs/architecture/openai-assistant-readiness.md).
-Bis Deployment, Datenschutzhinweise und ausdrückliche Website-Einwilligung
-freigegeben sind, bleibt die Assistenz lokal.
+Vor jeder Aktivierung müssen der bestehende Cloudflare-Worker und seine Assets
+geprüft werden; die Defense-Policy und das getrennte Defense-Repository sind
+ebenfalls noch zu bestätigen. Bis Deployment, Identitätsfluss,
+Datenschutzhinweise und ausdrückliche Einwilligung freigegeben sind, bleibt die
+Assistenz lokal.
 
 ### Offline-Status und künftige Synchronisierung
 

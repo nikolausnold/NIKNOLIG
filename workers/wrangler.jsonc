@@ -1,5 +1,5 @@
 {
-  "name": "niknolig-defense",
+  "name": "niknolig",
   "main": "assistant-worker.mjs",
   "compatibility_date": "2025-10-13",
   "workers_dev": true,
