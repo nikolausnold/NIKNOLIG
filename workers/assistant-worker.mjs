@@ -177,6 +177,19 @@ async function readProviderResponse(response) {
     }
 }
 
+function extractAnswer(result) {
+    if (typeof result?.output_text === "string") return result.output_text;
+    if (!Array.isArray(result?.output)) return null;
+    const text = [];
+    for (const item of result.output) {
+        if (item?.type !== "message" || !Array.isArray(item.content)) continue;
+        for (const part of item.content) {
+            if (part?.type === "output_text" && typeof part.text === "string") text.push(part.text);
+        }
+    }
+    return text.length ? text.join("\n") : null;
+}
+
 async function hashIp(ip, secret) {
     const bytes = new TextEncoder().encode(`${secret}:${ip}`);
     const digest = await crypto.subtle.digest("SHA-256", bytes);
@@ -230,14 +243,6 @@ async function handleAssistant(request, env, origin) {
 
     const remoteIp = request.headers.get("CF-Connecting-IP");
     if (!remoteIp || remoteIp.length > 45) return jsonResponse(503, { error: "service_unavailable" }, origin);
-    try {
-        if (!await verifyTurnstile(payload.turnstileToken, remoteIp, env)) {
-            return jsonResponse(403, { error: "request_not_verified" }, origin);
-        }
-    } catch {
-        return jsonResponse(503, { error: "service_unavailable" }, origin);
-    }
-
     let ipHash;
     let reservation;
     try {
@@ -251,6 +256,9 @@ async function handleAssistant(request, env, origin) {
     }
 
     try {
+        if (!await verifyTurnstile(payload.turnstileToken, remoteIp, env)) {
+            return jsonResponse(403, { error: "request_not_verified" }, origin);
+        }
         const upstream = await fetch("https://api.openai.com/v1/responses", {
             method: "POST",
             headers: {
@@ -273,7 +281,7 @@ async function handleAssistant(request, env, origin) {
         }
 
         const result = await readProviderResponse(upstream);
-        const answer = result?.output_text;
+        const answer = extractAnswer(result);
         if (typeof answer !== "string" || answer.trim().length === 0 || [...answer].length > 4_000) {
             return jsonResponse(503, { error: "service_unavailable" }, origin);
         }

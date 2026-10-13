@@ -92,7 +92,12 @@ function mockExternalServices({ turnstile = true, provider = true } = {}) {
         }
         if (String(url) === "https://api.openai.com/v1/responses") {
             return provider
-                ? Response.json({ output_text: "Eine allgemeine Antwort." })
+                ? Response.json({
+                    output: [{
+                        type: "message",
+                        content: [{ type: "output_text", text: "Eine allgemeine Antwort." }]
+                    }]
+                })
                 : Response.json({ error: { message: "private upstream detail" } }, { status: 500 });
         }
         throw new Error("Unexpected external request");
@@ -240,15 +245,50 @@ test("enforces a shared daily request ceiling, per-IP windows, and concurrency",
             ...limits
         })
     }));
+    const release = () => guard.fetch(new Request("https://guard.internal/release", { method: "POST" }));
     const ipA = "a".repeat(64);
     const ipB = "b".repeat(64);
 
     assert.deepEqual(await (await reserve(ipA)).json(), { allowed: true });
+    await release();
+    assert.deepEqual(await (await reserve(ipB)).json(), { allowed: true });
+    await release();
+    assert.deepEqual(await (await reserve("c".repeat(64))).json(), {
+        allowed: false,
+        retryAfter: 60
+    });
+});
+
+test("limits per-IP request rates and simultaneous upstream work", async () => {
+    const guard = new AssistantGuard({ storage: new MemoryStorage() });
+    const reserve = (ipHash, overrides = {}) => guard.fetch(new Request("https://guard.internal/reserve", {
+        method: "POST",
+        body: JSON.stringify({
+            ipHash,
+            dailyLimit: 10,
+            perIpDailyLimit: 10,
+            perIpMinuteLimit: 10,
+            concurrencyLimit: 1,
+            ...overrides
+        })
+    }));
+    const release = () => guard.fetch(new Request("https://guard.internal/release", { method: "POST" }));
+    const ipA = "a".repeat(64);
+    const ipB = "b".repeat(64);
+
+    assert.deepEqual(await (await reserve(ipA, { perIpMinuteLimit: 1 })).json(), { allowed: true });
+    await release();
+    assert.deepEqual(await (await reserve(ipA, { perIpMinuteLimit: 1 })).json(), {
+        allowed: false,
+        retryAfter: 60
+    });
     assert.deepEqual(await (await reserve(ipB)).json(), { allowed: true });
     assert.deepEqual(await (await reserve("c".repeat(64))).json(), {
         allowed: false,
         retryAfter: 60
     });
+    await release();
+    assert.deepEqual(await (await reserve("c".repeat(64))).json(), { allowed: true });
 });
 
 test("preflight permits only POST with Content-Type from the exact website origin", async () => {

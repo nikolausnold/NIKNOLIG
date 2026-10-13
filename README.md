@@ -258,17 +258,24 @@ auf HTTPS validiert. Setze sie erst auf einen realen, mit gültigem Zertifikat
 geschützten Server. Der Health-Endpunkt ist nur die Verbindungsgrundlage; Kontozugang,
 Authentifizierung und zahlungsabhängige Berechtigungen sind nicht enthalten.
 
-### OpenAI-KI-Integration: BLOCKIERT
+### OpenAI-KI-Integration: Gateway vorbereitet, Produktstart BLOCKIERT
 
-Website und Android-App verwenden weiterhin nur ihre lokalen vorbereiteten
-Antworten. Es gibt keinen KI-Endpunkt und keine OpenAI-Anfragen. Der aktuelle
-Health-Server hat weder Nutzerauthentifizierung noch Missbrauchs- und Kostenlimits
-und ist nicht als produktives KI-Backend freigegeben. Ein OpenAI-Schlüssel darf
-niemals in GitHub Pages, Website- oder Android-Code abgelegt werden.
-Backend-Entwurf, notwendige Infrastruktur, Datenschutz und offene Freigaben:
+Ein separater Cloudflare Worker mit Turnstile-Prüfung, Durable-Object-Quoten und
+serverseitigem OpenAI-Aufruf ist implementiert und lokal getestet, aber weder
+deployt noch mit der Website oder Android-App verbunden. Der Pages-Assistent
+bleibt lokal; Fragen werden nicht übertragen. Der Worker benötigt Cloudflare-
+Secrets, ein autorisiertes Deployment, Provider-Ausgabenlimits und Datenschutz-
+sowie Sicherheitsfreigaben. Turnstile und Quoten sind Missbrauchsschutz, keine
+Nutzer-Authentifizierung; CORS ist ebenfalls keine Authentifizierung. Ein
+OpenAI-Schlüssel gehört ausschließlich in Cloudflares Secret Store, niemals in
+GitHub Pages, Website- oder Android-Code.
+
+Worker-Architektur, Deployment-Schritte und verbleibende manuelle Freigaben:
+[`docs/architecture/cloudflare-assistant-gateway.md`](docs/architecture/cloudflare-assistant-gateway.md).
+Die aktualisierte Bestandsaufnahme bleibt hier:
 [`docs/architecture/openai-assistant-readiness.md`](docs/architecture/openai-assistant-readiness.md).
-Bis diese Voraussetzungen geprüft und bereitgestellt sind, bleibt die Assistenz
-lokal.
+Bis Deployment, Datenschutzhinweise und ausdrückliche Website-Einwilligung
+freigegeben sind, bleibt die Assistenz lokal.
 
 ### Offline-Status und künftige Synchronisierung
 

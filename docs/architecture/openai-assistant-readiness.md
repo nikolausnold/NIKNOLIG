@@ -1,6 +1,6 @@
 # OpenAI assistant integration readiness
 
-**Status: BLOCKED — no OpenAI requests are implemented or sent.**
+**Status: PARTIALLY IMPLEMENTED — Worker source and mock tests exist; it is not deployed, and neither client sends AI requests.**
 
 This document records the safe integration boundary for the civilian NIKNOLIG
 website and Android app. It is an implementation specification, not evidence of
@@ -18,53 +18,66 @@ integration scope.
   URL; it is not a secret or an authentication mechanism.
 - The Android app matches questions to bundled resources locally. It has no
   assistant network client or sign-in flow.
-- No OpenAI secret, model configuration, authentication issuer, hosting
-  service, API gateway, budget, or deployment environment is configured.
+- `workers/assistant-worker.mjs` now contains an isolated Cloudflare Worker with
+  `POST /v1/assistant/responses`, the existing fixed `GET /v1/health` response,
+  exact Pages-origin CORS, Turnstile verification, and a SQLite Durable Object
+  enforcing shared daily, per-IP, and concurrency limits. Its tests use mocked
+  external services only.
+- `workers/wrangler.jsonc` configures the Worker and Durable Object, but no
+  Cloudflare account, secrets, production route, provider budget, deployment, or
+  legal/privacy approval is configured. No identity provider is configured.
 
-The health server can be used as a starting point for a separately deployed API,
-but the current health-only service is **not** a suitable production AI backend.
-GitHub Pages must never call OpenAI directly or contain an OpenAI key. Do not
-add an unauthenticated proxy endpoint to the present server: a public page's
-origin and CORS policy do not authenticate its users or prevent scripted abuse.
+The existing Node health server remains health-only and is not modified. The
+Worker is a separately deployable gateway scaffold, not a live AI service.
+GitHub Pages must never call OpenAI directly or contain an OpenAI key. The
+Worker's Turnstile challenge, quotas, and concurrency cap are abuse controls,
+not user authentication; CORS does not authenticate users. It must not be used
+for account-specific permissions or sensitive input.
 
 ## Target request flow
 
 ```text
-Website / Android app
-  └─ explicit AI-use choice + short-lived user access token
-       └─ HTTPS API gateway / abuse controls
-            └─ authenticated NIKNOLIG backend
-                 └─ OpenAI Responses API (server-side key)
+Website (not connected)
+  └─ explicit AI-use choice + single-use Turnstile token
+       └─ HTTPS Cloudflare Worker + Durable Object quotas
+            └─ OpenAI Responses API (Worker secret)
 ```
 
-The existing local assistant remains available without network access. A user
-must explicitly choose the AI option for each request; the app must not silently
-fall back from local answers to a remote model.
+The website and Android assistants remain local and available without network
+access. The website has no Turnstile widget, consent interface, or Worker URL
+configured and therefore does not invoke this endpoint. Android is not connected.
+Do not silently fall back from local answers to a remote model.
 
-## Proposed backend contract
+## Implemented Worker contract (undeployed)
 
-Implement this only in an owned, deployed backend with the controls below.
+The endpoint is implemented in `workers/assistant-worker.mjs` and described in
+[`cloudflare-assistant-gateway.md`](cloudflare-assistant-gateway.md). It must not
+be deployed or enabled until the remaining setup and release gates are approved.
 
 ### `POST /v1/assistant/responses`
 
-- Require HTTPS and a short-lived user bearer token issued by the selected
-  identity provider. Validate JWT signature against trusted issuer keys, issuer,
-  audience, expiry, not-before, and the `assistant:ask` scope server-side.
-  Website and Android clients must use a public-client flow such as OAuth
-  Authorization Code with PKCE; no client secret belongs in either client.
-- Bind authorization and quotas to the authenticated user/client. Apply
-  distributed limits at the gateway and backend (per account and source IP),
-  request concurrency limits, abuse monitoring, and a challenge or equivalent
-  control for suspicious anonymous website traffic. CORS is only a browser
-  policy, never an authorization substitute.
-- Accept only a bounded JSON object such as
-  `{"question":"...","locale":"de"}`. Reject unknown fields, empty questions,
-  unsupported locales, control characters, and oversized bodies (suggested
-  maximum 2 KiB and 1,000 Unicode characters). Do not accept a model, system
-  prompt, tools, endpoint, token count, role, or conversation history from the
-  client.
-- Read the provider key and model allow-list from the server's protected secret
-  and configuration stores. Call only the OpenAI Responses API from the server.
+- Require HTTPS and exact
+  `Origin: https://nikolausnold.github.io`. Require a valid Turnstile token
+  verified server-side for the expected hostname and action. A fixed-origin
+  header is forgeable outside browsers; Turnstile is an abuse barrier, not proof
+  of identity or user consent. CORS is only a browser policy.
+- A SQLite Durable Object enforces a shared maximum of 100 requests reaching
+  Turnstile verification
+  per UTC day, 12 requests per pseudonymous IP per day, 3 per IP per minute,
+  and 2 concurrent upstream requests. Raw IPs are hashed using a server secret
+  before persistence, and per-IP entries are cleared by a daily alarm. Quotas
+  are fixed in Worker code and must be reviewed against actual provider pricing
+  and Cloudflare plan limits. They cap request volume but do not establish a
+  hard-dollar provider spend ceiling.
+- Accept only the bounded JSON object
+  `{"question":"...","locale":"de|en","consent":true,"turnstileToken":"..."}`.
+  Reject unknown fields, an absent consent flag, empty/oversized questions,
+  unsupported locales, control characters, sensitive-pattern matches, and
+  request bodies over 2 KiB. Do not accept a model, system prompt, tools,
+  endpoint, token count, role, or conversation history from the client.
+- Read the provider key only from the Worker secret binding. The model is fixed
+  in source, not client-selectable. Call only the OpenAI Responses API from the
+  Worker.
   Disable tools, browsing, file access, and function execution. Set a strict
   output-token limit, provider timeout, response-size limit, and `store: false`
   where supported by the selected API/model. Abort timed-out upstream work.
@@ -82,15 +95,17 @@ Do not persist full prompts, replies, or conversation history by default. If a
 future feature needs history, it requires a separate product decision, explicit
 user control, retention/deletion design, and a new privacy review.
 
-### Abuse and cost controls
+### Additional abuse and cost controls required before deployment
 
-Before opening access, the service owner must configure per-user and per-IP
-request/rate/concurrency quotas, provider organization/project separation,
-model allow-list and spend alerts, an emergency kill switch, dashboards for
-aggregate request/token/error rates, and an operational response plan. Provider
-budget alerts may not be hard spending caps; independently enforce application
-quotas and shut off the route when its budget is exhausted. Do not rely on a
-single in-memory rate counter across replicas.
+The Worker implements fixed IP/global request quotas, concurrency limiting, a
+single-use Turnstile check, a fixed model, and a 300-token output ceiling.
+Before deployment, the service owner must still provision an OpenAI project/key,
+provider spend controls and alerts, an emergency shutoff, monitoring, an
+incident-response plan, and confirm Cloudflare Durable Object pricing and
+limits. Provider budget alerts may not be hard spending caps; the request quota
+is not a dollar quota. Deliberate quota evasion, shared IPs, and quota
+exhaustion remain possible. Add a real identity provider if account-bound
+quotas or entitlements are required.
 
 ## Client disclosure and data minimization
 
@@ -129,25 +144,26 @@ is not a security boundary.
 
 ## Required environment and release gates
 
-1. Select and provision an owned production backend, API gateway/WAF, TLS,
-   identity provider, secret manager, distributed rate-limit/quota store,
-   monitoring, and incident/cost shutoff. Do not use a GitHub Pages workflow as
-   a runtime secret store or server.
-2. Create a restricted OpenAI project/key for the backend only; set the model
-   allow-list and provider data controls. Store the key in the hosting secret
-   manager, rotate it, and prove it never enters build artifacts or logs.
-3. Configure trusted issuer/audience/JWKS, PKCE clients, scopes, user/session
-   revocation, exact website CORS origin, and Android redirect configuration.
-   Configure CORS for the website only; native Android authorization relies on
-   tokens, not CORS.
+1. Provision and authorize the Cloudflare Worker, Durable Object SQLite
+   namespace, Turnstile widget, secret bindings, approved hostname/routing,
+   monitoring, and incident/cost shutoff. Worker source and Wrangler binding
+   config are present; account resources are not.
+2. Create a restricted OpenAI project/key for the Worker only; review model and
+   provider data controls. Store the key in Cloudflare's secret manager, rotate
+   it, and prove it never enters build artifacts or logs.
+3. Configure Turnstile for the exact Pages hostname and verify its action. Keep
+   the Worker CORS origin exact. If account-specific permissions or entitlements
+   become necessary, select and configure an identity provider; the current
+   Worker does not authenticate users. Android remains disconnected.
 4. Approve request/response limits, quotas, cost ceiling, provider terms, data
    retention, privacy language, age/accessibility behavior, abuse handling, and
    safety policy with the responsible operators and qualified reviewers.
-5. Implement the backend route in a separate, reviewable change. Add isolated
-   provider mocks and tests for missing secrets, bad/expired/wrong-audience
-   tokens, missing scopes, disallowed origins, invalid and oversized input,
-   prompt/tool injection, provider timeouts/errors/malformed output, rate
-   limits, quota exhaustion, redacted logs, and unchanged `/v1/health`.
+5. The Worker route and dependency-free mocked tests are implemented. Before
+   deployment, independently review the Worker and verify missing-secret
+   fail-closed behavior, denied origins, invalid/replayed Turnstile, input and
+   output bounds, provider timeout/error/malformed output, quotas, concurrency,
+   cost controls, and unchanged `/v1/health`. Never use a live key or paid
+   provider request in tests.
 6. Only after a production-like deployment and security/privacy approval, add
    the explicitly consented website and Android clients, update both privacy
    notices, test both clients on supported browsers/devices, and verify offline
@@ -157,9 +173,9 @@ is not a security boundary.
 
 ## Current decision
 
-No provider key, model choice, identity provider, hosting/gateway, spend policy,
-or legal/privacy approval is configured. Therefore this change deliberately
-does not add a client AI toggle, make external OpenAI calls, or claim that AI is
-integrated. The safe next action is to provision and approve the backend
-environment, then implement and independently review the server API before
-enabling either client.
+The Worker gateway code, fixed model, and mock test suite are present, but no
+provider key, Cloudflare resources, deployment, spend policy, or legal/privacy
+approval is configured. Product clients still make no OpenAI calls. The safe
+next action is for an authorized operator to provision account resources,
+configure secrets and budgets, obtain approvals, and explicitly deploy; only
+then may the separately reviewed and consented website client be implemented.
