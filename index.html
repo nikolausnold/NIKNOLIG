@@ -175,7 +175,7 @@
                 <p id="assistant-answer" class="local-helper-answer" role="status" aria-live="polite">Stelle eine Frage zu NIKNOLIG, Datenschutz, Gerätesuche, Arbeit oder Alltag.</p>
                 <div class="api-connection" id="cloud-assistant">
                     <h4>Optionale Cloud-KI</h4>
-                    <p>Nur wenn du unten ausdrücklich zustimmst und auf „Cloud-Antwort abrufen“ klickst, wird die aktuelle Frage über Cloudflare an OpenAI übertragen. Dabei werden technisch notwendige Verbindungsdaten einschließlich deiner IP-Adresse verarbeitet. Fragen werden von NIKNOLIG nicht gespeichert. Bitte keine Passwörter, Zahlungs-, Gesundheits- oder sonstigen sensiblen Daten eingeben. Die lokale Antwort bleibt ohne Internet verfügbar.</p>
+                    <p>Nur wenn du unten ausdrücklich zustimmst und auf „Cloud-Antwort abrufen“ klickst, wird die aktuelle Frage über Cloudflare an OpenAI übertragen. Cloudflare und Turnstile verarbeiten dabei deine IP-Adresse; OpenAI erhält die Frage über die Serververbindung des Workers, nicht deine IP-Adresse als Frageinhalt. Fragen werden von NIKNOLIG nicht gespeichert. Bitte keine Passwörter, Zahlungs-, Gesundheits- oder sonstigen sensiblen Daten eingeben. Die lokale Antwort bleibt ohne Internet verfügbar.</p>
                     <p><a href="privacy.html">Datenschutzhinweise</a> · OpenAI-Antworten können unvollständig oder falsch sein.</p>
                     <label class="consent-option" for="cloud-ai-consent">
                         <input id="cloud-ai-consent" type="checkbox">
