@@ -1,0 +1,82 @@
+name: Deploy Cloudflare AI gateway
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployment_confirmation:
+        description: Verify the existing production Worker and approve deployment
+        required: true
+        type: choice
+        options:
+          - cancel
+          - deploy-niknolig
+        default: cancel
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-worker-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      inputs.deployment_confirmation == 'deploy-niknolig'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment:
+      # Configure required reviewers for this environment in repository settings.
+      name: cloudflare-production
+    steps:
+      - name: Check out approved branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify configured target
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from "node:fs";
+
+          const config = JSON.parse(readFileSync("workers/wrangler.jsonc", "utf8"));
+          if (config.name !== "niknolig") {
+            throw new Error("Refusing deployment: Wrangler target must be the existing Worker niknolig.");
+          }
+          NODE
+
+      - name: Verify the existing Cloudflare Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$CLOUDFLARE_API_TOKEN" ]]; then
+            echo "::error::Set CLOUDFLARE_API_TOKEN in the cloudflare-production environment."
+            exit 1
+          fi
+          if [[ ! "$CLOUDFLARE_ACCOUNT_ID" =~ ^[a-f0-9]{32}$ ]]; then
+            echo "::error::Set CLOUDFLARE_ACCOUNT_ID to the target account's 32-character ID."
+            exit 1
+          fi
+
+          settings="$RUNNER_TEMP/niknolig-worker-settings.json"
+          curl --fail --silent --show-error \
+            --connect-timeout 10 --max-time 30 \
+            --oauth2-bearer "$CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/niknolig/settings" \
+            --output "$settings"
+          if ! jq -e '.success == true' "$settings" >/dev/null; then
+            echo "::error::Cloudflare did not confirm the existing niknolig Worker; deployment stopped."
+            exit 1
+          fi
+          rm -f "$settings"
+
+      - name: Deploy existing Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: >-
+          npx --yes --package=wrangler@4.149.0 -- wrangler deploy
+          --config workers/wrangler.jsonc
