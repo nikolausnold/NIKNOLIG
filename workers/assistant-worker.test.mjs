@@ -588,7 +588,7 @@ test("limits per-IP request rates and simultaneous upstream work", async () => {
     assert.deepEqual(await (await reserve("c".repeat(64))).response.json(), { allowed: true });
 });
 
-test("clears pseudonymous per-IP quota keys during its cleanup alarm", async () => {
+test("cleans only expired per-IP quota keys and preserves today's limits", async () => {
     const storage = new MemoryStorage();
     const guard = new AssistantGuard({ storage });
     const response = await guard.fetch(new Request("https://guard.internal/reserve", {
@@ -606,8 +606,17 @@ test("clears pseudonymous per-IP quota keys during its cleanup alarm", async () 
     }));
     assert.equal((await response.json()).allowed, true);
     assert.equal((await storage.list({ prefix: "ip:" })).size, 1);
+    await storage.put("ip:expired", {
+        day: "2000-01-01",
+        dailyCount: 12,
+        minute: 0,
+        minuteCount: 3
+    });
     await guard.alarm();
-    assert.equal((await storage.list({ prefix: "ip:" })).size, 0);
+    const entries = await storage.list({ prefix: "ip:" });
+    assert.equal(entries.size, 1);
+    assert.equal([...entries.values()][0].day, new Date().toISOString().slice(0, 10));
+    assert.ok((await storage.getAlarm()) > Date.now());
 });
 
 test("preflight permits only POST with Content-Type from the exact website origin", async () => {

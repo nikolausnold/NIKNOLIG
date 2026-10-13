@@ -661,8 +661,16 @@ export class AssistantGuard {
     }
 
     async alarm() {
-        const entries = await this.ctx.storage.list({ prefix: "ip:" });
-        for (const key of entries.keys()) await this.ctx.storage.delete(key);
+        const now = Date.now();
+        const day = new Date(now).toISOString().slice(0, 10);
+        await this.ctx.storage.transaction(async (transaction) => {
+            const entries = await transaction.list({ prefix: "ip:" });
+            for (const [key, entry] of entries) {
+                if (entry?.day !== day) await transaction.delete(key);
+            }
+        });
+        const nextMidnight = Date.parse(`${day}T00:00:00.000Z`) + 86_400_000;
+        await this.ctx.storage.setAlarm(nextMidnight);
     }
 }
 
