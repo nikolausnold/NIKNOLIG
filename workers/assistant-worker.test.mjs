@@ -91,6 +91,8 @@ function mockExternalServices({ turnstile = true, provider = true } = {}) {
             });
         }
         if (String(url) === "https://api.openai.com/v1/responses") {
+            if (provider === "timeout") throw new Error("mocked timeout");
+            if (provider === "malformed") return Response.json({ output: [] });
             return provider
                 ? Response.json({
                     output: [{
@@ -119,7 +121,7 @@ function makeRequest({
     contentType = "application/json"
 } = {}) {
     const payload = body ?? JSON.stringify({ question, locale, consent, turnstileToken });
-    return new Request(`https://gateway.example${"/v1/assistant/responses"}`, {
+    return new Request("https://gateway.example/v1/assistant/responses", {
         method: "POST",
         headers: {
             Origin: origin,
@@ -128,6 +130,12 @@ function makeRequest({
         },
         body: payload
     });
+}
+
+async function assertRateLimited(response) {
+    const result = await response.json();
+    assert.equal(result.allowed, false);
+    assert.ok(result.retryAfter > 0);
 }
 
 afterEach(() => {
@@ -199,6 +207,9 @@ test("rejects missing consent, unknown history fields, and obvious sensitive inp
         }),
         makeRequest({ question: "pass" + "word=secret" }),
         makeRequest({ question: "Meine Kartennummer ist 4111 1111 1111 1111" }),
+        makeRequest({ question: "" }),
+        makeRequest({ locale: "fr" }),
+        makeRequest({ question: "Bitte\nleise" }),
         makeRequest({ question: "x".repeat(1_001) })
     ];
     for (const request of requests) {
@@ -211,7 +222,7 @@ test("rejects missing consent, unknown history fields, and obvious sensitive inp
 test("rejects oversized and non-JSON requests", async () => {
     mockExternalServices();
     const environment = makeEnvironment();
-    const oversized = await worker.fetch(makeRequest({ body: "x".repeat(2_049) }), environment);
+    const oversized = await worker.fetch(makeRequest({ body: "x".repeat(8_193) }), environment);
     assert.equal(oversized.status, 413);
     const wrongType = await worker.fetch(makeRequest({ contentType: "text/plain" }), environment);
     assert.equal(wrongType.status, 415);
@@ -229,6 +240,23 @@ test("uses generic provider failure responses and never returns provider diagnos
     const response = await worker.fetch(makeRequest(), makeEnvironment());
     assert.equal(response.status, 503);
     assert.deepEqual(await response.json(), { error: "service_unavailable" });
+});
+
+test("handles provider timeouts and malformed responses without exposing details", async () => {
+    for (const provider of ["timeout", "malformed"]) {
+        mockExternalServices({ provider });
+        const response = await worker.fetch(makeRequest(), makeEnvironment());
+        assert.equal(response.status, 503);
+        assert.deepEqual(await response.json(), { error: "service_unavailable" });
+        cleanups.pop()();
+    }
+});
+
+test("rejects a foreign website origin before any external request", async () => {
+    const calls = mockExternalServices();
+    const response = await worker.fetch(makeRequest({ origin: "https://attacker.example" }), makeEnvironment());
+    assert.equal(response.status, 403);
+    assert.equal(calls.length, 0);
 });
 
 test("enforces a shared daily request ceiling, per-IP windows, and concurrency", async () => {
@@ -253,10 +281,7 @@ test("enforces a shared daily request ceiling, per-IP windows, and concurrency",
     await release();
     assert.deepEqual(await (await reserve(ipB)).json(), { allowed: true });
     await release();
-    assert.deepEqual(await (await reserve("c".repeat(64))).json(), {
-        allowed: false,
-        retryAfter: 60
-    });
+    await assertRateLimited(await reserve("c".repeat(64)));
 });
 
 test("limits per-IP request rates and simultaneous upstream work", async () => {
@@ -278,17 +303,30 @@ test("limits per-IP request rates and simultaneous upstream work", async () => {
 
     assert.deepEqual(await (await reserve(ipA, { perIpMinuteLimit: 1 })).json(), { allowed: true });
     await release();
-    assert.deepEqual(await (await reserve(ipA, { perIpMinuteLimit: 1 })).json(), {
-        allowed: false,
-        retryAfter: 60
-    });
+    await assertRateLimited(await reserve(ipA, { perIpMinuteLimit: 1 }));
     assert.deepEqual(await (await reserve(ipB)).json(), { allowed: true });
-    assert.deepEqual(await (await reserve("c".repeat(64))).json(), {
-        allowed: false,
-        retryAfter: 60
-    });
+    await assertRateLimited(await reserve("c".repeat(64)));
     await release();
     assert.deepEqual(await (await reserve("c".repeat(64))).json(), { allowed: true });
+});
+
+test("clears pseudonymous per-IP quota keys during its cleanup alarm", async () => {
+    const storage = new MemoryStorage();
+    const guard = new AssistantGuard({ storage });
+    const response = await guard.fetch(new Request("https://guard.internal/reserve", {
+        method: "POST",
+        body: JSON.stringify({
+            ipHash: "a".repeat(64),
+            dailyLimit: 5,
+            perIpDailyLimit: 5,
+            perIpMinuteLimit: 5,
+            concurrencyLimit: 2
+        })
+    }));
+    assert.equal((await response.json()).allowed, true);
+    assert.equal((await storage.list({ prefix: "ip:" })).size, 1);
+    await guard.alarm();
+    assert.equal((await storage.list({ prefix: "ip:" })).size, 0);
 });
 
 test("preflight permits only POST with Content-Type from the exact website origin", async () => {

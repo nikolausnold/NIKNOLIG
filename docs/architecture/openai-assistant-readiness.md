@@ -64,32 +64,32 @@ be deployed or enabled until the remaining setup and release gates are approved.
 - A SQLite Durable Object enforces a shared maximum of 100 requests reaching
   Turnstile verification
   per UTC day, 12 requests per pseudonymous IP per day, 3 per IP per minute,
-  and 2 concurrent upstream requests. Raw IPs are hashed using a server secret
-  before persistence, and per-IP entries are cleared by a daily alarm. Quotas
-  are fixed in Worker code and must be reviewed against actual provider pricing
-  and Cloudflare plan limits. They cap request volume but do not establish a
-  hard-dollar provider spend ceiling.
+  and 2 concurrent upstream requests. Raw IPs are HMAC-SHA-256 pseudonymized
+  using a server secret before persistence, and per-IP entries are cleared by a
+  daily alarm. Quotas are fixed in Worker code and must be reviewed against
+  actual provider pricing and Cloudflare plan limits. They cap request volume
+  but do not establish a hard-dollar provider spend ceiling.
 - Accept only the bounded JSON object
   `{"question":"...","locale":"de|en","consent":true,"turnstileToken":"..."}`.
   Reject unknown fields, an absent consent flag, empty/oversized questions,
   unsupported locales, control characters, sensitive-pattern matches, and
-  request bodies over 2 KiB. Do not accept a model, system prompt, tools,
+  request bodies over 8 KiB. Do not accept a model, system prompt, tools,
   endpoint, token count, role, or conversation history from the client.
 - Read the provider key only from the Worker secret binding. The model is fixed
   in source, not client-selectable. Call only the OpenAI Responses API from the
-  Worker.
-  Disable tools, browsing, file access, and function execution. Set a strict
-  output-token limit, provider timeout, response-size limit, and `store: false`
-  where supported by the selected API/model. Abort timed-out upstream work.
+  Worker, with no tools, browsing, file access, or function execution. The
+  request caps output at 300 tokens, uses a 20-second provider timeout, limits
+  the upstream response body to 64 KiB, and sets `store: false`; timed-out work
+  is aborted.
 - Return only a bounded plain-text answer and a random request ID. Render the
   answer as text, not HTML. Do not relay provider headers, raw errors, or
-  internal diagnostics to the client. Use generic `400`, `401`, `403`, `413`,
+  internal diagnostics to the client. Use generic `400`, `403`, `413`, `415`,
   `429`, and `503` responses, with `Retry-After` for throttling/transient
   failures.
-- Never log questions, answers, access tokens, provider keys, or complete
-  provider request/response bodies. Operational logs may include a random
-  request ID, authenticated subject pseudonym, status, latency, and aggregate
-  token/cost counters, subject to an approved retention period.
+- The Worker emits no application logs and persists no prompts or answers.
+  Configure and review Cloudflare platform/access-log fields and retention
+  separately; never log questions, answers, access tokens, provider keys, or
+  complete provider request/response bodies.
 
 Do not persist full prompts, replies, or conversation history by default. If a
 future feature needs history, it requires a separate product decision, explicit
@@ -99,19 +99,21 @@ user control, retention/deletion design, and a new privacy review.
 
 The Worker implements fixed IP/global request quotas, concurrency limiting, a
 single-use Turnstile check, a fixed model, and a 300-token output ceiling.
-Before deployment, the service owner must still provision an OpenAI project/key,
-provider spend controls and alerts, an emergency shutoff, monitoring, an
-incident-response plan, and confirm Cloudflare Durable Object pricing and
-limits. Provider budget alerts may not be hard spending caps; the request quota
-is not a dollar quota. Deliberate quota evasion, shared IPs, and quota
-exhaustion remain possible. Add a real identity provider if account-bound
-quotas or entitlements are required.
+The service owner must also configure Cloudflare edge rate limiting for all
+requests, including malformed requests that do not reach the Durable Object.
+Before deployment, provision an OpenAI project/key, provider spend controls and
+alerts, an emergency shutoff, monitoring, an incident-response plan, and confirm
+Cloudflare Durable Object pricing and limits. Provider budget alerts may not be
+hard spending caps; the request quota is not a dollar quota. Deliberate quota
+evasion, shared IPs, and quota exhaustion remain possible. Add a real identity
+provider if account-bound quotas or entitlements are required.
 
 ## Client disclosure and data minimization
 
 Before the first remote AI request and at the point of use, clearly tell the
-user that the specific question will be sent to NIKNOLIG's backend and OpenAI
-to produce an answer, and link to the revised privacy notice. Require an
+user that the specific question will pass through Cloudflare/NIKNOLIG's backend
+and be sent to OpenAI to produce an answer. Turnstile also receives the
+challenge token and source IP. Link to the revised privacy notice. Require an
 affirmative, unbundled action to send; provide a local-only alternative.
 
 Transmit only the current question and a supported locale. Do not send saved

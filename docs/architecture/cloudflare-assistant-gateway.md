@@ -13,11 +13,11 @@ or call the OpenAI credential.
   verification, fixed OpenAI Responses request, generic failures, exact
   `https://nikolausnold.github.io` CORS policy, and input/output bounds.
 - `workers/AssistantGuard` is a SQLite-backed Durable Object. It enforces a
-  shared maximum of 100 requests reaching Turnstile verification per UTC day, 12 per pseudonymous IP
-  per day, 3 per IP per minute, and 2 simultaneous requests. IP addresses are
-  SHA-256 hashed with a server secret before storage; IP-hash keys are removed
-  by a daily alarm. The shared daily counter is a request-count ceiling, not a
-  provider billing guarantee.
+  shared maximum of 100 requests reaching Turnstile verification per UTC day,
+  12 per pseudonymous IP per day, 3 per IP per minute, and 2 simultaneous
+  requests. IP addresses are HMAC-SHA-256 pseudonymized with a server secret
+  before storage; IP-hash keys are removed by a daily alarm. The shared daily
+  counter is a request-count ceiling, not a provider billing guarantee.
 - `workers/assistant-worker.test.mjs` exercises the Worker with mocked external
   services; tests make no provider or Cloudflare requests.
 - `workers/wrangler.jsonc` defines the Worker and Durable Object binding.
@@ -29,7 +29,9 @@ authentication. The endpoint is not suitable for sensitive or account-specific
 data. A daily request cap bounds aggregate calls, while the fixed model and
 300-token output cap constrain per-call exposure. It does not establish a
 hard-dollar ceiling: the operator must configure provider-side budgets/alerts
-and monitor usage before enabling access.
+and monitor usage before enabling access. The Durable Object quotas apply after
+basic body validation; configure Cloudflare edge rate limiting for all requests
+to the endpoint, including malformed bodies and failed Turnstile checks.
 
 Each accepted body must contain exactly `question`, `locale`, `consent`, and
 `turnstileToken`. The current question is the only user content sent to OpenAI;
@@ -46,6 +48,13 @@ Deployment is intentionally manual. Do not add production credentials to Git,
 GitHub Pages variables, `.dev.vars`, examples, test fixtures, or command-line
 arguments. The steps below require an authorized Cloudflare account and the
 operator's explicit approval to deploy.
+
+Official references: [Wrangler installation](https://developers.cloudflare.com/workers/wrangler/install-and-update/),
+[Worker deployment](https://developers.cloudflare.com/workers/wrangler/commands/#deploy),
+[Worker secrets](https://developers.cloudflare.com/workers/configuration/secrets/),
+[Durable Objects](https://developers.cloudflare.com/durable-objects/),
+[Turnstile server-side validation](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/),
+and the [OpenAI Responses API](https://platform.openai.com/docs/api-reference/responses).
 
 1. Create/select the Cloudflare account and Worker, and enable Workers Paid /
    Durable Objects SQLite as required by Cloudflare's current plan and product
@@ -103,8 +112,9 @@ operator's explicit approval to deploy.
   age/accessibility behavior, and any required DPA/DPIA/legal review before
   production AI use.
 - Set provider hard limits where available, alerts, incident response, and
-  Worker monitoring; validate Cloudflare Durable Object pricing and quota
-  semantics for the selected account.
+  Worker monitoring; configure edge rate-limiting for all endpoint attempts and
+  validate Cloudflare Durable Object pricing and quota semantics for the
+  selected account.
 - Consider a real identity provider if the feature becomes account-specific or
   must resist deliberate quota evasion. The current controls do not provide
   identity, user-specific entitlements, or proof that a human saw the consent UI.

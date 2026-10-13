@@ -2,7 +2,7 @@ const WEBSITE_ORIGIN = "https://nikolausnold.github.io";
 const WEBSITE_HOSTNAME = "nikolausnold.github.io";
 const ASSISTANT_PATH = "/v1/assistant/responses";
 const HEALTH_PATH = "/v1/health";
-const MAX_BODY_BYTES = 2_048;
+const MAX_BODY_BYTES = 8_192;
 const MAX_QUESTION_CODE_POINTS = 1_000;
 const MAX_PROVIDER_RESPONSE_BYTES = 65_536;
 const MAX_OUTPUT_TOKENS = 300;
@@ -185,14 +185,22 @@ function extractAnswer(result) {
         if (item?.type !== "message" || !Array.isArray(item.content)) continue;
         for (const part of item.content) {
             if (part?.type === "output_text" && typeof part.text === "string") text.push(part.text);
+            if (part?.type === "refusal" && typeof part.refusal === "string") text.push(part.refusal);
         }
     }
     return text.length ? text.join("\n") : null;
 }
 
 async function hashIp(ip, secret) {
-    const bytes = new TextEncoder().encode(`${secret}:${ip}`);
-    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+        "raw",
+        encoder.encode(secret),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"]
+    );
+    const digest = await crypto.subtle.sign("HMAC", key, encoder.encode(ip));
     return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
@@ -267,7 +275,7 @@ async function handleAssistant(request, env, origin) {
             },
             body: JSON.stringify({
                 model: OPENAI_MODEL,
-                instructions: ASSISTANT_INSTRUCTIONS,
+                instructions: `${ASSISTANT_INSTRUCTIONS} Antworte auf ${payload.locale === "de" ? "Deutsch" : "Englisch"}.`,
                 input: payload.question.trim(),
                 max_output_tokens: MAX_OUTPUT_TOKENS,
                 store: false
@@ -334,31 +342,44 @@ export class AssistantGuard {
         const day = new Date(now).toISOString().slice(0, 10);
         const minute = Math.floor(now / 60_000);
         const ipKey = `ip:${payload.ipHash}`;
-        const allowed = await this.ctx.storage.transaction(async (transaction) => {
-            const globalEntry = await transaction.get("global") || { day, count: 0 };
-            const ipEntry = await transaction.get(ipKey) || { day, dailyCount: 0, minute, minuteCount: 0 };
-            if (globalEntry.day !== day) Object.assign(globalEntry, { day, count: 0 });
-            if (ipEntry.day !== day) Object.assign(ipEntry, { day, dailyCount: 0 });
-            if (ipEntry.minute !== minute) Object.assign(ipEntry, { minute, minuteCount: 0 });
-
-            const isLimited = globalEntry.count >= payload.dailyLimit ||
-                ipEntry.dailyCount >= payload.perIpDailyLimit ||
-                ipEntry.minuteCount >= payload.perIpMinuteLimit ||
-                this.activeRequests >= payload.concurrencyLimit;
-            if (isLimited) return false;
-
-            globalEntry.count += 1;
-            ipEntry.dailyCount += 1;
-            ipEntry.minuteCount += 1;
-            this.activeRequests += 1;
-            await transaction.put("global", globalEntry);
-            await transaction.put(ipKey, ipEntry);
-            return true;
-        });
-        if (!allowed) return Response.json({ allowed: false, retryAfter: 60 });
-
         const alarm = await this.ctx.storage.getAlarm();
         if (alarm === null) await this.ctx.storage.setAlarm(now + 86_400_000);
+        let allowed;
+        let reservedActiveSlot = false;
+        try {
+            allowed = await this.ctx.storage.transaction(async (transaction) => {
+                const globalEntry = await transaction.get("global") || { day, count: 0 };
+                const ipEntry = await transaction.get(ipKey) || { day, dailyCount: 0, minute, minuteCount: 0 };
+                if (globalEntry.day !== day) Object.assign(globalEntry, { day, count: 0 });
+                if (ipEntry.day !== day) Object.assign(ipEntry, { day, dailyCount: 0 });
+                if (ipEntry.minute !== minute) Object.assign(ipEntry, { minute, minuteCount: 0 });
+
+                if (globalEntry.count >= payload.dailyLimit || ipEntry.dailyCount >= payload.perIpDailyLimit) {
+                    const tomorrow = new Date(`${day}T00:00:00.000Z`).getTime() + 86_400_000;
+                    return { allowed: false, retryAfter: Math.max(1, Math.ceil((tomorrow - now) / 1_000)) };
+                }
+                if (ipEntry.minuteCount >= payload.perIpMinuteLimit) {
+                    return { allowed: false, retryAfter: Math.max(1, 60 - Math.floor((now % 60_000) / 1_000)) };
+                }
+                if (this.activeRequests >= payload.concurrencyLimit) {
+                    return { allowed: false, retryAfter: 10 };
+                }
+
+                globalEntry.count += 1;
+                ipEntry.dailyCount += 1;
+                ipEntry.minuteCount += 1;
+                this.activeRequests += 1;
+                reservedActiveSlot = true;
+                await transaction.put("global", globalEntry);
+                await transaction.put(ipKey, ipEntry);
+                return { allowed: true };
+            });
+        } catch (error) {
+            if (reservedActiveSlot) this.activeRequests = Math.max(0, this.activeRequests - 1);
+            throw error;
+        }
+        if (!allowed.allowed) return Response.json(allowed);
+
         return Response.json({ allowed: true });
     }
 
