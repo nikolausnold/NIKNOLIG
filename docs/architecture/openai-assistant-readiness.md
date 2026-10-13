@@ -65,17 +65,18 @@ be deployed or enabled until the remaining setup and release gates are approved.
 ### `POST /v1/assistant/responses`
 
 - Require HTTPS, exact
-  `Origin: https://nikolausnold.github.io`, and an `Authorization` bearer
-  containing a Cloudflare Access JWT. Verify RS256 signature against the
-  configured team's HTTPS JWKS, exact issuer and audience, expiry, not-before,
-  and nonempty subject. Access is the authentication layer; a fixed-origin
-  header is forgeable and is not authorization.
+  `Origin: https://nikolausnold.github.io`, and a Cloudflare Access JWT in
+  either the `Authorization` bearer or `Cf-Access-Jwt-Assertion` header. Verify
+  RS256 signature against the configured team's HTTPS JWKS, exact issuer and
+  audience, expiry, not-before, and nonempty subject. Access is the
+  authentication layer; a fixed-origin header is forgeable and is not
+  authorization.
 - Require a valid Turnstile token verified server-side for the expected hostname
   and action. This is additional abuse protection, not proof of identity or user
   consent. CORS is only a browser policy.
 - A SQLite Durable Object enforces a shared maximum of 100 requests reaching
-  Turnstile verification
-  per UTC day, 12 requests per pseudonymous IP per day, 3 per IP per minute,
+  Turnstile verification per UTC day, 12 requests per pseudonymous IP per day,
+  3 per IP per minute,
   and 2 concurrent upstream requests. Raw IPs are HMAC-SHA-256 pseudonymized
   using a server secret before persistence, and per-IP entries are cleared by a
   daily alarm. Quotas are fixed in Worker code and must be reviewed against
@@ -95,8 +96,8 @@ be deployed or enabled until the remaining setup and release gates are approved.
   is aborted.
 - Return only a bounded plain-text answer and a random request ID. Render the
   answer as text, not HTML. Do not relay provider headers, raw errors, or
-  internal diagnostics to the client. Use generic `400`, `403`, `413`, `415`,
-  `429`, and `503` responses, with `Retry-After` for throttling/transient
+  internal diagnostics to the client. Use generic `400`, `401`, `403`, `413`,
+  `415`, `429`, and `503` responses, with `Retry-After` for throttling/transient
   failures.
 - The Worker emits no application logs and persists no prompts or answers.
   Configure and review Cloudflare platform/access-log fields and retention

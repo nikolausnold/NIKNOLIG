@@ -119,7 +119,7 @@ function makeEnvironment(overrides = {}) {
     return {
         OPENAI_API_KEY: "mocked-only",
         TURNSTILE_SECRET_KEY: "mocked-only",
-        RATE_LIMIT_HASH_SECRET: "mocked-only",
+        RATE_LIMIT_HASH_SECRET: "m".repeat(32),
         CF_ACCESS_TEAM_DOMAIN: ACCESS_TEAM_DOMAIN,
         CF_ACCESS_AUD: ACCESS_AUDIENCE,
         ASSISTANT_GUARD: new FakeGuardBinding(),
@@ -172,6 +172,7 @@ function makeRequest({
     origin = ORIGIN,
     ip = "203.0.113.10",
     accessToken = validAccessToken,
+    accessHeader = false,
     body,
     contentType = "application/json"
 } = {}) {
@@ -183,7 +184,8 @@ function makeRequest({
             "CF-Connecting-IP": ip,
             "Content-Type": contentType,
             ...(accessToken ? {
-                [["Author", "ization"].join("")]: ["Bear", "er "].join("") + accessToken
+                [accessHeader ? "Cf-Access-Jwt-Assertion" : "Authorization"]:
+                    accessHeader ? accessToken : ["Bear", "er "].join("") + accessToken
             } : {})
         },
         body: payload
@@ -225,6 +227,7 @@ test("fails closed when any server secret or quota binding is missing", async ()
     const missingConfiguration = [
         { OPENAI_API_KEY: "" },
         { TURNSTILE_SECRET_KEY: "" },
+        { RATE_LIMIT_HASH_SECRET: "too-short" },
         { RATE_LIMIT_HASH_SECRET: "" },
         { ASSISTANT_GUARD: undefined }
     ];
@@ -283,6 +286,12 @@ test("sends only the explicit current question to the fixed OpenAI endpoint", as
     assert.equal("tools" in sent, false);
     assert.equal("conversation" in sent, false);
     assert.equal("previous_response_id" in sent, false);
+});
+
+test("accepts Cloudflare's signed access assertion header for an Access-protected route", async () => {
+    mockExternalServices();
+    const response = await worker.fetch(makeRequest({ accessHeader: true }), makeEnvironment());
+    assert.equal(response.status, 200);
 });
 
 test("rejects missing consent, unknown history fields, and obvious sensitive inputs before provider access", async () => {
@@ -441,5 +450,8 @@ test("preflight permits only POST with Content-Type from the exact website origi
     assert.equal(response.status, 204);
     assert.equal(response.headers.get("access-control-allow-origin"), ORIGIN);
     assert.equal(response.headers.get("access-control-allow-methods"), "POST, OPTIONS");
-    assert.equal(response.headers.get("access-control-allow-headers"), "Authorization, Content-Type");
+    assert.equal(
+        response.headers.get("access-control-allow-headers"),
+        "Authorization, Content-Type, Cf-Access-Jwt-Assertion"
+    );
 });

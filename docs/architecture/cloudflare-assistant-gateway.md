@@ -11,7 +11,8 @@ or call the OpenAI credential.
 
 - `workers/assistant-worker.mjs` implements the Worker endpoint, Turnstile
   verification, Cloudflare Access JWT verification (RS256 signature, issuer,
-  audience, expiry and not-before), fixed OpenAI Responses request, generic
+  audience, expiry and not-before) from either a bearer token or Cloudflare's
+  `Cf-Access-Jwt-Assertion` header, fixed OpenAI Responses request, generic
   failures, exact `https://nikolausnold.github.io` CORS policy, and input/output
   bounds.
 - `workers/AssistantGuard` is a SQLite-backed Durable Object. It enforces a
@@ -69,27 +70,25 @@ Official references: [Wrangler installation](https://developers.cloudflare.com/w
 [custom domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/),
 [Worker secrets](https://developers.cloudflare.com/workers/configuration/secrets/),
 [Durable Objects](https://developers.cloudflare.com/durable-objects/),
+[Access token validation](https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/#token-validation),
 [Turnstile server-side validation](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/),
 and the [OpenAI Responses API](https://platform.openai.com/docs/api-reference/responses).
 
 1. Sign in to the existing Cloudflare account and inspect the existing Worker;
-   do not create a second Worker. Confirm its script slug and the account's
-   workers.dev subdomain match the config and the supplied URL. Review whether
-   the active version serves static assets; this source contains no static
-   asset fallback. Confirm Durable Objects SQLite availability and current
-   plan/pricing before making changes. In the Cloudflare dashboard, confirm the
-   script slug is exactly `niknolig-defense`, the account subdomain is
-   `nikolausnold`, and any active static assets will not be removed. Do not
-   create another Worker.
-2. Create a Turnstile widget restricted to `nikolausnold.github.io`, using the
-   managed challenge mode. The eventual website widget must set the action to
-   `niknolig_assistant` (that client UI is not implemented yet).
-   The site key is public but is not yet used by the website; the secret key is
-   only a Worker secret.
+   do not create a second Worker. Confirm its script slug is exactly
+   `niknolig-defense`, the account's workers.dev subdomain is `nikolausnold`,
+   and the supplied URL matches. Review whether the active version serves
+   static assets; this source contains no static asset fallback. Confirm Durable
+   Objects SQLite availability and current plan/pricing before making changes.
+2. Verify/reuse a Turnstile widget restricted to `nikolausnold.github.io`, using
+   the managed challenge mode and action `niknolig_assistant`. Create a widget
+   only if none exists and the authorized operator approves. Its site key is
+   public but is not yet used by the website; its secret key is a Worker secret.
 3. Create/verify a Cloudflare Access application/policy for the API and an
    approved user login flow. Configure the app's audience tag and team issuer
-   domain; the client must obtain a short-lived JWT for that audience. A static
-   shared gateway API key must not be embedded in either repository. The Worker
+   domain; Cloudflare Access must inject its signed assertion or the approved
+   client must obtain a short-lived JWT for that audience. A static shared
+   gateway API key must not be embedded in either repository. The Worker
    validates the JWT cryptographically using the team's public JWKS endpoint.
    Confirm that Access can protect the chosen Worker hostname and that a
    browser-based Pages client can obtain/send the JWT; this has not been
@@ -100,7 +99,7 @@ and the [OpenAI Responses API](https://platform.openai.com/docs/api-reference/re
    | --- | --- | --- |
    | `OPENAI_API_KEY` | Yes | OpenAI credential, used only server-side. |
    | `TURNSTILE_SECRET_KEY` | Yes | Server-side verification of the planned Turnstile challenge. |
-   | `RATE_LIMIT_HASH_SECRET` | Yes | HMAC pseudonymization of source IPs for quota storage. |
+   | `RATE_LIMIT_HASH_SECRET` | Yes | At least 32 bytes of random entropy for HMAC pseudonymization of source IPs. |
 
    It does **not** use `GATEWAY_API_KEY`; a static key cannot safely authenticate
    a public Pages client. Configure these two non-secret Worker variables (not
@@ -122,7 +121,7 @@ and the [OpenAI Responses API](https://platform.openai.com/docs/api-reference/re
    assets, or Access hostname/audience do not match. Saving settings can publish
    a Worker version; do this only after reviewing what will deploy.
 
-### Smartphone check (no deployment)
+### Smartphone check (inspection only; no deployment)
 
 1. Open the [Cloudflare Dashboard](https://dash.cloudflare.com/) and select the
    account. Tap **Workers & Pages** → the existing **niknolig-defense** script
@@ -141,11 +140,14 @@ and the [OpenAI Responses API](https://platform.openai.com/docs/api-reference/re
    `nikolausnold.github.io` and action `niknolig_assistant`. Do not display or
    share its secret key.
 
-After checking, the human must report only the non-secret facts: script slug,
-whether the active deployment serves assets, whether the expected endpoint
-hostname exists, and whether matching Access/Turnstile configurations exist.
-Do not send credentials or screenshots containing secret values.
-5. From the repository root, authenticate Wrangler in the approved operator
+After checking, report only non-secret facts: script slug, whether the active
+deployment serves assets, whether the endpoint hostname exists, and whether
+matching Access/Turnstile configurations exist. Do not send credentials or
+screenshots containing secret values.
+
+### Deployment after review and approval
+
+1. From the repository root, authenticate Wrangler in the approved operator
    environment, then upload the secret values through its interactive prompts.
    `keep_vars: true` is set to retain dashboard-managed non-secret variables,
    but verify them again after any deploy:
@@ -157,15 +159,15 @@ Do not send credentials or screenshots containing secret values.
    npx wrangler secret put RATE_LIMIT_HASH_SECRET --config workers/wrangler.jsonc
    ```
 
-   Generate a unique high-entropy `RATE_LIMIT_HASH_SECRET` in the operator's
-   secret manager. Do not put secret values in shell arguments, command history,
-   logs, Git, or local repo files. Create a restricted OpenAI project/key with
-   least privilege and configure provider-side spend alerts/limits.
-6. Review the fixed model and request ceilings, legal/privacy notices, abuse
+   Generate `RATE_LIMIT_HASH_SECRET` with at least 32 random bytes in the
+   operator's secret manager. Do not put secret values in shell arguments,
+   command history, logs, Git, or local repo files. Create a restricted OpenAI
+   project/key with least privilege and configure provider-side spend alerts.
+2. Review the fixed model and request ceilings, legal/privacy notices, abuse
    response, and Cloudflare/OpenAI processing terms with the responsible
    operators. `store: false` is requested, but does not by itself establish
    provider zero-retention or legal compliance.
-7. Only after verifying the existing target script and preserving any active
+3. Only after verifying the existing target script and preserving any active
    assets, obtaining approval, and setting the secrets/variables, deploy
    explicitly. This will update the script named `niknolig-defense`; it must
    not create a second Worker:
@@ -177,7 +179,7 @@ Do not send credentials or screenshots containing secret values.
    Retain the exact website-origin allowlist in code. Do not deploy from an
    unreviewed branch. No remote state check or deployment occurred in this
    session.
-8. Verify the deployment from an authorized environment: health response,
+4. Verify the deployment from an authorized environment: health response,
    Access JWT rejection/acceptance, correct preflight, denied foreign origins,
    missing-secret fail-closed behavior, invalid/replayed Turnstile rejection,
    per-IP and shared quota behavior, generic OpenAI errors, and provider-side
@@ -203,8 +205,9 @@ Do not send credentials or screenshots containing secret values.
   selected account.
 - Prove the website can obtain a short-lived Cloudflare Access JWT without
   exposing a client secret, and verify browser login/CORS behavior on the actual
-  deployed hostname. The Worker authenticates Access JWTs but does not provide
-  the sign-in UI or user-specific entitlements.
+  deployed hostname. The Worker accepts a bearer JWT or Cloudflare's signed
+  assertion header but does not provide the sign-in UI or user-specific
+  entitlements.
 - Android remains local-only and is outside this website-only gateway release.
 
 Run local tests without external services:

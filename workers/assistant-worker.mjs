@@ -166,12 +166,15 @@ function getAccessConfiguration(env) {
     if (
         typeof teamDomain !== "string" ||
         !/^[a-z0-9.-]{1,253}$/i.test(teamDomain) ||
+        teamDomain !== teamDomain.toLowerCase() ||
         teamDomain.startsWith(".") ||
         teamDomain.endsWith(".") ||
         teamDomain.includes("..") ||
         typeof audience !== "string" ||
         audience.length < 1 ||
-        audience.length > 256
+        audience.length > 256 ||
+        audience.trim() !== audience ||
+        /[\u0000-\u0020\u007F]/.test(audience)
     ) return null;
 
     const issuer = `https://${teamDomain}`;
@@ -208,8 +211,14 @@ async function verifyAccessToken(request, env) {
     if (!configuration) return false;
 
     const authorization = request.headers.get("Authorization") || "";
-    if (!authorization.toLowerCase().startsWith("bearer ")) return false;
-    const token = authorization.slice(7).trim();
+    const accessAssertion = request.headers.get("Cf-Access-Jwt-Assertion") || "";
+    let token = accessAssertion;
+    if (authorization) {
+        if (!authorization.toLowerCase().startsWith("bearer ")) return false;
+        const bearerToken = authorization.slice(7).trim();
+        if (accessAssertion && accessAssertion !== bearerToken) return false;
+        token = bearerToken;
+    }
     if (token.length < 1 || token.length > 8_192) return false;
     const segments = token.split(".");
     if (segments.length !== 3) return false;
@@ -353,9 +362,12 @@ async function releaseRequest(env, reservationId) {
 
 async function handleAssistant(request, env, origin) {
     if (
-        !env.OPENAI_API_KEY ||
-        !env.TURNSTILE_SECRET_KEY ||
-        !env.RATE_LIMIT_HASH_SECRET ||
+        typeof env.OPENAI_API_KEY !== "string" ||
+        env.OPENAI_API_KEY.length === 0 ||
+        typeof env.TURNSTILE_SECRET_KEY !== "string" ||
+        env.TURNSTILE_SECRET_KEY.length === 0 ||
+        typeof env.RATE_LIMIT_HASH_SECRET !== "string" ||
+        new TextEncoder().encode(env.RATE_LIMIT_HASH_SECRET).byteLength < 32 ||
         !env.ASSISTANT_GUARD
     ) {
         return jsonResponse(503, { error: "service_unavailable" }, origin);
@@ -555,7 +567,7 @@ export default {
                     ...SECURITY_HEADERS,
                     "Access-Control-Allow-Origin": WEBSITE_ORIGIN,
                     "Access-Control-Allow-Methods": "POST, OPTIONS",
-                    "Access-Control-Allow-Headers": "Authorization, Content-Type",
+                    "Access-Control-Allow-Headers": "Authorization, Content-Type, Cf-Access-Jwt-Assertion",
                     "Access-Control-Max-Age": "600",
                     Vary: "Origin"
                 }
