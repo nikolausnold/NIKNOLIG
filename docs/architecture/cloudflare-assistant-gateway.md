@@ -51,6 +51,8 @@ operator's explicit approval to deploy.
 
 Official references: [Wrangler installation](https://developers.cloudflare.com/workers/wrangler/install-and-update/),
 [Worker deployment](https://developers.cloudflare.com/workers/wrangler/commands/#deploy),
+[Worker routes](https://developers.cloudflare.com/workers/configuration/routing/routes/),
+[custom domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/),
 [Worker secrets](https://developers.cloudflare.com/workers/configuration/secrets/),
 [Durable Objects](https://developers.cloudflare.com/durable-objects/),
 [Turnstile server-side validation](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/),
@@ -82,16 +84,20 @@ and the [OpenAI Responses API](https://platform.openai.com/docs/api-reference/re
    response, and Cloudflare/OpenAI processing terms with the responsible
    operators. `store: false` is requested, but does not by itself establish
    provider zero-retention or legal compliance.
-5. Only after approval, deploy explicitly:
+5. The Wrangler config disables the public `workers.dev` hostname and does not
+   contain an account-specific route or custom domain. Before deployment, the
+   authorized Cloudflare operator must configure an approved hostname/route
+   under an owned Cloudflare zone and its DNS/TLS settings; without that route,
+   the Worker is not publicly reachable. Do not enable a public `workers.dev`
+   URL for production. Only after approval, deploy explicitly:
 
    ```sh
    npx wrangler deploy --config workers/wrangler.jsonc
    ```
 
-   The config initially exposes a `workers.dev` URL. Restrict production routing
-   to the approved Worker hostname/domain and retain the exact website-origin
-   allowlist in code. Do not deploy from an unreviewed branch. No deployment was
-   performed as part of this change.
+   Retain the exact website-origin allowlist in code. Do not deploy from an
+   unreviewed branch. No route, domain, or deployment was configured as part of
+   this change.
 6. Verify the deployment from an authorized environment: health response,
    correct preflight, denied foreign origins, missing-secret fail-closed
    behavior, invalid/replayed Turnstile rejection, per-IP and shared quota

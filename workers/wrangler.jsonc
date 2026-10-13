@@ -1,9 +1,8 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
   "name": "niknolig-assistant-gateway",
   "main": "assistant-worker.mjs",
   "compatibility_date": "2025-10-13",
-  "workers_dev": true,
+  "workers_dev": false,
   "durable_objects": {
     "bindings": [
       {

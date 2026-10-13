@@ -162,10 +162,18 @@ test("keeps the public health endpoint and limits CORS to the Pages origin", asy
     assert.equal(denied.headers.get("access-control-allow-origin"), null);
 });
 
-test("requires configured server secrets before accepting AI requests", async () => {
+test("fails closed when any server secret or quota binding is missing", async () => {
     const calls = mockExternalServices();
-    const response = await worker.fetch(makeRequest(), makeEnvironment({ OPENAI_API_KEY: "" }));
-    assert.equal(response.status, 503);
+    const missingConfiguration = [
+        { OPENAI_API_KEY: "" },
+        { TURNSTILE_SECRET_KEY: "" },
+        { RATE_LIMIT_HASH_SECRET: "" },
+        { ASSISTANT_GUARD: undefined }
+    ];
+    for (const overrides of missingConfiguration) {
+        const response = await worker.fetch(makeRequest(), makeEnvironment(overrides));
+        assert.equal(response.status, 503);
+    }
     assert.equal(calls.length, 0);
 });
 
@@ -184,6 +192,7 @@ test("sends only the explicit current question to the fixed OpenAI endpoint", as
     assert.equal(providerCall.options.headers.Authorization, ["Bearer", "mocked-only"].join(" "));
     const sent = JSON.parse(providerCall.options.body);
     assert.equal(sent.input, "Wie plane ich meinen Tag?");
+    assert.match(sent.instructions, /Antworte auf Deutsch\.$/);
     assert.equal(sent.store, false);
     assert.equal(sent.max_output_tokens, 300);
     assert.equal("tools" in sent, false);
