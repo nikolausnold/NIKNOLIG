@@ -262,11 +262,14 @@ Authentifizierung und zahlungsabhängige Berechtigungen sind nicht enthalten.
 
 Ein zentraler Cloudflare Worker unterstützt versionierte, per Cloudflare-Access-
 Audience getrennte App-Profile, serverseitig konfigurierbare Modelle,
-browserseitiges Turnstile und Durable-Object-Quoten. Das Gateway ist lokal mit
-Mocks getestet, aber weder live verifiziert noch deployed. Der Pages-Assistent
-und Android bleiben lokal/offline-first; sie senden keine Fragen. Access-Flow,
-Worker-Konfiguration/Secrets, Kostenkontrollen sowie Datenschutz- und
-Sicherheitsfreigaben fehlen weiterhin. Turnstile, Quoten und CORS ersetzen keine
+browserseitiges Turnstile und Durable-Object-Quoten. Die Website enthält jetzt
+eine ausdrücklich zustimmungs- und klickgesteuerte Cloud-Option; sie bleibt
+deaktiviert, solange API-Origin und öffentlicher Turnstile-Site-Key nicht
+konfiguriert sind. Der Worker und die Clienttests verwenden Mocks; ein Live-
+Deployment oder echter OpenAI-Aufruf wurde nicht bestätigt. Lokale Website- und
+Android-Hilfe bleiben verfügbar. Access-Cookies/Anmeldung, Worker-Secrets,
+Kostenkontrollen sowie Datenschutz- und Sicherheitsfreigaben müssen vor einem
+Produktivstart geprüft sein. Turnstile, Quoten und CORS ersetzen keine
 Authentifizierung. Ein OpenAI-Schlüssel gehört ausschließlich in Cloudflares
 Secret Store, niemals in GitHub Pages, Website- oder Android-Code.
 

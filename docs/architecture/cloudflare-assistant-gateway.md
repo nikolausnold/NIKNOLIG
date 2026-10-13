@@ -72,9 +72,13 @@ behavior/assets.
   cannot choose a profile, model, origin, or capability in their request.
 - Browser clients must send an allowed `Origin` and a Turnstile token; the
   Worker verifies Turnstile server-side against the origin hostname and that
-  client's configured action. A native client has no `Origin`, must map to an
-  entry with `origins: []`, and does not use Turnstile. This does not mean an
-  Android sign-in/token flow is implemented.
+  client's configured action. The website client sends `credentials: include`
+  so Cloudflare Access can use its browser session; exact-origin CORS responses
+  allow credentials. Actual cross-site cookie behavior, Access protection of the
+  endpoint, and the preflight path must be validated on the configured hostname.
+  A native client has no `Origin`, must map to an entry with `origins: []`, and
+  does not use Turnstile. This does not mean an Android sign-in/token flow is
+  implemented.
 - `Origin`/CORS is browser policy only, not authentication. Access JWT audience
   is the application authorization boundary. The audience-to-profile mapping
   and quotas are held server-side; no user content, conversation history, files,
@@ -172,10 +176,34 @@ node --check workers/assistant-worker.mjs
 node --test workers/assistant-worker.test.mjs
 ```
 
-## Client status
+## Client status and Pages configuration
 
-Website `assistant.js` remains local-only. Android assistance remains
-offline-first and has no Access login/network client. Neither application sends
-requests to this Worker. Connecting either client requires a reviewed identity
-flow, explicit point-of-use consent/disclosure, privacy updates, product tests,
-and a deployment approval; no client silently falls back to cloud.
+The website's local answer path remains the default. Its separate Cloud AI
+control is implemented but disabled unless both public GitHub Pages repository
+variables are configured:
+
+| GitHub Actions variable | Value |
+| --- | --- |
+| `NIKNOLIG_AI_API_BASE_URL` | HTTPS origin of the authorized existing AI Worker, with no path/query/fragment. |
+| `NIKNOLIG_TURNSTILE_SITE_KEY` | Public site key of the Turnstile widget for `nikolausnold.github.io` and action `niknolig_assistant`. |
+
+The existing `NIKNOLIG_API_BASE_URL` is only for the separate health check. The
+Pages workflow validates and writes all three values into the public
+`api-config.js`; never put a secret, Access token, or OpenAI key in these
+variables. Deploying the site rebuilds this public configuration.
+
+The Cloudflare Access application must protect the Worker URL and allow its
+browser session to work with cross-origin credentialed requests from the exact
+Pages origin. Configure and validate Access/OPTIONS behavior, cookies, CORS,
+Turnstile and the Worker on a non-production/staging hostname first. If Access
+redirects or blocks browser requests, keep Cloud AI disabled; do not bypass
+Access or expose a service token. The UI asks for distinct affirmative
+per-question consent, transmits only the question and locale plus the
+single-use Turnstile token, and does not persist Access credentials, questions,
+or answers. The local assistant remains usable without these variables.
+
+Android assistance remains offline-first with no Access login/network client;
+it does not send requests to this Worker. No production endpoint/site key is
+configured or deployed here. Connecting clients requires an approved identity
+flow, reviewed privacy notice, product tests, and deployment approval; no
+client silently falls back to cloud.

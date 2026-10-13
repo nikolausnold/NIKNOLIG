@@ -251,7 +251,14 @@
         script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
         script.async = true;
         script.defer = true;
-        script.onload = renderTurnstile;
+        script.onload = () => {
+            if (!window.turnstile) {
+                turnstileLoading = false;
+                cloudStatus.textContent = "Sicherheitsprüfung nicht verfügbar. Die Frage wurde nicht übertragen.";
+                return;
+            }
+            renderTurnstile();
+        };
         script.onerror = () => {
             turnstileLoading = false;
             cloudStatus.textContent = "Sicherheitsprüfung nicht verfügbar. Die Frage wurde nicht übertragen.";
@@ -267,6 +274,11 @@
             action: "niknolig_assistant",
             appearance: "interaction-only",
             callback: (token) => {
+                if (typeof token !== "string" || token.length < 1 || token.length > 2_048) {
+                    turnstileToken = "";
+                    cloudStatus.textContent = "Sicherheitsprüfung fehlgeschlagen. Die Frage wurde nicht übertragen.";
+                    return;
+                }
                 turnstileToken = token;
                 cloudStatus.textContent = "Sicherheitsprüfung abgeschlossen. Mit deinem Klick wird nur diese Frage übertragen.";
             },
@@ -343,7 +355,11 @@
             cloudStatus.textContent = "Keine Antwort erhalten. Prüfe die Cloudflare-Anmeldung und Verbindung oder nutze die lokale Wissenshilfe. Die Frage wurde nicht lokal gespeichert.";
         } finally {
             if (window.turnstile && turnstileWidgetId !== null) {
-                window.turnstile.reset(turnstileWidgetId);
+                try {
+                    window.turnstile.reset(turnstileWidgetId);
+                } catch {
+                    turnstileToken = "";
+                }
             }
             cloudSubmitButton.disabled = false;
         }

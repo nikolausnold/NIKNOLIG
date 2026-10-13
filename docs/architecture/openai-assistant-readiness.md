@@ -1,13 +1,16 @@
 # OpenAI assistant integration readiness
 
-**Status: Central gateway implemented and locally mock-tested; production use is BLOCKED. No clients are connected and no deployment was made.**
+**Status: Central gateway and consent-gated website client implemented and locally mock-tested; production use is BLOCKED. No deployment was made.**
 
 ## Verified repository state
 
 - `server/health-server.mjs` remains a separate health-only Node service. It has
   no user-data routes, authentication, provider client, or persistent store.
-- The website `assistant.js` and Android assistants remain local/offline-first.
-  Neither has an OpenAI network client or Cloudflare Access sign-in flow.
+- The website `assistant.js` keeps its local answer path and has a separate,
+  explicitly consented cloud request path. It requires public Pages
+  endpoint/site-key configuration and an authenticated Cloudflare Access browser
+  session; these are not configured or live-verified. Android remains local and
+  offline-first with no cloud client.
 - `workers/assistant-worker.mjs` implements the central multi-application
   Cloudflare Worker API. It preserves `GET /v1/health`, provides canonical
   `POST /v1/ai/responses` and retains `/v1/assistant/responses` as a compatible
@@ -74,14 +77,15 @@ filters cannot guarantee sensitive-data removal.
    lawful basis, international transfers, user rights, age/accessibility
    behavior, and any required GDPR/EU AI Act review with responsible reviewers.
    No compliance determination is made here.
-5. Implement and review website/mobile identity flows and point-of-use consent
-   disclosures before connecting clients. Preserve local answers and offline
-   operation; remote AI must remain a user-triggered option and must not silently
-   replace local behavior.
+5. Website UI now has point-of-use disclosure/consent, lazy Turnstile, explicit
+   submit, and retains the local answer path. Configure/test Access browser
+   cookies, preflight, Turnstile and public Pages settings on staging before
+   enabling it. Preserve local answers and offline operation; remote AI must
+   remain user-triggered and must not silently replace local behavior.
 6. Obtain explicit deployment approval, deploy only after verifying the existing
    Worker target and preserving its behavior, then perform authorized staging
    checks. This task performed no Cloudflare deployment, secret configuration,
-   live OpenAI call, or client integration.
+   live OpenAI call, or Android client integration.
 
 See [`cloudflare-assistant-gateway.md`](cloudflare-assistant-gateway.md) for the
 config schema, secret setup, limits, and deployment checklist.
