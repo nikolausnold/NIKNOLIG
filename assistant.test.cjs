@@ -22,7 +22,13 @@ class Element {
     }
 }
 
-function createAssistant({ apiBaseUrl = "", fetchImpl = async () => { throw new Error("unexpected request"); } } = {}) {
+function createAssistant({
+    apiBaseUrl = "",
+    aiApiBaseUrl = "",
+    turnstileSiteKey = "",
+    turnstileApi,
+    fetchImpl = async () => { throw new Error("unexpected request"); }
+} = {}) {
     const selectors = [
         "#assistant-form",
         "#assistant-question",
@@ -32,7 +38,11 @@ function createAssistant({ apiBaseUrl = "", fetchImpl = async () => { throw new 
         "#interest-status",
         "#interest-clear",
         "#api-check",
-        "#api-status"
+        "#api-status",
+        "#cloud-ai-consent",
+        "#cloud-ai-submit",
+        "#cloud-ai-status",
+        "#cloud-turnstile"
     ];
     const elements = Object.fromEntries(selectors.map((selector) => [selector, new Element()]));
     const interests = ["work", "devices", "transport", "everyday"].map((value) => {
@@ -55,6 +65,11 @@ function createAssistant({ apiBaseUrl = "", fetchImpl = async () => { throw new 
         }
     };
     const document = {
+        documentElement: { lang: "de" },
+        head: { appendChild(script) { script.onload(); } },
+        createElement() {
+            return new Element();
+        },
         querySelector(selector) {
             return elements[selector];
         }
@@ -64,7 +79,13 @@ function createAssistant({ apiBaseUrl = "", fetchImpl = async () => { throw new 
         document,
         localStorage,
         URL,
-        window: { NIKNOLIG_API_BASE_URL: apiBaseUrl },
+        AbortSignal,
+        window: {
+            NIKNOLIG_API_BASE_URL: apiBaseUrl,
+            NIKNOLIG_AI_API_BASE_URL: aiApiBaseUrl,
+            NIKNOLIG_TURNSTILE_SITE_KEY: turnstileSiteKey,
+            ...(turnstileApi ? { turnstile: turnstileApi } : {})
+        },
         fetch: fetchImpl
     });
 
@@ -143,4 +164,110 @@ test("rejects a non-HTTPS server URL without making a request", async () => {
 
     assert.equal(requests, 0);
     assert.match(assistant.elements["#api-status"].textContent, /nicht erreichbar/);
+});
+
+test("keeps Cloud AI disabled when endpoint or Turnstile configuration is missing", async () => {
+    let requests = 0;
+    const assistant = createAssistant({
+        aiApiBaseUrl: "https://gateway.example",
+        fetchImpl: async () => {
+            requests += 1;
+        }
+    });
+    await assistant.elements["#cloud-ai-submit"].listeners.click();
+    assert.equal(assistant.elements["#cloud-ai-submit"].disabled, true);
+    assert.equal(requests, 0);
+    assert.match(assistant.elements["#cloud-ai-status"].textContent, /nicht konfiguriert/);
+});
+
+test("does not send a cloud question without explicit per-request consent", async () => {
+    let requests = 0;
+    const assistant = createAssistant({
+        aiApiBaseUrl: "https://gateway.example",
+        turnstileSiteKey: "public-site-key-123",
+        turnstileApi: { render() { throw new Error("should not render before consent"); } },
+        fetchImpl: async () => {
+            requests += 1;
+        }
+    });
+    await assistant.elements["#cloud-ai-submit"].listeners.click();
+    assert.equal(requests, 0);
+    assert.match(assistant.elements["#cloud-ai-status"].textContent, /ausdrücklich zu/);
+});
+
+test("sends only the explicitly approved question with Access cookies and a one-use Turnstile token", async () => {
+    const requests = [];
+    let widgetOptions;
+    const assistant = createAssistant({
+        aiApiBaseUrl: "https://gateway.example",
+        turnstileSiteKey: "public-site-key-123",
+        turnstileApi: {
+            render(_container, options) {
+                widgetOptions = options;
+                options.callback("one-use-token");
+                return "widget-1";
+            },
+            reset(widgetId) {
+                assert.equal(widgetId, "widget-1");
+            }
+        },
+        fetchImpl: async (url, options) => {
+            requests.push({ url, options });
+            return {
+                ok: true,
+                headers: { get: () => "application/json" },
+                json: async () => ({ answer: "<b>Antwort</b>", requestId: "mock-id" })
+            };
+        }
+    });
+    assistant.elements["#assistant-question"].value = "Wie plane ich meinen Tag?";
+    assistant.elements["#cloud-ai-consent"].checked = true;
+    await assistant.elements["#cloud-ai-submit"].listeners.click();
+    await assistant.elements["#cloud-ai-submit"].listeners.click();
+
+    assert.equal(widgetOptions.sitekey, "public-site-key-123");
+    assert.equal(widgetOptions.action, "niknolig_assistant");
+    assert.equal(requests.length, 1);
+    assert.equal(requests[0].url, "https://gateway.example/v1/ai/responses");
+    assert.equal(requests[0].options.method, "POST");
+    assert.equal(requests[0].options.credentials, "include");
+    assert.deepEqual(JSON.parse(requests[0].options.body), {
+        question: "Wie plane ich meinen Tag?",
+        locale: "de",
+        consent: true,
+        turnstileToken: "one-use-token"
+    });
+    assert.equal(assistant.elements["#assistant-answer"].textContent, "<b>Antwort</b>");
+    assert.equal(assistant.elements["#assistant-question"].value, "");
+    assert.equal(assistant.stored.size, 0);
+    assert.equal(assistant.elements["#cloud-ai-status"].textContent,
+        "Antwort erhalten. NIKNOLIG speichert deine Frage und Antwort nicht.");
+});
+
+test("retains the question and displays a safe message when Access rejects the cloud request", async () => {
+    const assistant = createAssistant({
+        aiApiBaseUrl: "https://gateway.example",
+        turnstileSiteKey: "public-site-key-123",
+        turnstileApi: {
+            render(_container, options) {
+                options.callback("one-use-token");
+                return "widget-1";
+            },
+            reset() {}
+        },
+        fetchImpl: async () => ({
+            ok: false,
+            status: 401,
+            headers: { get: () => "application/json" },
+            json: async () => ({ error: "unauthorized" })
+        })
+    });
+    assistant.elements["#assistant-question"].value = "Eine Frage";
+    assistant.elements["#cloud-ai-consent"].checked = true;
+    await assistant.elements["#cloud-ai-submit"].listeners.click();
+    await assistant.elements["#cloud-ai-submit"].listeners.click();
+
+    assert.equal(assistant.elements["#assistant-question"].value, "Eine Frage");
+    assert.match(assistant.elements["#cloud-ai-status"].textContent, /Cloudflare-Anmeldung/);
+    assert.equal(assistant.elements["#assistant-answer"].textContent, "");
 });

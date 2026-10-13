@@ -173,6 +173,18 @@
                     <button class="button button-primary" type="submit">Lokal beantworten</button>
                 </form>
                 <p id="assistant-answer" class="local-helper-answer" role="status" aria-live="polite">Stelle eine Frage zu NIKNOLIG, Datenschutz, Gerätesuche, Arbeit oder Alltag.</p>
+                <div class="api-connection" id="cloud-assistant">
+                    <h4>Optionale Cloud-KI</h4>
+                    <p>Nur wenn du unten ausdrücklich zustimmst und auf „Cloud-Antwort abrufen“ klickst, wird die aktuelle Frage über Cloudflare an OpenAI übertragen. Dabei werden technisch notwendige Verbindungsdaten einschließlich deiner IP-Adresse verarbeitet. Fragen werden von NIKNOLIG nicht gespeichert. Bitte keine Passwörter, Zahlungs-, Gesundheits- oder sonstigen sensiblen Daten eingeben. Die lokale Antwort bleibt ohne Internet verfügbar.</p>
+                    <p><a href="privacy.html">Datenschutzhinweise</a> · OpenAI-Antworten können unvollständig oder falsch sein.</p>
+                    <label class="consent-option" for="cloud-ai-consent">
+                        <input id="cloud-ai-consent" type="checkbox">
+                        Ich stimme zu, diese einzelne Frage zur Antwort an Cloudflare und OpenAI zu senden.
+                    </label>
+                    <div id="cloud-turnstile" aria-live="polite"></div>
+                    <button class="button button-secondary" id="cloud-ai-submit" type="button" disabled>Cloud-Antwort abrufen</button>
+                    <p id="cloud-ai-status" class="local-helper-status" role="status" aria-live="polite">Cloud-KI ist derzeit nicht konfiguriert. Die lokale Wissenshilfe funktioniert weiterhin.</p>
+                </div>
                 <div class="api-connection">
                     <p>Optionale Verbindung zum NIKNOLIG-Server prüfen. Dabei erhält der Server technisch notwendigerweise deine IP-Adresse. Es werden keine Frage oder Interessen übertragen.</p>
                     <button class="button button-secondary" id="api-check" type="button">Serververbindung prüfen</button>

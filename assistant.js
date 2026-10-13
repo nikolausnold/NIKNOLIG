@@ -44,6 +44,36 @@
     const clearButton = document.querySelector("#interest-clear");
     const apiCheckButton = document.querySelector("#api-check");
     const apiStatus = document.querySelector("#api-status");
+    const cloudConsent = document.querySelector("#cloud-ai-consent");
+    const cloudSubmitButton = document.querySelector("#cloud-ai-submit");
+    const cloudStatus = document.querySelector("#cloud-ai-status");
+    const turnstileContainer = document.querySelector("#cloud-turnstile");
+    const cloudApiBaseUrl = window.NIKNOLIG_AI_API_BASE_URL || "";
+    const turnstileSiteKey = window.NIKNOLIG_TURNSTILE_SITE_KEY || "";
+    let turnstileWidgetId = null;
+    let turnstileToken = "";
+    let turnstileLoading = false;
+
+    const cloudConfigurationValid = (() => {
+        if (!cloudApiBaseUrl.trim() || !turnstileSiteKey.trim()) return false;
+        try {
+            const url = new URL(cloudApiBaseUrl);
+            return url.protocol === "https:" &&
+                url.origin === cloudApiBaseUrl.replace(/\/+$/, "") &&
+                !url.username &&
+                !url.password &&
+                !url.search &&
+                !url.hash &&
+                /^[A-Za-z0-9_-]{8,256}$/.test(turnstileSiteKey);
+        } catch {
+            return false;
+        }
+    })();
+
+    cloudSubmitButton.disabled = !cloudConfigurationValid;
+    if (cloudConfigurationValid) {
+        cloudStatus.textContent = "Cloud-KI ist verfügbar, sobald du die einzelne Übertragung ausdrücklich freigibst. Deine Frage wird nicht gespeichert.";
+    }
 
     const selectedInterests = () => interestInputs
         .filter((input) => input.checked && supportedInterests.has(input.value))
@@ -206,6 +236,116 @@
             apiStatus.textContent = "Server nicht erreichbar oder Antwort ungültig. Fragen und Interessen wurden nicht übertragen.";
         } finally {
             apiCheckButton.disabled = false;
+        }
+    });
+
+    const loadTurnstile = () => {
+        if (window.turnstile) {
+            renderTurnstile();
+            return;
+        }
+        if (turnstileLoading) return;
+        turnstileLoading = true;
+        cloudStatus.textContent = "Sicherheitsprüfung wird geladen …";
+        const script = document.createElement("script");
+        script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+        script.async = true;
+        script.defer = true;
+        script.onload = renderTurnstile;
+        script.onerror = () => {
+            turnstileLoading = false;
+            cloudStatus.textContent = "Sicherheitsprüfung nicht verfügbar. Die Frage wurde nicht übertragen.";
+        };
+        document.head.appendChild(script);
+    };
+
+    const renderTurnstile = () => {
+        if (!window.turnstile || turnstileWidgetId !== null) return;
+        turnstileLoading = false;
+        turnstileWidgetId = window.turnstile.render(turnstileContainer, {
+            sitekey: turnstileSiteKey,
+            action: "niknolig_assistant",
+            appearance: "interaction-only",
+            callback: (token) => {
+                turnstileToken = token;
+                cloudStatus.textContent = "Sicherheitsprüfung abgeschlossen. Mit deinem Klick wird nur diese Frage übertragen.";
+            },
+            "expired-callback": () => {
+                turnstileToken = "";
+                cloudStatus.textContent = "Sicherheitsprüfung abgelaufen. Bitte erneut bestätigen.";
+            },
+            "error-callback": () => {
+                turnstileToken = "";
+                cloudStatus.textContent = "Sicherheitsprüfung fehlgeschlagen. Die Frage wurde nicht übertragen.";
+            }
+        });
+    };
+
+    cloudSubmitButton.addEventListener("click", async () => {
+        if (!cloudConfigurationValid) {
+            cloudStatus.textContent = "Cloud-KI ist nicht konfiguriert. Die lokale Wissenshilfe funktioniert weiterhin.";
+            return;
+        }
+        if (!cloudConsent.checked) {
+            cloudStatus.textContent = "Bitte stimme der einmaligen Übertragung ausdrücklich zu. Es wurde nichts gesendet.";
+            return;
+        }
+        const question = questionInput.value.trim();
+        if (!question || [...question].length > 500) {
+            cloudStatus.textContent = "Gib eine Frage mit höchstens 500 Zeichen ein.";
+            return;
+        }
+        if (!turnstileWidgetId) {
+            loadTurnstile();
+            return;
+        }
+        if (!turnstileToken) {
+            cloudStatus.textContent = "Bitte schließe zuerst die Sicherheitsprüfung ab.";
+            return;
+        }
+
+        const token = turnstileToken;
+        turnstileToken = "";
+        cloudSubmitButton.disabled = true;
+        cloudStatus.textContent = "Deine freigegebene Frage wird sicher übertragen …";
+        try {
+            const response = await fetch(`${cloudApiBaseUrl}/v1/ai/responses`, {
+                method: "POST",
+                mode: "cors",
+                credentials: "include",
+                cache: "no-store",
+                redirect: "error",
+                referrerPolicy: "no-referrer",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    question,
+                    locale: document.documentElement.lang === "en" ? "en" : "de",
+                    consent: true,
+                    turnstileToken: token
+                }),
+                signal: AbortSignal.timeout(25_000)
+            });
+            const contentType = response.headers.get("content-type") || "";
+            const payload = contentType.toLowerCase().startsWith("application/json")
+                ? await response.json()
+                : null;
+            if (!response.ok || typeof payload?.answer !== "string" ||
+                payload.answer.trim().length === 0 || [...payload.answer].length > 4_000) {
+                throw new Error("Cloud response unavailable");
+            }
+            answerOutput.textContent = payload.answer.trim();
+            questionInput.value = "";
+            cloudStatus.textContent = "Antwort erhalten. NIKNOLIG speichert deine Frage und Antwort nicht.";
+        } catch {
+            cloudStatus.textContent = "Keine Antwort erhalten. Prüfe die Cloudflare-Anmeldung und Verbindung oder nutze die lokale Wissenshilfe. Die Frage wurde nicht lokal gespeichert.";
+        } finally {
+            if (window.turnstile && turnstileWidgetId !== null) {
+                window.turnstile.reset(turnstileWidgetId);
+            }
+            cloudSubmitButton.disabled = false;
         }
     });
 })();

@@ -35,17 +35,38 @@ jobs:
       - name: Configure optional API endpoint
         env:
           NIKNOLIG_API_BASE_URL: ${{ vars.NIKNOLIG_API_BASE_URL }}
+          NIKNOLIG_AI_API_BASE_URL: ${{ vars.NIKNOLIG_AI_API_BASE_URL }}
+          NIKNOLIG_TURNSTILE_SITE_KEY: ${{ vars.NIKNOLIG_TURNSTILE_SITE_KEY }}
         run: |
           node --input-type=module -e '
             import { writeFileSync } from "node:fs";
             const baseUrl = (process.env.NIKNOLIG_API_BASE_URL || "").trim().replace(/\/+$/, "");
+            const aiBaseUrl = (process.env.NIKNOLIG_AI_API_BASE_URL || "").trim().replace(/\/+$/, "");
+            const turnstileSiteKey = (process.env.NIKNOLIG_TURNSTILE_SITE_KEY || "").trim();
             if (baseUrl) {
               const url = new URL(baseUrl);
               if (url.protocol !== "https:" || url.username || url.password || url.search || url.hash) {
                 throw new Error("NIKNOLIG_API_BASE_URL must be an HTTPS URL without credentials, query, or fragment.");
               }
             }
-            writeFileSync("api-config.js", `window.NIKNOLIG_API_BASE_URL = ${JSON.stringify(baseUrl)};\n`);
+            if (aiBaseUrl) {
+              const url = new URL(aiBaseUrl);
+              if (url.protocol !== "https:" || url.origin !== aiBaseUrl || url.username || url.password || url.search || url.hash) {
+                throw new Error("NIKNOLIG_AI_API_BASE_URL must be an HTTPS origin without credentials, path, query, or fragment.");
+              }
+            }
+            if (turnstileSiteKey && !/^[A-Za-z0-9_-]{8,256}$/.test(turnstileSiteKey)) {
+              throw new Error("NIKNOLIG_TURNSTILE_SITE_KEY has an invalid format.");
+            }
+            if (Boolean(aiBaseUrl) !== Boolean(turnstileSiteKey)) {
+              throw new Error("Configure both NIKNOLIG_AI_API_BASE_URL and NIKNOLIG_TURNSTILE_SITE_KEY to enable cloud AI.");
+            }
+            writeFileSync("api-config.js", [
+              `window.NIKNOLIG_API_BASE_URL = ${JSON.stringify(baseUrl)};`,
+              `window.NIKNOLIG_AI_API_BASE_URL = ${JSON.stringify(aiBaseUrl)};`,
+              `window.NIKNOLIG_TURNSTILE_SITE_KEY = ${JSON.stringify(turnstileSiteKey)};`,
+              ""
+            ].join("\n"));
           '
       - name: Prepare website
         run: |

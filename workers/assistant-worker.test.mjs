@@ -336,6 +336,7 @@ test("sends only the explicit current question to the fixed OpenAI endpoint", as
     const result = await response.json();
     assert.equal(result.answer, "Eine allgemeine Antwort.");
     assert.match(result.requestId, /^[0-9a-f-]{36}$/i);
+    assert.equal(response.headers.get("access-control-allow-credentials"), "true");
 
     const verificationCall = calls.find(({ url }) => url.includes("challenges.cloudflare.com"));
     assert.equal(new URLSearchParams(verificationCall.options.body).get("remoteip"), "203.0.113.10");
@@ -626,6 +627,7 @@ test("preflight permits only POST with Content-Type from the exact website origi
     }), makeEnvironment());
     assert.equal(response.status, 204);
     assert.equal(response.headers.get("access-control-allow-origin"), ORIGIN);
+    assert.equal(response.headers.get("access-control-allow-credentials"), "true");
     assert.equal(response.headers.get("access-control-allow-methods"), "POST, OPTIONS");
     assert.equal(
         response.headers.get("access-control-allow-headers"),

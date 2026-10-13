@@ -58,6 +58,7 @@ function jsonResponse(status, body, origin, allowedOrigins = [], additionalHeade
     });
     if (origin && allowedOrigins.includes(origin)) {
         headers.set("Access-Control-Allow-Origin", origin);
+        headers.set("Access-Control-Allow-Credentials", "true");
         headers.set("Vary", "Origin");
     }
     return new Response(JSON.stringify(body), { status, headers });
@@ -699,6 +700,7 @@ export default {
                 headers: {
                     ...SECURITY_HEADERS,
                     "Access-Control-Allow-Origin": origin,
+                    "Access-Control-Allow-Credentials": "true",
                     "Access-Control-Allow-Methods": "POST, OPTIONS",
                     "Access-Control-Allow-Headers": "Authorization, Content-Type, Cf-Access-Jwt-Assertion",
                     "Access-Control-Max-Age": "600",
