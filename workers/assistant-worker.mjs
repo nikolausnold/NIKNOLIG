@@ -12,6 +12,7 @@ const MAX_REQUESTS_PER_IP_PER_MINUTE = 3;
 const MAX_CONCURRENT_REQUESTS = 2;
 const PROVIDER_TIMEOUT_MS = 20_000;
 const TURNSTILE_TIMEOUT_MS = 5_000;
+const OPENAI_MODEL = "gpt-4.1-mini";
 
 const ASSISTANT_INSTRUCTIONS = [
     "Du bist Elektro-Engel, eine zivile, allgemeine Assistenz von NIKNOLIG.",
@@ -212,7 +213,8 @@ async function handleAssistant(request, env, origin) {
     if (request.method !== "POST") {
         return jsonResponse(405, { error: "method_not_allowed" }, origin, { Allow: "POST, OPTIONS" });
     }
-    if (!request.headers.get("content-type")?.toLowerCase().startsWith("application/json")) {
+    const contentType = request.headers.get("content-type")?.toLowerCase() || "";
+    if (!/^application\/json(?:\s*;|$)/.test(contentType)) {
         return jsonResponse(415, { error: "unsupported_media_type" }, origin);
     }
 
@@ -252,11 +254,11 @@ async function handleAssistant(request, env, origin) {
         const upstream = await fetch("https://api.openai.com/v1/responses", {
             method: "POST",
             headers: {
-                Authorization: `******
+                Authorization: "Bearer " + env.OPENAI_API_KEY,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: env.OPENAI_MODEL || "gpt-4.1-mini",
+                model: OPENAI_MODEL,
                 instructions: ASSISTANT_INSTRUCTIONS,
                 input: payload.question.trim(),
                 max_output_tokens: MAX_OUTPUT_TOKENS,
@@ -265,7 +267,10 @@ async function handleAssistant(request, env, origin) {
             redirect: "error",
             signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS)
         });
-        if (!upstream.ok) return jsonResponse(503, { error: "service_unavailable" }, origin);
+        if (!upstream.ok) {
+            await upstream.body?.cancel();
+            return jsonResponse(503, { error: "service_unavailable" }, origin);
+        }
 
         const result = await readProviderResponse(upstream);
         const answer = result?.output_text;
@@ -321,24 +326,28 @@ export class AssistantGuard {
         const day = new Date(now).toISOString().slice(0, 10);
         const minute = Math.floor(now / 60_000);
         const ipKey = `ip:${payload.ipHash}`;
-        const globalEntry = await this.ctx.storage.get("global") || { day, count: 0 };
-        const ipEntry = await this.ctx.storage.get(ipKey) || { day, dailyCount: 0, minute, minuteCount: 0 };
-        if (globalEntry.day !== day) Object.assign(globalEntry, { day, count: 0 });
-        if (ipEntry.day !== day) Object.assign(ipEntry, { day, dailyCount: 0 });
-        if (ipEntry.minute !== minute) Object.assign(ipEntry, { minute, minuteCount: 0 });
+        const allowed = await this.ctx.storage.transaction(async (transaction) => {
+            const globalEntry = await transaction.get("global") || { day, count: 0 };
+            const ipEntry = await transaction.get(ipKey) || { day, dailyCount: 0, minute, minuteCount: 0 };
+            if (globalEntry.day !== day) Object.assign(globalEntry, { day, count: 0 });
+            if (ipEntry.day !== day) Object.assign(ipEntry, { day, dailyCount: 0 });
+            if (ipEntry.minute !== minute) Object.assign(ipEntry, { minute, minuteCount: 0 });
 
-        const isLimited = globalEntry.count >= payload.dailyLimit ||
-            ipEntry.dailyCount >= payload.perIpDailyLimit ||
-            ipEntry.minuteCount >= payload.perIpMinuteLimit ||
-            this.activeRequests >= payload.concurrencyLimit;
-        if (isLimited) return Response.json({ allowed: false, retryAfter: 60 });
+            const isLimited = globalEntry.count >= payload.dailyLimit ||
+                ipEntry.dailyCount >= payload.perIpDailyLimit ||
+                ipEntry.minuteCount >= payload.perIpMinuteLimit ||
+                this.activeRequests >= payload.concurrencyLimit;
+            if (isLimited) return false;
 
-        globalEntry.count += 1;
-        ipEntry.dailyCount += 1;
-        ipEntry.minuteCount += 1;
-        this.activeRequests += 1;
-        await this.ctx.storage.put("global", globalEntry);
-        await this.ctx.storage.put(ipKey, ipEntry);
+            globalEntry.count += 1;
+            ipEntry.dailyCount += 1;
+            ipEntry.minuteCount += 1;
+            this.activeRequests += 1;
+            await transaction.put("global", globalEntry);
+            await transaction.put(ipKey, ipEntry);
+            return true;
+        });
+        if (!allowed) return Response.json({ allowed: false, retryAfter: 60 });
 
         const alarm = await this.ctx.storage.getAlarm();
         if (alarm === null) await this.ctx.storage.setAlarm(now + 86_400_000);
@@ -380,6 +389,9 @@ export default {
             });
         }
         if (origin !== WEBSITE_ORIGIN) return jsonResponse(403, { error: "forbidden" }, null);
+        if (request.method !== "POST") {
+            return jsonResponse(405, { error: "method_not_allowed" }, origin, { Allow: "POST, OPTIONS" });
+        }
         return handleAssistant(request, env, origin);
     }
 };

@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "niknolig-assistant-gateway",
+  "main": "assistant-worker.mjs",
+  "compatibility_date": "2025-10-13",
+  "workers_dev": true,
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "ASSISTANT_GUARD",
+        "class_name": "AssistantGuard"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["AssistantGuard"]
+    }
+  ]
+}
