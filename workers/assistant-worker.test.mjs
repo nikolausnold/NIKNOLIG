@@ -5,6 +5,42 @@ import worker, { AssistantGuard } from "./assistant-worker.mjs";
 const ORIGIN = "https://nikolausnold.github.io";
 const ACCESS_TEAM_DOMAIN = "team.example.cloudflareaccess.com";
 const ACCESS_AUDIENCE = "test-application-audience";
+const NIKNOLIG_AUDIENCE = "test-niknolig-audience";
+const DEFENSE_AUDIENCE = "test-defense-audience";
+const NATIVE_AUDIENCE = "test-native-audience";
+const CLIENTS = [
+    {
+        audience: ACCESS_AUDIENCE,
+        clientId: "elektro-engel",
+        profile: "elektro-engel",
+        model: "gpt-4.1-mini",
+        origins: [ORIGIN],
+        turnstileAction: "niknolig_assistant"
+    },
+    {
+        audience: NIKNOLIG_AUDIENCE,
+        clientId: "niknolig-general",
+        profile: "niknolig",
+        model: "gpt-4.1-nano",
+        origins: [ORIGIN],
+        turnstileAction: "niknolig_assistant"
+    },
+    {
+        audience: DEFENSE_AUDIENCE,
+        clientId: "niknolig-defense",
+        profile: "defense",
+        model: "gpt-4.1-mini",
+        origins: [ORIGIN],
+        turnstileAction: "niknolig_assistant"
+    },
+    {
+        audience: NATIVE_AUDIENCE,
+        clientId: "niknolig-android",
+        profile: "niknolig",
+        model: "gpt-4.1-nano",
+        origins: []
+    }
+];
 const { privateKey: accessPrivateKey, publicKey: accessPublicKey } = await crypto.subtle.generateKey(
     {
         name: "RSASSA-PKCS1-v1_5",
@@ -121,7 +157,7 @@ function makeEnvironment(overrides = {}) {
         TURNSTILE_SECRET_KEY: "mocked-only",
         RATE_LIMIT_HASH_SECRET: "m".repeat(32),
         CF_ACCESS_TEAM_DOMAIN: ACCESS_TEAM_DOMAIN,
-        CF_ACCESS_AUD: ACCESS_AUDIENCE,
+        AI_CLIENTS_JSON: JSON.stringify(CLIENTS),
         ASSISTANT_GUARD: new FakeGuardBinding(),
         ...overrides
     };
@@ -173,14 +209,20 @@ function makeRequest({
     ip = "203.0.113.10",
     accessToken = validAccessToken,
     accessHeader = false,
+    path = "/v1/ai/responses",
     body,
     contentType = "application/json"
 } = {}) {
-    const payload = body ?? JSON.stringify({ question, locale, consent, turnstileToken });
-    return new Request("https://gateway.example/v1/assistant/responses", {
+    const payload = body ?? JSON.stringify({
+        question,
+        locale,
+        consent,
+        ...(origin ? { turnstileToken } : {})
+    });
+    return new Request(`https://gateway.example${path}`, {
         method: "POST",
         headers: {
-            Origin: origin,
+            ...(origin ? { Origin: origin } : {}),
             "CF-Connecting-IP": ip,
             "Content-Type": contentType,
             ...(accessToken ? {
@@ -202,10 +244,10 @@ afterEach(() => {
     while (cleanups.length) cleanups.pop()();
 });
 
-test("keeps the public health endpoint and limits CORS to the Pages origin", async () => {
+test("keeps the public health endpoint and allows only configured CORS origins", async () => {
     const health = await worker.fetch(new Request("https://gateway.example/v1/health", {
         headers: { Origin: ORIGIN }
-    }), {});
+    }), makeEnvironment());
     assert.equal(health.status, 200);
     assert.deepEqual(await health.json(), {
         status: "ok",
@@ -214,10 +256,10 @@ test("keeps the public health endpoint and limits CORS to the Pages origin", asy
     });
     assert.equal(health.headers.get("access-control-allow-origin"), ORIGIN);
 
-    const denied = await worker.fetch(new Request("https://gateway.example/v1/assistant/responses", {
+    const denied = await worker.fetch(new Request("https://gateway.example/v1/ai/responses", {
         method: "OPTIONS",
         headers: { Origin: "https://attacker.example" }
-    }), {});
+    }), makeEnvironment());
     assert.equal(denied.status, 403);
     assert.equal(denied.headers.get("access-control-allow-origin"), null);
 });
@@ -229,6 +271,8 @@ test("fails closed when any server secret or quota binding is missing", async ()
         { TURNSTILE_SECRET_KEY: "" },
         { RATE_LIMIT_HASH_SECRET: "too-short" },
         { RATE_LIMIT_HASH_SECRET: "" },
+        { AI_CLIENTS_JSON: "" },
+        { CF_ACCESS_TEAM_DOMAIN: "" },
         { ASSISTANT_GUARD: undefined }
     ];
     for (const overrides of missingConfiguration) {
@@ -258,7 +302,7 @@ test("requires a valid Cloudflare Access JWT with trusted issuer, audience, sign
 
     const missingConfiguration = await worker.fetch(
         makeRequest(),
-        makeEnvironment({ CF_ACCESS_AUD: "" })
+        makeEnvironment({ AI_CLIENTS_JSON: JSON.stringify(CLIENTS.slice(1)) })
     );
     assert.equal(missingConfiguration.status, 401);
     assert.equal(calls.some(({ url }) => url.includes("api.openai.com")), false);
@@ -283,6 +327,7 @@ test("sends only the explicit current question to the fixed OpenAI endpoint", as
     assert.match(sent.instructions, /Antworte auf Deutsch\.$/);
     assert.equal(sent.store, false);
     assert.equal(sent.max_output_tokens, 300);
+    assert.equal(sent.model, "gpt-4.1-mini");
     assert.equal("tools" in sent, false);
     assert.equal("conversation" in sent, false);
     assert.equal("previous_response_id" in sent, false);
@@ -292,6 +337,41 @@ test("accepts Cloudflare's signed access assertion header for an Access-protecte
     mockExternalServices();
     const response = await worker.fetch(makeRequest({ accessHeader: true }), makeEnvironment());
     assert.equal(response.status, 200);
+});
+
+test("selects an isolated application profile and model only from the signed audience", async () => {
+    const calls = mockExternalServices();
+    const response = await worker.fetch(makeRequest({
+        accessToken: await createAccessToken({ audience: DEFENSE_AUDIENCE }),
+        body: JSON.stringify({
+            question: "Wie kann ich mich zivil vorbereiten?",
+            locale: "de",
+            consent: true,
+            turnstileToken: "valid-turnstile-token"
+        })
+    }), makeEnvironment());
+    assert.equal(response.status, 200);
+    const providerCall = calls.find(({ url }) => url === "https://api.openai.com/v1/responses");
+    const sent = JSON.parse(providerCall.options.body);
+    assert.equal(sent.model, "gpt-4.1-mini");
+    assert.match(sent.instructions, /getrennt autorisierten NIKNOLIG-Defense-Profil/);
+    assert.doesNotMatch(sent.instructions, /Elektro-Engel/);
+    assert.deepEqual(sent.input, "Wie kann ich mich zivil vorbereiten?");
+    assert.equal("clientId" in sent, false);
+    assert.equal("tools" in sent, false);
+    assert.equal("conversation" in sent, false);
+});
+
+test("allows a configured native client without browser Origin or Turnstile", async () => {
+    const calls = mockExternalServices();
+    const response = await worker.fetch(makeRequest({
+        origin: null,
+        accessToken: await createAccessToken({ audience: NATIVE_AUDIENCE })
+    }), makeEnvironment({ TURNSTILE_SECRET_KEY: "" }));
+    assert.equal(response.status, 200);
+    assert.equal(calls.some(({ url }) => url.includes("challenges.cloudflare.com")), false);
+    const providerCall = calls.find(({ url }) => url === "https://api.openai.com/v1/responses");
+    assert.equal(JSON.parse(providerCall.options.body).model, "gpt-4.1-nano");
 });
 
 test("rejects missing consent, unknown history fields, and obvious sensitive inputs before provider access", async () => {
@@ -306,6 +386,16 @@ test("rejects missing consent, unknown history fields, and obvious sensitive inp
                 consent: true,
                 turnstileToken: "valid-turnstile-token",
                 history: ["previous chat"]
+            })
+        }),
+        makeRequest({
+            body: JSON.stringify({
+                question: "Hello",
+                locale: "en",
+                consent: true,
+                turnstileToken: "valid-turnstile-token",
+                profile: "defense",
+                model: "gpt-4.1-mini"
             })
         }),
         makeRequest({ question: "pass" + "word=secret" }),
@@ -369,8 +459,10 @@ test("enforces a shared daily request ceiling and per-IP daily windows", async (
         method: "POST",
         body: JSON.stringify({
             ipHash,
+            clientId: "test-client",
             reservationId: crypto.randomUUID(),
             dailyLimit: 2,
+            appDailyLimit: 2,
             perIpDailyLimit: 2,
             perIpMinuteLimit: 2,
             concurrencyLimit: 2,
@@ -393,8 +485,10 @@ test("limits per-IP request rates and simultaneous upstream work", async () => {
             method: "POST",
             body: JSON.stringify({
                 ipHash,
+                clientId: "test-client",
                 reservationId,
                 dailyLimit: 10,
+                appDailyLimit: 10,
                 perIpDailyLimit: 10,
                 perIpMinuteLimit: 10,
                 concurrencyLimit: 1,
@@ -429,8 +523,10 @@ test("clears pseudonymous per-IP quota keys during its cleanup alarm", async () 
         method: "POST",
         body: JSON.stringify({
             ipHash: "a".repeat(64),
+            clientId: "test-client",
             reservationId: crypto.randomUUID(),
             dailyLimit: 5,
+            appDailyLimit: 5,
             perIpDailyLimit: 5,
             perIpMinuteLimit: 5,
             concurrencyLimit: 2
@@ -443,10 +539,10 @@ test("clears pseudonymous per-IP quota keys during its cleanup alarm", async () 
 });
 
 test("preflight permits only POST with Content-Type from the exact website origin", async () => {
-    const response = await worker.fetch(new Request("https://gateway.example/v1/assistant/responses", {
+    const response = await worker.fetch(new Request("https://gateway.example/v1/ai/responses", {
         method: "OPTIONS",
         headers: { Origin: ORIGIN }
-    }), {});
+    }), makeEnvironment());
     assert.equal(response.status, 204);
     assert.equal(response.headers.get("access-control-allow-origin"), ORIGIN);
     assert.equal(response.headers.get("access-control-allow-methods"), "POST, OPTIONS");
