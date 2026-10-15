@@ -16,6 +16,7 @@
     <string name="support_email_unavailable">Keine E-Mail-App auf diesem Gerät gefunden.</string>
     <string name="demo_notice">Vorschau – noch keine Geräteverbindung, Sicherheitsfreigabe oder produktive Funktion.</string>
     <string name="learning_profile_button">Lernprofil und Datenschutz</string>
+    <string name="navigation_back">Zurück</string>
     <string name="learning_profile_title">Lernprofil</string>
     <string name="learning_profile_description">Lege fest, wie Elektro-Engel dir antworten soll und ob einfache Rückmeldungen lokal gezählt werden dürfen.</string>
     <string name="assistant_principle_heading">MENSCHEN ZUERST</string>
