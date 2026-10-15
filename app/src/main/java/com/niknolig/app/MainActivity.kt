@@ -20,6 +20,10 @@ class MainActivity : Activity() {
         findViewById<Button>(R.id.learning_profile_button).setOnClickListener {
             startActivity(Intent(this, LearningProfileActivity::class.java))
         }
+
+        findViewById<Button>(R.id.assistant_button).setOnClickListener {
+            startActivity(Intent(this, AssistantActivity::class.java))
+        }
     }
 
     private fun openTechnicalSupportEmail() {
