@@ -48,6 +48,21 @@ Vor einer öffentlichen Veröffentlichung müssen die rechtlich erforderlichen
 Betreiber- und Datenschutzangaben ergänzt und geprüft werden. Diese Angaben wurden
 nicht erfunden oder als fertige Rechtsseiten ausgegeben.
 
+## Android-Releases
+
+Der [Android-Build-Workflow](https://github.com/nikolausnold/NIKNOLIG/actions/workflows/android-build.yml)
+erstellt bei jedem Push und Pull Request weiterhin ein geprüftes Debug-APK. Für einen
+Release wird ein Tag im Format `vMAJOR.MINOR.PATCH` auf einem Commit von `main`
+gepusht. Der Workflow baut daraus ein signiertes APK und AAB, prüft beide Dateien
+und veröffentlicht sie samt SHA-256-Prüfsummen als GitHub Release.
+
+Vor dem ersten Release müssen in den Repository-Secrets
+`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` und
+`ANDROID_KEY_PASSWORD` hinterlegt werden. `ANDROID_KEYSTORE_BASE64` enthält den
+Base64-kodierten Inhalt des privaten Android-Keystores. Der Keystore und seine
+Passwörter dürfen nicht ins Repository eingecheckt werden; derselbe Keystore muss
+für alle späteren App-Updates sicher aufbewahrt werden.
+
 ## Lernkonzept für Elektro-Engel (Vorbereitung)
 
 Elektro-Engel soll mit der Zeit dazulernen, was für hilfreiche Unterstützung nötig
