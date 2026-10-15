@@ -32,6 +32,7 @@
     <string name="support_email_unavailable">No email app found on this device.</string>
     <string name="demo_notice">Preview — no device connection, security approval, or production feature is available yet.</string>
     <string name="learning_profile_button">Learning profile and privacy</string>
+    <string name="navigation_back">Back</string>
     <string name="learning_profile_title">Learning profile</string>
     <string name="learning_profile_description">Choose how Elektro-Engel should explain things and whether simple feedback may be counted locally.</string>
     <string name="assistant_principle_heading">PEOPLE FIRST</string>

@@ -29,6 +29,10 @@ class LearningProfileActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_learning_profile)
 
+        findViewById<Button>(R.id.learning_profile_back_button).setOnClickListener {
+            finish()
+        }
+
         learningEnabledSwitch = findViewById(R.id.learning_enabled_switch)
         responseStyleGroup = findViewById(R.id.response_style_group)
         feedbackSummary = findViewById(R.id.learning_feedback_summary)
