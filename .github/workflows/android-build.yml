@@ -79,6 +79,7 @@ jobs:
             exit 1
           fi
           keystore="$RUNNER_TEMP/niknolig-release-key.jks"
+          umask 077
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$keystore"
           chmod 600 "$keystore"
           echo "ANDROID_KEYSTORE_PATH=$keystore" >> "$GITHUB_ENV"
@@ -109,3 +110,6 @@ jobs:
             SHA256SUMS \
             --title "NIKNOLIG $VERSION_NAME" \
             --generate-notes
+      - name: Remove temporary release keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/niknolig-release-key.jks"
