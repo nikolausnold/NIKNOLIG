@@ -37,8 +37,10 @@ Die statische Website liegt in `index.html` und `styles.css`. Sie benötigt wede
 einen Build-Schritt noch externe JavaScript-Bibliotheken. Für günstiges Hosting kann
 GitHub Pages verwendet werden. Der Workflow
 [`Deploy website`](https://github.com/nikolausnold/NIKNOLIG/actions/workflows/deploy-website.yml)
-veröffentlicht bei Änderungen an der Website auf `main` nur `index.html` und
-`styles.css`; ein manueller Start ist ebenfalls möglich. Aktiviere unter
+veröffentlicht bei Änderungen an `index.html`, `styles.css` oder der
+Workflowdatei auf `main` ein Artefakt mit diesen beiden Dateien und
+`assets/niknolig-mark.svg`. Änderungen nur an der SVG lösen keinen Lauf aus;
+alternativ kann der Workflow manuell für `main` gestartet werden. Aktiviere unter
 [Repository-Einstellungen → Pages](https://github.com/nikolausnold/NIKNOLIG/settings/pages)
 als Veröffentlichungsquelle **GitHub Actions**. Nach einem erfolgreichen Lauf zeigt
 der Workflow die veröffentlichte URL an. Verfügbarkeit und Kosten hängen von
