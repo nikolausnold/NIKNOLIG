@@ -1,0 +1,30 @@
+name: Backend checks
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-check.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sandbox:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: Test backend
+        working-directory: backend
+        run: python3 -m unittest discover -s tests -v
+      - name: Validate isolated Compose configuration
+        working-directory: backend
+        run: docker compose config --quiet
+      - name: Build backend image without starting services
+        working-directory: backend
+        run: docker build --tag niknolig-backend:test .

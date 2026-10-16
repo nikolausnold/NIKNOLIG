@@ -33,3 +33,12 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# Isolated backend runtime state and operator-only configuration
+__pycache__/
+*.pyc
+backend/.env
+backend/auth.json
+backend/data/
+*.sqlite3
+*.sqlite3-*

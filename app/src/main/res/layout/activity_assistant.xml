@@ -139,6 +139,21 @@
             android:textSize="16sp" />
 
         <Button
+            android:id="@+id/backend_check_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_large"
+            android:text="@string/backend_check_button" />
+
+        <TextView
+            android:id="@+id/backend_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:accessibilityLiveRegion="polite"
+            android:textColor="@color/text_secondary"
+            android:textSize="16sp" />
+
+        <Button
             android:id="@+id/assistant_close_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

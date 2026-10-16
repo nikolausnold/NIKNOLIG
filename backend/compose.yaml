@@ -1,0 +1,27 @@
+services:
+  sandbox:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: "10001:10001"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 64
+    mem_limit: 128m
+    cpus: 0.5
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=8m,uid=10001,gid=10001,mode=0700
+    volumes:
+      - sandbox_data:/data
+    networks:
+      - sandbox_internal
+
+volumes:
+  sandbox_data:
+
+networks:
+  sandbox_internal:
+    internal: true
