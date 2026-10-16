@@ -317,6 +317,18 @@ Healthprüfung unter den tatsächlichen Container-Laufzeitrestriktionen sind
 deshalb noch nicht praktisch bestätigt. Auch ein Image-Build allein ist keine
 Produktions- oder Deploymentfreigabe.
 
+Die neuen CI-Läufe für
+[Android](https://github.com/nikolausnold/NIKNOLIG/actions/runs/38865404923) und
+[Backend](https://github.com/nikolausnold/NIKNOLIG/actions/runs/38865405010)
+stehen auf `action_required`; es wurden dort noch keine Jobs ausgeführt.
+Eine erforderliche GitHub-Freigabe muss der Betreiber selbst vornehmen.
+Die Secret-Prüfung fand keine Secrets. CodeQL meldete für Python und Actions
+keine Alerts und verwendete bei unverändertem Prüfstand vorhandene Ergebnisse.
+Der integrierte automatische Review konnte wegen eines nicht verfügbaren Modells
+nicht ausgeführt werden; ein separater lesender Review dient als zusätzliche Prüfung.
+Dieser meldete auch nach der abschließenden Migrations-/Packaging-Prüfung keine
+wesentlichen Fehler. Das ersetzt nicht die ausstehenden Android- und Laufzeittests.
+
 ## Geplante Grenzen
 
 Die App startet ohne Bluetooth-Berechtigungen oder Gerätezugriffe. Der
