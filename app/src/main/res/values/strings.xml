@@ -64,4 +64,10 @@
     <string name="learning_clear_confirmation_title">Lernprofil löschen?</string>
     <string name="learning_clear_confirmation_message">Deine gespeicherte Erklärungsart, Sitzungskurzfassung und alle Rückmeldezähler werden von diesem Gerät gelöscht. Das lokale Zählen wird ausgeschaltet.</string>
     <string name="learning_clear_confirmation_action">Löschen</string>
+    <string name="backend_check_button">Backend-Testverbindung prüfen</string>
+    <string name="backend_not_configured">Backend nicht konfiguriert. Alle Vorschaufunktionen bleiben lokal.</string>
+    <string name="backend_ready">Optionaler Verbindungstest: Nur der Serverstatus wird abgefragt, keine Eingaben oder Profildaten werden gesendet.</string>
+    <string name="backend_checking">Testverbindung wird geprüft …</string>
+    <string name="backend_healthy">Sandbox erreichbar. KI, Profilsynchronisierung und Geräteaktionen bleiben deaktiviert.</string>
+    <string name="backend_unavailable">Testverbindung nicht verfügbar oder inkompatibel. Lokale Funktionen bleiben unverändert.</string>
 </resources>

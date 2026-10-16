@@ -64,4 +64,10 @@
     <string name="learning_clear_confirmation_title">Delete learning profile?</string>
     <string name="learning_clear_confirmation_message">Your saved explanation style, session summary, and all feedback counters will be deleted from this device. Local counting will be turned off.</string>
     <string name="learning_clear_confirmation_action">Delete</string>
+    <string name="backend_check_button">Check backend test connection</string>
+    <string name="backend_not_configured">Backend not configured. All preview features remain local.</string>
+    <string name="backend_ready">Optional connection test: only the server status is requested. No input or profile data is sent.</string>
+    <string name="backend_checking">Checking test connection …</string>
+    <string name="backend_healthy">Sandbox reachable. AI, profile synchronization, and device actions remain disabled.</string>
+    <string name="backend_unavailable">Test connection unavailable or incompatible. Local features remain unchanged.</string>
 </resources>

@@ -1,0 +1,12 @@
+# Allow only runtime sources and the nonsecret environment example.
+# Auth files, data, .env, tests, caches, and other local files remain excluded.
+**
+!Dockerfile
+!__init__.py
+!__main__.py
+!config.py
+!database.py
+!server.py
+!migrations/
+!migrations/*.py
+!.env.example

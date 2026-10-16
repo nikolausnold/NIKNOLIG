@@ -1,0 +1,10 @@
+services:
+  sandbox:
+    environment:
+      AUTH_CONFIG_FILE: /run/secrets/sandbox_auth
+    secrets:
+      - sandbox_auth
+
+secrets:
+  sandbox_auth:
+    file: ${SANDBOX_AUTH_CONFIG_FILE:?Supply an existing synthetic digest-only auth JSON file}

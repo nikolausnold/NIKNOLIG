@@ -1,3 +1,5 @@
+import java.net.URI
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -15,11 +17,23 @@ val releaseSigningConfigured = listOf(
     releaseKeyAlias,
     releaseKeyPassword,
 ).all { !it.isNullOrBlank() }
+val backendBaseUrl = providers.environmentVariable("NIKNOLIG_BACKEND_BASE_URL").orNull.orEmpty()
+if (backendBaseUrl.isNotEmpty()) {
+    val endpoint = runCatching { URI(backendBaseUrl) }.getOrNull()
+    require(
+        endpoint != null && endpoint.scheme == "https" && !endpoint.host.isNullOrBlank() &&
+            endpoint.rawAuthority == endpoint.host && endpoint.rawPath in listOf("", "/") &&
+            endpoint.rawQuery == null && endpoint.rawFragment == null
+    ) { "NIKNOLIG_BACKEND_BASE_URL must be an HTTPS origin without credentials, port, path, query or fragment" }
+}
 
 android {
     namespace = "com.niknolig.app"
     compileSdk = 35
     buildToolsVersion = "35.0.0"
+    buildFeatures {
+        buildConfig = true
+    }
 
     signingConfigs {
         if (releaseSigningConfigured) {
@@ -43,6 +57,11 @@ android {
         targetSdk = 35
         versionCode = releaseVersionCode
         versionName = releaseVersionName
+        buildConfigField("String", "BACKEND_BASE_URL", "\"$backendBaseUrl\"")
+    }
+
+    dependencies {
+        testImplementation("junit:junit:4.13.2")
     }
 
     buildTypes {

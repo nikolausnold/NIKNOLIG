@@ -1,0 +1,312 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Synthetic Sandbox Foundation",
+    "version": "v1",
+    "description": "Offline-evaluation sandbox only. Never send or synchronize real application data. No assistant, profile sync, device actions, identity, passwords, token issuance, telemetry, or production authentication. Only responseStyle is stored, partitioned by the synthetic subject in operator-supplied configuration. Python 3.12+ standard library only. All connections close after one request. Default binding is 127.0.0.1:8080; wildcard binding requires BIND_HOST=0.0.0.0 and ALLOW_INTERNAL_CONTAINER_BIND=1 and is intended only for an isolated internal container network. This service provides no TLS; never expose it publicly or send these sandbox bearers over untrusted networks."
+  },
+  "servers": [
+    {"url": "http://127.0.0.1:8080", "description": "Local synthetic evaluation only"}
+  ],
+  "security": [],
+  "x-http-limits": {
+    "maximumBodyBytes": 1024,
+    "maximumRequestAndHeaderBytes": 8192,
+    "maximumLineBytes": 2048,
+    "maximumHeaderCount": 32,
+    "maximumConcurrentConnections": 16,
+    "socketTimeoutSeconds": 3,
+    "totalRequestDeadlineSeconds": 5,
+    "description": "HTTP/1.0 and HTTP/1.1 only, with a nonempty Host header. Strict CRLF and ASCII header syntax. Duplicate headers, Transfer-Encoding, Expect, noncanonical Content-Length, and ambiguous framing are rejected with 400. No chunking, compression, pipelining, CORS, or arbitrary request metadata support. PUT requires Content-Length (411 if absent), at most 1024 bytes (413 if exceeded), and application/json optionally followed only by charset=utf-8 (415 otherwise). GET and DELETE require absent or zero Content-Length. Headers exceeding line, count, or aggregate bounds return 431. Slow requests return 408 when time remains to write a response, or the connection is closed at the hard deadline. Exhausted concurrency returns 503. Unsupported methods on known routes return 405 with Allow; unknown paths, queries, trailing slashes and absolute request targets return 404. HEAD is unsupported and returns 405 without a body. Other error responses have the Error shape. Client disconnects may prevent a response."
+  },
+  "x-auth-configuration": {
+    "environmentVariable": "AUTH_CONFIG_FILE",
+    "description": "Optional JSON file, read once at startup, at most 65536 bytes and 128 entries. Missing, unreadable, empty, malformed or invalid configuration leaves public endpoints available if the database is ready, but every protected operation returns 503. Each entry has exactly tokenSha256, subject, scopes; unknown or duplicate JSON keys are invalid. Digests must be unique. Provision opaque cryptographically random base64url bearers separately (32-256 characters, A-Z a-z 0-9 _ -). Keep the clear token out of files and logs; this service stores only SHA256 digests and compares all configured digests in constant time. No token creation endpoint or user identity. Supply the clear token only in the Authorization header using HTTP bearer authentication; credentials in URLs are never accepted. Sandbox bearer possession is not production authentication. Default Compose requires no auth file and protected APIs return 503. Opt into compose.auth.yaml alongside compose.yaml to mount a Compose secret: that overlay requires SANDBOX_AUTH_CONFIG_FILE pointing to an existing readable digest-only file, mounted as /run/secrets/sandbox_auth and readable by UID 10001.",
+    "schema": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tokenSha256", "subject", "scopes"],
+        "properties": {
+          "tokenSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "subject": {"type": "string", "pattern": "^sandbox-[a-z0-9][a-z0-9_-]{0,55}$"},
+          "scopes": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "uniqueItems": true,
+            "items": {"enum": ["profile:read", "profile:write"]}
+          }
+        }
+      }
+    }
+  },
+  "x-storage": {
+    "description": "DB_PATH defaults to backend/data/sandbox.sqlite3, or /data/sandbox.sqlite3 in the container. SQLite schema_migrations records transactional sequential versions; all pending migrations commit atomically, failed migrations roll back, unknown or gapped versions fail closed. Readiness checks the version and required profile table. Each operation opens and closes a bounded-timeout connection and uses parameterized SQL. Docker named-volume initialization copies the image's /data ownership (UID/GID 10001); operator-provided existing volumes must already be writable by that nonroot UID. No real data, summaries, feedback, bearer cleartext or arbitrary text is persisted."
+  },
+  "x-logging": {
+    "description": "JSON lines to stdout, allowlisted fields only: event, requestId, route, method, status. No headers, URLs, subject, source IP, query, body, token, exception message or traceback. Routes are fixed labels health, capabilities, sandbox_profile, unknown; methods are GET, PUT, DELETE, other. Request IDs are independently server-generated random 32-character lowercase hex values, not copied from client headers."
+  },
+  "paths": {
+    "/v1/health": {
+      "get": {
+        "operationId": "getHealth",
+        "description": "Public database readiness. Authentication configuration is not required for readiness. Returns 503 if the SQLite schema cannot be read or is not the expected version.",
+        "responses": {
+          "200": {
+            "description": "Ready",
+            "headers": {"X-Request-ID": {"$ref": "#/components/headers/RequestId"}},
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Health"}}}
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "408": {"$ref": "#/components/responses/Timeout"},
+          "413": {"$ref": "#/components/responses/TooLarge"},
+          "431": {"$ref": "#/components/responses/HeadersTooLarge"},
+          "500": {"$ref": "#/components/responses/InternalError"},
+          "503": {"$ref": "#/components/responses/Unavailable"}
+        }
+      }
+    },
+    "/v1/capabilities": {
+      "get": {
+        "operationId": "getCapabilities",
+        "description": "Public sandbox capabilities. All three feature flags are fixed false and are not configurable. Requires database readiness.",
+        "responses": {
+          "200": {
+            "description": "Disabled sandbox capabilities",
+            "headers": {"X-Request-ID": {"$ref": "#/components/headers/RequestId"}},
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Capabilities"}}}
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "408": {"$ref": "#/components/responses/Timeout"},
+          "413": {"$ref": "#/components/responses/TooLarge"},
+          "431": {"$ref": "#/components/responses/HeadersTooLarge"},
+          "500": {"$ref": "#/components/responses/InternalError"},
+          "503": {"$ref": "#/components/responses/Unavailable"}
+        }
+      }
+    },
+    "/v1/sandbox/profile": {
+      "description": "The sole protected resource. The subject comes exclusively from the matching digest's configuration, never a header, query, path or body field. Read and write scopes are independent. No real app data may be supplied.",
+      "get": {
+        "operationId": "getSandboxProfile",
+        "description": "Requires profile:read. Returns only this token's synthetic subject's profile, or 404 if no profile exists. No implicit default record.",
+        "security": [{"sandboxBearer": []}],
+        "x-required-scopes": ["profile:read"],
+        "responses": {
+          "200": {
+            "description": "Synthetic preference",
+            "headers": {"X-Request-ID": {"$ref": "#/components/headers/RequestId"}},
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Profile"}}}
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "403": {"$ref": "#/components/responses/Forbidden"},
+          "404": {"$ref": "#/components/responses/NotFound"},
+          "408": {"$ref": "#/components/responses/Timeout"},
+          "413": {"$ref": "#/components/responses/TooLarge"},
+          "431": {"$ref": "#/components/responses/HeadersTooLarge"},
+          "500": {"$ref": "#/components/responses/InternalError"},
+          "503": {"$ref": "#/components/responses/Unavailable"}
+        }
+      },
+      "put": {
+        "operationId": "putSandboxProfile",
+        "description": "Requires profile:write. Authorizes before reading entity bytes. Creates or fully replaces the configured synthetic subject's preference; both return 200. Strict UTF-8 JSON with exactly responseStyle, no duplicate keys, nonfinite numbers, unknown properties, arbitrary text or subject selectors. Body size and framing checks occur before authorization.",
+        "security": [{"sandboxBearer": []}],
+        "x-required-scopes": ["profile:write"],
+        "requestBody": {
+          "required": true,
+          "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Profile"}}}
+        },
+        "responses": {
+          "200": {
+            "description": "Created or replaced synthetic preference",
+            "headers": {"X-Request-ID": {"$ref": "#/components/headers/RequestId"}},
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Profile"}}}
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "403": {"$ref": "#/components/responses/Forbidden"},
+          "408": {"$ref": "#/components/responses/Timeout"},
+          "411": {"$ref": "#/components/responses/LengthRequired"},
+          "413": {"$ref": "#/components/responses/TooLarge"},
+          "415": {"$ref": "#/components/responses/UnsupportedMedia"},
+          "431": {"$ref": "#/components/responses/HeadersTooLarge"},
+          "500": {"$ref": "#/components/responses/InternalError"},
+          "503": {"$ref": "#/components/responses/Unavailable"}
+        }
+      },
+      "delete": {
+        "operationId": "deleteSandboxProfile",
+        "description": "Requires profile:write. Deletes only the configured synthetic subject's row. Idempotent: absent records also return 204, with no response body. Does not accept a request body.",
+        "security": [{"sandboxBearer": []}],
+        "x-required-scopes": ["profile:write"],
+        "responses": {
+          "204": {
+            "description": "Deleted or already absent; no response body",
+            "headers": {"X-Request-ID": {"$ref": "#/components/headers/RequestId"}}
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "403": {"$ref": "#/components/responses/Forbidden"},
+          "408": {"$ref": "#/components/responses/Timeout"},
+          "413": {"$ref": "#/components/responses/TooLarge"},
+          "431": {"$ref": "#/components/responses/HeadersTooLarge"},
+          "500": {"$ref": "#/components/responses/InternalError"},
+          "503": {"$ref": "#/components/responses/Unavailable"}
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sandboxBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "opaque random base64url, 32-256 characters",
+        "description": "Separately provisioned sandbox bearer, never issued by this server. Configuration maps its SHA256 digest to one synthetic subject and a nonempty unique subset of profile:read and profile:write. GET requires profile:read; PUT and DELETE require profile:write. HTTP bearer schemes do not use OAuth scope arrays, so required scopes are described per operation and in x-required-scopes. Invalid/missing bearer: 401; missing scope: 403; absent/invalid auth configuration: 503."
+      }
+    },
+    "headers": {
+      "RequestId": {
+        "description": "Random server request ID, never taken from the client.",
+        "schema": {"type": "string", "pattern": "^[0-9a-f]{32}$"}
+      }
+    },
+    "schemas": {
+      "Profile": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["responseStyle"],
+        "properties": {
+          "responseStyle": {"type": "string", "enum": ["concise", "step_by_step", "detailed"]}
+        }
+      },
+      "Health": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["status", "apiVersion", "mode"],
+        "properties": {
+          "status": {"const": "ok"}, "apiVersion": {"const": "v1"}, "mode": {"const": "sandbox"}
+        }
+      },
+      "Capabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["apiVersion", "mode", "features"],
+        "properties": {
+          "apiVersion": {"const": "v1"},
+          "mode": {"const": "sandbox"},
+          "features": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["assistant", "profileSync", "deviceActions"],
+            "properties": {
+              "assistant": {"const": false}, "profileSync": {"const": false}, "deviceActions": {"const": false}
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["error", "requestId"],
+        "properties": {
+          "requestId": {"type": "string", "pattern": "^[0-9a-f]{32}$"},
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code", "message"],
+            "oneOf": [
+              {"properties": {"code": {"const": "invalid_request"}, "message": {"const": "Invalid request."}}},
+              {"properties": {"code": {"const": "unauthorized"}, "message": {"const": "Authentication required."}}},
+              {"properties": {"code": {"const": "forbidden"}, "message": {"const": "Insufficient scope."}}},
+              {"properties": {"code": {"const": "not_found"}, "message": {"const": "Resource not found."}}},
+              {"properties": {"code": {"const": "method_not_allowed"}, "message": {"const": "Method not allowed."}}},
+              {"properties": {"code": {"const": "request_timeout"}, "message": {"const": "Request timed out."}}},
+              {"properties": {"code": {"const": "length_required"}, "message": {"const": "Content-Length required."}}},
+              {"properties": {"code": {"const": "payload_too_large"}, "message": {"const": "Request too large."}}},
+              {"properties": {"code": {"const": "unsupported_media_type"}, "message": {"const": "Use application/json."}}},
+              {"properties": {"code": {"const": "headers_too_large"}, "message": {"const": "Request headers too large."}}},
+              {"properties": {"code": {"const": "internal_error"}, "message": {"const": "Request could not be completed."}}},
+              {"properties": {"code": {"const": "unavailable"}, "message": {"const": "Sandbox service unavailable."}}}
+            ],
+            "properties": {"code": {"type": "string"}, "message": {"type": "string"}}
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "400 invalid_request: Invalid request.",
+        "headers": {"X-Request-ID": {"$ref": "#/components/headers/RequestId"}},
+        "content": {"application/json": {"schema": {"allOf": [{"$ref": "#/components/schemas/Error"}, {"properties": {"error": {"properties": {"code": {"const": "invalid_request"}}}}}]}}}
+      },
+      "Unauthorized": {
+        "description": "401 unauthorized: Authentication required.",
+        "headers": {
+          "X-Request-ID": {"$ref": "#/components/headers/RequestId"},
+          "WWW-Authenticate": {"schema": {"const": "Bearer\u0020realm=\u0022sandbox\u0022"}}
+        },
+        "content": {"application/json": {"schema": {"allOf": [{"$ref": "#/components/schemas/Error"}, {"properties": {"error": {"properties": {"code": {"const": "unauthorized"}}}}}]}}}
+      },
+      "Forbidden": {
+        "description": "403 forbidden: Insufficient scope.",
+        "headers": {"X-Request-ID": {"$ref": "#/components/headers/RequestId"}},
+        "content": {"application/json": {"schema": {"allOf": [{"$ref": "#/components/schemas/Error"}, {"properties": {"error": {"properties": {"code": {"const": "forbidden"}}}}}]}}}
+      },
+      "NotFound": {
+        "description": "404 not_found: Resource not found.",
+        "headers": {"X-Request-ID": {"$ref": "#/components/headers/RequestId"}},
+        "content": {"application/json": {"schema": {"allOf": [{"$ref": "#/components/schemas/Error"}, {"properties": {"error": {"properties": {"code": {"const": "not_found"}}}}}]}}}
+      },
+      "MethodNotAllowed": {
+        "description": "405 method_not_allowed: Method not allowed. All known routes reject unspecified methods. HEAD returns headers only.",
+        "headers": {
+          "X-Request-ID": {"$ref": "#/components/headers/RequestId"},
+          "Allow": {"schema": {"enum": ["GET", "DELETE, GET, PUT"]}}
+        },
+        "content": {"application/json": {"schema": {"allOf": [{"$ref": "#/components/schemas/Error"}, {"properties": {"error": {"properties": {"code": {"const": "method_not_allowed"}}}}}]}}}
+      },
+      "Timeout": {
+        "description": "408 request_timeout: Request timed out. Hard deadlines or disconnects may instead close without a response.",
+        "headers": {"X-Request-ID": {"$ref": "#/components/headers/RequestId"}},
+        "content": {"application/json": {"schema": {"allOf": [{"$ref": "#/components/schemas/Error"}, {"properties": {"error": {"properties": {"code": {"const": "request_timeout"}}}}}]}}}
+      },
+      "LengthRequired": {
+        "description": "411 length_required: Content-Length required.",
+        "headers": {"X-Request-ID": {"$ref": "#/components/headers/RequestId"}},
+        "content": {"application/json": {"schema": {"allOf": [{"$ref": "#/components/schemas/Error"}, {"properties": {"error": {"properties": {"code": {"const": "length_required"}}}}}]}}}
+      },
+      "TooLarge": {
+        "description": "413 payload_too_large: Request too large.",
+        "headers": {"X-Request-ID": {"$ref": "#/components/headers/RequestId"}},
+        "content": {"application/json": {"schema": {"allOf": [{"$ref": "#/components/schemas/Error"}, {"properties": {"error": {"properties": {"code": {"const": "payload_too_large"}}}}}]}}}
+      },
+      "UnsupportedMedia": {
+        "description": "415 unsupported_media_type: Use application/json.",
+        "headers": {"X-Request-ID": {"$ref": "#/components/headers/RequestId"}},
+        "content": {"application/json": {"schema": {"allOf": [{"$ref": "#/components/schemas/Error"}, {"properties": {"error": {"properties": {"code": {"const": "unsupported_media_type"}}}}}]}}}
+      },
+      "HeadersTooLarge": {
+        "description": "431 headers_too_large: Request headers too large.",
+        "headers": {"X-Request-ID": {"$ref": "#/components/headers/RequestId"}},
+        "content": {"application/json": {"schema": {"allOf": [{"$ref": "#/components/schemas/Error"}, {"properties": {"error": {"properties": {"code": {"const": "headers_too_large"}}}}}]}}}
+      },
+      "InternalError": {
+        "description": "500 internal_error: Request could not be completed.",
+        "headers": {"X-Request-ID": {"$ref": "#/components/headers/RequestId"}},
+        "content": {"application/json": {"schema": {"allOf": [{"$ref": "#/components/schemas/Error"}, {"properties": {"error": {"properties": {"code": {"const": "internal_error"}}}}}]}}}
+      },
+      "Unavailable": {
+        "description": "503 unavailable: Sandbox service unavailable. Includes unavailable database, invalid/missing auth configuration on protected operations, or capacity exhaustion.",
+        "headers": {"X-Request-ID": {"$ref": "#/components/headers/RequestId"}},
+        "content": {"application/json": {"schema": {"allOf": [{"$ref": "#/components/schemas/Error"}, {"properties": {"error": {"properties": {"code": {"const": "unavailable"}}}}}]}}}
+      }
+    }
+  }
+}
