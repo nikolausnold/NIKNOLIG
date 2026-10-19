@@ -50,6 +50,11 @@ Vor einer öffentlichen Veröffentlichung müssen die rechtlich erforderlichen
 Betreiber- und Datenschutzangaben ergänzt und geprüft werden. Diese Angaben wurden
 nicht erfunden oder als fertige Rechtsseiten ausgegeben.
 
+Die Website verlinkt im Bereich **Android-App** auf die offiziellen
+[GitHub-Releases](https://github.com/nikolausnold/NIKNOLIG/releases). Dort steht
+ein APK-Download bereit, sobald eine APK veröffentlicht wurde; aktuell ist noch
+keine APK-Datei veröffentlicht.
+
 ## Android-Releases
 
 Der [Android-Build-Workflow](https://github.com/nikolausnold/NIKNOLIG/actions/workflows/android-build.yml)
