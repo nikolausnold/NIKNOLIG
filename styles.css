@@ -464,6 +464,74 @@ h2 {
     font-size: 14px;
 }
 
+.project-status-content {
+    margin-top: 38px;
+}
+
+.project-status-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+.project-status-heading h2 {
+    margin: 0;
+}
+
+.project-status-heading > p {
+    max-width: 300px;
+    margin-bottom: 7px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 38px;
+}
+
+.status-card {
+    min-height: 210px;
+    padding: 25px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: linear-gradient(145deg, rgba(24, 33, 29, 0.85), rgba(15, 21, 18, 0.65));
+}
+
+.status-card h3 {
+    margin: 24px 0 9px;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+}
+
+.status-card p {
+    margin-bottom: 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.project-status-source {
+    margin: 20px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.project-status-source a {
+    color: var(--text);
+}
+
+.project-status-source a:hover {
+    color: var(--accent);
+}
+
+.project-status-source a span {
+    color: var(--accent);
+}
+
 .principle-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -704,7 +772,17 @@ h2 {
         gap: 12px;
     }
 
+    .project-status-heading {
+        align-items: start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
     .principles-heading > p {
+        max-width: 480px;
+    }
+
+    .project-status-heading > p {
         max-width: 480px;
     }
 
@@ -730,7 +808,8 @@ h2 {
     }
 
     .site-header nav a:nth-child(1),
-    .site-header nav a:nth-child(2) {
+    .site-header nav a:nth-child(3),
+    .site-header nav a:nth-child(4) {
         display: none;
     }
 
@@ -792,6 +871,21 @@ h2 {
         grid-template-columns: 1fr;
         gap: 10px;
         margin-top: 30px;
+    }
+
+    .project-status-content {
+        margin-top: 24px;
+    }
+
+    .status-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    .status-card {
+        min-height: 0;
+        padding: 21px;
     }
 
     .principle-card {
