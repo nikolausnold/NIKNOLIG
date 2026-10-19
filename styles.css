@@ -393,6 +393,50 @@ h2 span {
     border-top: 1px solid var(--line);
 }
 
+.download {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 40px;
+}
+
+.download-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    padding: 36px;
+    border: 1px solid rgba(200, 241, 105, 0.17);
+    border-radius: 5px;
+    background: linear-gradient(110deg, rgba(25, 34, 26, 0.9), rgba(17, 23, 20, 0.8));
+}
+
+.download-panel .eyebrow {
+    margin-bottom: 12px;
+    color: var(--accent);
+}
+
+.download-panel h2 {
+    margin-bottom: 14px;
+    font-size: clamp(38px, 4vw, 48px);
+}
+
+.download-panel p:not(.eyebrow) {
+    max-width: 410px;
+    margin-bottom: 10px;
+    color: #b1bbb2;
+    font-size: 14px;
+}
+
+.download-panel .download-status {
+    margin-bottom: 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.download-panel .button {
+    flex-shrink: 0;
+}
+
 .section-kicker {
     display: flex;
     align-items: center;
@@ -692,6 +736,7 @@ h2 {
         margin-right: -45px;
     }
 
+    .download,
     .vision,
     .contact {
         grid-template-columns: 1fr;
@@ -830,6 +875,12 @@ h2 {
     .contact-content {
         grid-template-columns: 1fr;
         gap: 26px;
+    }
+
+    .download-panel {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 26px;
     }
 
     .site-footer {
