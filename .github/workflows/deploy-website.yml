@@ -21,7 +21,7 @@ jobs:
   upload:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Prepare website
         run: |
           mkdir "$RUNNER_TEMP/website"
@@ -29,7 +29,7 @@ jobs:
           mkdir "$RUNNER_TEMP/website/assets"
           cp assets/niknolig-mark.svg "$RUNNER_TEMP/website/assets/"
       - name: Upload website artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ${{ runner.temp }}/website
 
@@ -46,4 +46,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

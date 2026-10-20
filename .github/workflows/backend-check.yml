@@ -18,7 +18,7 @@ jobs:
   sandbox:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Test backend
         working-directory: backend
         run: python3 -m unittest discover -s tests -v
