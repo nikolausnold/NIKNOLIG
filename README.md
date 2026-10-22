@@ -37,14 +37,28 @@ Die statische Website liegt in `index.html` und `styles.css`. Sie benötigt wede
 einen Build-Schritt noch externe JavaScript-Bibliotheken. Für günstiges Hosting kann
 GitHub Pages verwendet werden. Der Workflow
 [`Deploy website`](https://github.com/nikolausnold/NIKNOLIG/actions/workflows/deploy-website.yml)
-veröffentlicht bei Änderungen an `index.html`, `styles.css` oder der
-Workflowdatei auf `main` ein Artefakt mit diesen beiden Dateien und
-`assets/niknolig-mark.svg`. Änderungen nur an der SVG lösen keinen Lauf aus;
+veröffentlicht bei Änderungen an `index.html`, `styles.css`,
+`assets/niknolig-mark.svg` oder der Workflowdatei auf `main` ein Artefakt mit
+diesen drei Website-Dateien;
 alternativ kann der Workflow manuell für `main` gestartet werden. Aktiviere unter
 [Repository-Einstellungen → Pages](https://github.com/nikolausnold/NIKNOLIG/settings/pages)
 als Veröffentlichungsquelle **GitHub Actions**. Nach einem erfolgreichen Lauf zeigt
 der Workflow die veröffentlichte URL an. Verfügbarkeit und Kosten hängen von
 Repository-Sichtbarkeit und GitHub-Tarif ab.
+
+Prüfstand vom 22.10.2026: Der [Deployment-Lauf vom 21.10.2026](https://github.com/nikolausnold/NIKNOLIG/actions/runs/39650280195)
+hat Commit `bbb19d6bc6e1eb7b7c07aa86a17687b2bc025dbc` erfolgreich unter
+https://nikolausnold.github.io/NIKNOLIG/ veröffentlicht. Das Upload-Log bestätigt
+`index.html`, `styles.css` und `assets/niknolig-mark.svg`. Alle zehn internen
+Ankerverweise und die relativen Ressourcenpfade sind im zugehörigen Quellstand
+gültig; eine zusätzliche Basis-URL ist nicht erforderlich.
+Ein externer HTTP-/TLS-Nachweis war aus der Prüfungsumgebung nicht möglich:
+`curl` scheiterte mit Fehler 6 an der Namensauflösung, der Pages-API-Aufruf wurde
+mit HTTP 403 und „Blocked by DNS monitoring proxy“ abgewiesen. Der Browserdienst
+war nicht verfügbar. Das belegt keinen öffentlichen DNS- oder HTTPS-Defekt;
+Live-Inhalt und Zertifikat konnten nicht unabhängig bestätigt werden.
+Die ergänzte SVG-Auslösung ist erst nach Übernahme auf `main` wirksam und
+behebt keinen nachgewiesenen Erreichbarkeitsfehler.
 
 Vor einer öffentlichen Veröffentlichung müssen die rechtlich erforderlichen
 Betreiber- und Datenschutzangaben ergänzt und geprüft werden. Diese Angaben wurden

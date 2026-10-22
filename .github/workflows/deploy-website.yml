@@ -7,6 +7,7 @@ on:
     paths:
       - index.html
       - styles.css
+      - assets/niknolig-mark.svg
       - .github/workflows/deploy-website.yml
   workflow_dispatch:
 
