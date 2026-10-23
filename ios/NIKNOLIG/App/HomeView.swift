@@ -44,7 +44,7 @@ struct HomeView: View {
             isPresented: $showingSupportConfirmation,
             titleVisibility: .visible
         ) {
-            Button("E-Mail-Entwurf öffnen") {
+            Button(action: {
                 guard let url = URL(string: "mailto:n_nold@hotmail.com") else {
                     supportStatus = "Der E-Mail-Link ist ungültig."
                     return
@@ -56,6 +56,8 @@ struct HomeView: View {
                         supportStatus = "Keine geeignete Mail-App verfügbar."
                     }
                 }
+            }) {
+                Text("E-Mail-Entwurf öffnen")
             }
             Button("Abbrechen", role: .cancel) {}
         } message: {
