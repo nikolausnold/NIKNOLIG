@@ -117,6 +117,28 @@ Konfiguration sowie die gesonderte Datenschutz-, Support- und Store-Prüfung. Es
 wurde keine Apple-Konfiguration vorausgesetzt und kein kostenpflichtiger KI-Dienst
 aktiviert.
 
+## Release-Freigabe
+
+Ein grüner Debug- oder Simulator-Build ist kein veröffentlichter App-Release.
+
+- **Android:** Der Release-Workflow akzeptiert ausschließlich Tags im Format
+  `vMAJOR.MINOR.PATCH`, die auf `main` liegen. Vor dem Tag müssen die GitHub-
+  Actions-Secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
+  `ANDROID_KEY_ALIAS` und `ANDROID_KEY_PASSWORD` eingerichtet sein. Ein Release
+  gilt erst als nachgewiesen, wenn der zugehörige Lauf APK und AAB signiert
+  verifiziert und beide Artefakte samt Prüfsummen veröffentlicht hat. Secret-
+  Werte gehören nicht ins Repository.
+- **iOS:** Der aktuelle CI-Lauf führt Core-Tests und einen unsignierten Simulator-
+  Build aus. Vor einer Veröffentlichung sind die freigegebene Apple-Team- und
+  Signierungskonfiguration sowie ein erfolgreich signiertes Gerätearchiv und
+  der vorgesehene TestFlight-/App-Store-Distributionsnachweis erforderlich.
+- **Produkt und Sicherheit:** Vor einer externen Freigabe müssen Produktumfang
+  und Datenschutzangaben mit der tatsächlich implementierten Vorschau
+  übereinstimmen. Die Assistenteneingabe wird nicht verarbeitet; der optionale
+  Backend-Aufruf ist nur ein manueller Health-Check. Eine gezielte Prüfung von
+  Datenschutz-/Store-Anforderungen und Sicherheitsnachweise für den geplanten
+  produktiven Funktionsumfang sind nicht durch grüne Build-Checks ersetzt.
+
 ## Lernkonzept für Elektro-Engel (Vorbereitung)
 
 Elektro-Engel soll mit der Zeit dazulernen, was für hilfreiche Unterstützung nötig
