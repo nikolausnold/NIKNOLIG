@@ -1,6 +1,7 @@
 package com.niknolig.app
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -27,6 +28,17 @@ class MainActivity : Activity() {
     }
 
     private fun openTechnicalSupportEmail() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.support_email_confirmation_title)
+            .setMessage(R.string.support_email_confirmation_message)
+            .setNegativeButton(R.string.support_email_cancel, null)
+            .setPositiveButton(R.string.support_email_continue) { _, _ ->
+                prepareTechnicalSupportEmail()
+            }
+            .show()
+    }
+
+    private fun prepareTechnicalSupportEmail() {
         val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.fromParts("mailto", getString(R.string.support_email), null)
             putExtra(Intent.EXTRA_SUBJECT, getString(R.string.support_email_subject))

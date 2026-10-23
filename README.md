@@ -166,12 +166,13 @@ Ein Abruf oder Import ist derzeit nicht implementiert.
 
 ## Isolierte Backend-Grundlage (Sandbox, nicht produktiv)
 
-Die bestehende App verwendet native Activities, XML-Oberflächen und lokale
+Die Android-App verwendet native Activities, XML-Oberflächen und lokale
 `SharedPreferences`. Assistenteingaben werden nur angezeigt; Stil, Feedback und
-Sitzungszusammenfassung bleiben lokal. Es gab bisher weder einen API-Client noch
-einen Server. Das neue Backend ergänzt ausschließlich eine unabhängig betreibbare
-Testgrundlage, keine KI, Gerätefreigaben, Zahlungen oder Nutzerdatenverarbeitung.
-NIKNOLIG Defense und andere Repositories werden nicht berührt.
+Sitzungszusammenfassung bleiben lokal. Der Android-Client kann nach expliziter
+Konfiguration ausschließlich den Backend-Health-Endpunkt prüfen. Das Python-Backend
+stellt zusätzlich Fähigkeiten und geschützte synthetische Testprofile bereit. Es
+enthält keine KI, produktive Nutzeranmeldung, Tickets, Gerätefreigaben oder
+Zahlungsfunktionen. NIKNOLIG Defense und andere Repositories werden nicht verändert.
 
 ### Architektur und API-Vertrag
 
@@ -250,6 +251,28 @@ nur eine kompatible Sandbox, keine Sicherheitsfreigabe. HTTPS-Zertifikate werden
 dem Android-Truststore geprüft; Klartextverkehr und Weiterleitungen sind gesperrt.
 Ein Netzwerkaufruf offenbart dem gewählten Server technisch die Quell-IP; sie wird
 vom Backend nicht protokolliert. Bei Fehlern funktionieren lokale Funktionen weiter.
+
+### Produktionsfunktionen und externe Blocker
+
+- **KI:** Der Fähigkeiten-Endpunkt meldet `assistant: false`; die App zeigt Eingaben
+  weiterhin nur lokal an. Für echte Anfragen fehlen ein freigegebener Anbieter,
+  dessen serverseitige Betreiberkonfiguration (einschließlich etwaiger Kosten),
+  produktive Nutzerauthentifizierung, Missbrauchsschutz und Datenschutzfreigaben.
+  Es sind weder Anbieterzugangsdaten noch ein kostenpflichtiger Dienst eingerichtet.
+- **Support:** Erst nach Bestätigung öffnet Android einen E-Mail-Entwurf an
+  `n_nold@hotmail.com`; die App versendet ihn nicht und kann den Versand nicht
+  feststellen. Ein Ticket-Backend, Statusabfrage und Wiederherstellung eines
+  gesendeten Tickets existieren nicht. Der gemeinsame Elektro-Engel-Support mit
+  NIKNOLIG Defense benötigt eine freigegebene, gemeinsame Support-Schnittstelle und
+  deren Betreiberkonfiguration; Defense liegt außerhalb dieses Repositories.
+- **iOS:** Dieses Repository enthält ausschließlich die Android-App. Es gibt kein
+  iOS-Projekt oder eine iOS-Implementierung; Android-Berechtigungen und -Konfiguration
+  wurden nicht auf iOS übertragen.
+
+Diese Funktionen bleiben deaktiviert bzw. werden nicht als verfügbar dargestellt,
+bis die jeweils benötigte externe Betreiber-, Datenschutz- und Plattformkonfiguration
+vorliegt. Die App erfindet weder Ticketstatus noch Backend-Erreichbarkeit oder Store-
+Freigaben.
 
 ### Vorbereitung für Hetzner Ubuntu – keine Aktivierung
 
