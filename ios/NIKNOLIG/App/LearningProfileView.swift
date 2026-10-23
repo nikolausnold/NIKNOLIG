@@ -131,7 +131,7 @@ struct LearningProfileView: View {
     private func feedbackButton(
         _ title: String,
         count: Int,
-        update: (inout LearningProfile) -> Void
+        update: @escaping (inout LearningProfile) -> Void
     ) -> some View {
         Button {
             var updated = profile
