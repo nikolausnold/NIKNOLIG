@@ -4,7 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "NIKNOLIGCore",
-    platforms: [.iOS(.v17)],
+    platforms: [.iOS(.v17), .macOS(.v10_15)],
     products: [
         .library(name: "NIKNOLIGCore", targets: ["NIKNOLIGCore"]),
     ],
