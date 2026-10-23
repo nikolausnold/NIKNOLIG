@@ -24,7 +24,7 @@
 			A20000000000000000000003 /* HomeView.swift */,
 			A20000000000000000000004 /* AssistantView.swift */,
 			A20000000000000000000005 /* LearningProfileView.swift */,
-		); path = App; sourceTree = "<group>"; };
+		); path = NIKNOLIG/App; sourceTree = "<group>"; };
 		A30000000000000000000002 = {isa = PBXGroup; children = (
 			A30000000000000000000001 /* App */,
 			A30000000000000000000003 /* Products */,
