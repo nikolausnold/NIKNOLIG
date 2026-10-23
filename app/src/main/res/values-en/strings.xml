@@ -23,12 +23,16 @@
     <string name="system_status">Development scaffold</string>
     <string name="device_status">No devices connected</string>
     <string name="support_heading">TECHNICAL SUPPORT</string>
-    <string name="support_description">For technical questions, contact us at n_nold@hotmail.com.</string>
+    <string name="support_description">For technical questions, you can prepare an email to n_nold@hotmail.com. The app does not send it automatically.</string>
     <string name="support_payment_notice">Payment questions are not handled here. Please contact your payment provider or merchant directly. Do not send payment details to technical support.</string>
     <string name="support_contact_button">Contact technical support</string>
     <string name="support_email">n_nold@hotmail.com</string>
     <string name="support_email_subject">Technical support request – NIKNOLIG</string>
     <string name="support_email_body">Please describe your technical issue. Do not send passwords or payment details.</string>
+    <string name="support_email_confirmation_title">Prepare a support email?</string>
+    <string name="support_email_confirmation_message">After you confirm, your email app opens a draft to n_nold@hotmail.com. NIKNOLIG does not send anything automatically and cannot tell whether you send the email. No ticket is created or tracked. Do not send passwords or payment details.</string>
+    <string name="support_email_cancel">Cancel</string>
+    <string name="support_email_continue">Open email draft</string>
     <string name="support_email_unavailable">No email app found on this device.</string>
     <string name="demo_notice">Preview — no device connection, security approval, or production feature is available yet.</string>
     <string name="learning_profile_button">Learning profile and privacy</string>
