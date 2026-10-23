@@ -1,7 +1,7 @@
 # NIKNOLIG
 
-Eigenständiges Android-Entwicklungsgerüst für NIKNOLIG und Elektro-Engel. Der
-aktuelle Bildschirm ist eine Vorschau; BLE, Gerätevertrauen,
+Entwicklungsgerüst für NIKNOLIG und Elektro-Engel mit getrennten nativen Android-
+und iOS-Apps. Beide Apps sind Vorschauen; BLE, Gerätevertrauen,
 Sicherheitsfreigaben und produktive Funktionen sind noch nicht implementiert.
 
 ## Build-Basis
@@ -78,6 +78,44 @@ Vor dem ersten Release müssen in den Repository-Secrets
 Base64-kodierten Inhalt des privaten Android-Keystores. Der Keystore und seine
 Passwörter dürfen nicht ins Repository eingecheckt werden; derselbe Keystore muss
 für alle späteren App-Updates sicher aufbewahrt werden.
+
+## iOS-Vorschau
+
+Das native SwiftUI-Projekt befindet sich direkt im Hauptrepository unter
+`ios/NIKNOLIG.xcodeproj`; die SwiftUI-Einstiegspunkte liegen in `ios/NIKNOLIG/App/`.
+`ios/NIKNOLIGCore` enthält die plattformübergreifend testbaren lokalen Profil- und
+Health-Check-Funktionen.
+
+Lokale Prüfungen auf einem Mac mit Xcode:
+
+```sh
+swift test --package-path ios/NIKNOLIGCore
+xcodebuild -project ios/NIKNOLIG.xcodeproj -scheme NIKNOLIG \
+  -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+```
+
+Der [iOS-Build-Workflow](https://github.com/nikolausnold/NIKNOLIG/actions/workflows/ios-build.yml)
+führt die Swift-Pakettests und einen unsignierten iOS-Simulator-Build auf macOS aus.
+Das ist kein Geräte-, Archiv-, TestFlight- oder App-Store-Release.
+
+Die iOS-Vorschau enthält lokale Tabs für Start, Elektro-Engel und Lernprofil. Die
+Assistenteneingabe wird nicht gesendet; ein KI-Anbieter ist nicht eingerichtet. Das
+Lernprofil speichert nur nach Nutzeraktion den Antwortstil, optionale manuelle
+Rückmeldezähler und eine ausdrücklich gespeicherte Sitzungsnotiz (maximal 500
+Zeichen). Die Datei liegt im App-Speicher mit iOS-Dateischutz; Löschen setzt das
+Profil zurück. Es gibt keine Gesprächsverläufe, Profilsynchronisierung oder
+Zugangsdaten im Client. Ein optionaler Backend-Test erfordert das manuelle Eintragen
+eines HTTPS-Ursprungs und einen ausdrücklichen Tastendruck; er sendet nur
+`GET /v1/health`, folgt keinen Weiterleitungen und bleibt bei Fehlern ohne Einfluss
+auf lokale Funktionen. Die App fordert keine Bluetooth-, Standort- oder sonstigen
+Geräteberechtigungen an. Technischer Support öffnet erst nach Bestätigung einen
+E-Mail-Entwurf; gemeinsamer Elektro-Engel-/Defense-Support und Ticket-Tracking sind
+nicht verfügbar.
+
+Für eine Veröffentlichung fehlen noch eine freigegebene Apple-Team-/Signing-
+Konfiguration sowie die gesonderte Datenschutz-, Support- und Store-Prüfung. Es
+wurde keine Apple-Konfiguration vorausgesetzt und kein kostenpflichtiger KI-Dienst
+aktiviert.
 
 ## Lernkonzept für Elektro-Engel (Vorbereitung)
 
@@ -265,9 +303,9 @@ vom Backend nicht protokolliert. Bei Fehlern funktionieren lokale Funktionen wei
   gesendeten Tickets existieren nicht. Der gemeinsame Elektro-Engel-Support mit
   NIKNOLIG Defense benötigt eine freigegebene, gemeinsame Support-Schnittstelle und
   deren Betreiberkonfiguration; Defense liegt außerhalb dieses Repositories.
-- **iOS:** Dieses Repository enthält ausschließlich die Android-App. Es gibt kein
-  iOS-Projekt oder eine iOS-Implementierung; Android-Berechtigungen und -Konfiguration
-  wurden nicht auf iOS übertragen.
+- **iOS:** Die native SwiftUI-Vorschau und ihre Grenzen sind im Abschnitt
+  [iOS-Vorschau](#ios-vorschau) beschrieben. Es werden keine Android-Berechtigungen
+  oder Android-Implementierungsdetails auf iOS übertragen.
 
 Diese Funktionen bleiben deaktiviert bzw. werden nicht als verfügbar dargestellt,
 bis die jeweils benötigte externe Betreiber-, Datenschutz- und Plattformkonfiguration

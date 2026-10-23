@@ -1,0 +1,126 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 60;
+	objects = {
+		A10000000000000000000001 /* NIKNOLIGApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* NIKNOLIGApp.swift */; };
+		A10000000000000000000002 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* MainTabView.swift */; };
+		A10000000000000000000003 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* HomeView.swift */; };
+		A10000000000000000000004 /* AssistantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* AssistantView.swift */; };
+		A10000000000000000000005 /* LearningProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000005 /* LearningProfileView.swift */; };
+		A10000000000000000000006 /* NIKNOLIGCore in Frameworks */ = {isa = PBXBuildFile; productRef = A80000000000000000000001 /* NIKNOLIGCore */; };
+
+		A20000000000000000000001 /* NIKNOLIGApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIKNOLIGApp.swift; sourceTree = "<group>"; };
+		A20000000000000000000002 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		A20000000000000000000003 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		A20000000000000000000004 /* AssistantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantView.swift; sourceTree = "<group>"; };
+		A20000000000000000000005 /* LearningProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningProfileView.swift; sourceTree = "<group>"; };
+		A20000000000000000000006 /* NIKNOLIG.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NIKNOLIG.app; sourceTree = BUILT_PRODUCTS_DIR; };
+
+		A30000000000000000000001 /* App */ = {isa = PBXGroup; children = (
+			A20000000000000000000001 /* NIKNOLIGApp.swift */,
+			A20000000000000000000002 /* MainTabView.swift */,
+			A20000000000000000000003 /* HomeView.swift */,
+			A20000000000000000000004 /* AssistantView.swift */,
+			A20000000000000000000005 /* LearningProfileView.swift */,
+		); path = App; sourceTree = "<group>"; };
+		A30000000000000000000002 = {isa = PBXGroup; children = (
+			A30000000000000000000001 /* App */,
+			A30000000000000000000003 /* Products */,
+		); sourceTree = "<group>"; };
+		A30000000000000000000003 /* Products */ = {isa = PBXGroup; children = (
+			A20000000000000000000006 /* NIKNOLIG.app */,
+		); name = Products; sourceTree = "<group>"; };
+
+		A40000000000000000000001 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+			A10000000000000000000001 /* NIKNOLIGApp.swift in Sources */,
+			A10000000000000000000002 /* MainTabView.swift in Sources */,
+			A10000000000000000000003 /* HomeView.swift in Sources */,
+			A10000000000000000000004 /* AssistantView.swift in Sources */,
+			A10000000000000000000005 /* LearningProfileView.swift in Sources */,
+		); runOnlyForDeploymentPostprocessing = 0; };
+		A40000000000000000000002 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (
+			A10000000000000000000006 /* NIKNOLIGCore in Frameworks */,
+		); runOnlyForDeploymentPostprocessing = 0; };
+		A40000000000000000000003 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+
+		A50000000000000000000001 /* NIKNOLIG */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A60000000000000000000002 /* Build configuration list for PBXNativeTarget "NIKNOLIG" */;
+			buildPhases = (A40000000000000000000001 /* Sources */, A40000000000000000000002 /* Frameworks */, A40000000000000000000003 /* Resources */);
+			buildRules = ();
+			dependencies = ();
+			name = NIKNOLIG;
+			packageProductDependencies = (A80000000000000000000001 /* NIKNOLIGCore */,);
+			productName = NIKNOLIG;
+			productReference = A20000000000000000000006 /* NIKNOLIG.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A60000000000000000000001 /* Build configuration list for PBXProject "NIKNOLIG" */ = {isa = XCConfigurationList; buildConfigurations = (
+			A70000000000000000000001 /* Debug */,
+			A70000000000000000000002 /* Release */,
+		); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		A60000000000000000000002 /* Build configuration list for PBXNativeTarget "NIKNOLIG" */ = {isa = XCConfigurationList; buildConfigurations = (
+			A70000000000000000000003 /* Debug */,
+			A70000000000000000000004 /* Release */,
+		); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		A70000000000000000000001 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
+			IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+			SDKROOT = iphoneos;
+			SWIFT_VERSION = 5.0;
+		}; name = Debug; };
+		A70000000000000000000002 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
+			IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+			SDKROOT = iphoneos;
+			SWIFT_VERSION = 5.0;
+		}; name = Release; };
+		A70000000000000000000003 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
+			CODE_SIGN_STYLE = Automatic;
+			GENERATE_INFOPLIST_FILE = YES;
+			INFOPLIST_KEY_CFBundleDisplayName = NIKNOLIG;
+			INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+			INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+			INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+			IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+			PRODUCT_BUNDLE_IDENTIFIER = org.niknolig.ios;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SWIFT_EMIT_LOC_STRINGS = YES;
+			SWIFT_VERSION = 5.0;
+			TARGETED_DEVICE_FAMILY = "1,2";
+		}; name = Debug; };
+		A70000000000000000000004 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
+			CODE_SIGN_STYLE = Automatic;
+			GENERATE_INFOPLIST_FILE = YES;
+			INFOPLIST_KEY_CFBundleDisplayName = NIKNOLIG;
+			INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+			INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+			INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+			IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+			PRODUCT_BUNDLE_IDENTIFIER = org.niknolig.ios;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SWIFT_EMIT_LOC_STRINGS = YES;
+			SWIFT_VERSION = 5.0;
+			TARGETED_DEVICE_FAMILY = "1,2";
+		}; name = Release; };
+
+		A80000000000000000000001 /* NIKNOLIGCore */ = {isa = XCSwiftPackageProductDependency; package = A90000000000000000000001 /* XCLocalSwiftPackageReference "NIKNOLIGCore" */; productName = NIKNOLIGCore; };
+		A90000000000000000000001 /* XCLocalSwiftPackageReference "NIKNOLIGCore" */ = {isa = XCLocalSwiftPackageReference; relativePath = NIKNOLIGCore; };
+
+		AA0000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {BuildIndependentTargetsInParallel = 1; LastUpgradeCheck = 1600; TargetAttributes = {A50000000000000000000001 = {CreatedOnToolsVersion = 16.0; }; }; };
+			buildConfigurationList = A60000000000000000000001 /* Build configuration list for PBXProject "NIKNOLIG" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			knownRegions = (en, Base);
+			mainGroup = A30000000000000000000002;
+			packageReferences = (A90000000000000000000001 /* XCLocalSwiftPackageReference "NIKNOLIGCore" */,);
+			productRefGroup = A30000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (A50000000000000000000001 /* NIKNOLIG */,);
+		};
+	};
+	rootObject = AA0000000000000000000001 /* Project object */;
+}
