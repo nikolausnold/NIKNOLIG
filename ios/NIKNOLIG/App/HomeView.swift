@@ -50,7 +50,7 @@ struct HomeView: View {
                     return
                 }
                 openURL(url) { result in
-                    if case .systemAction = result {
+                    if result {
                         supportStatus = "Der Entwurf wurde an deine Mail-App übergeben. Die App kann den Versand nicht feststellen."
                     } else {
                         supportStatus = "Keine geeignete Mail-App verfügbar."
