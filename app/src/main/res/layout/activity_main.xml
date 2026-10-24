@@ -44,6 +44,16 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:letterSpacing="0.12"
+                android:text="@string/brand_tagline"
+                android:textColor="@color/gold"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_small"
                 android:accessibilityHeading="true"
                 android:text="@string/assistant_name"

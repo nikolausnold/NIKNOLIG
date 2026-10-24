@@ -1,10 +1,10 @@
 <resources>
-    <color name="dark_background">#090B0A</color>
-    <color name="dark_surface">#151815</color>
-    <color name="surface_outline">#403A28</color>
-    <color name="gold">#E4B64E</color>
-    <color name="brand_accent">#B9F46F</color>
-    <color name="active_green">#86E889</color>
-    <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#B7BDB8</color>
+    <color name="dark_background">#08090D</color>
+    <color name="dark_surface">#11131A</color>
+    <color name="surface_outline">#343640</color>
+    <color name="gold">#F4C95D</color>
+    <color name="brand_accent">#F4C95D</color>
+    <color name="active_green">#39F58A</color>
+    <color name="text_primary">#F2F2F5</color>
+    <color name="text_secondary">#A9ADB8</color>
 </resources>

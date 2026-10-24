@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">NIKNOLIG</string>
     <string name="brand_name">NIKNOLIG</string>
+    <string name="brand_tagline">DER STROM, DER SPRICHT.</string>
     <string name="assistant_name">Elektro-Engel</string>
     <string name="assistant_description">Your assistant for transparent, controlled technology.</string>
     <string name="assistant_open_button">Open Elektro-Engel</string>
