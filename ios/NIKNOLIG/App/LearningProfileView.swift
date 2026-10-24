@@ -19,7 +19,7 @@ struct LearningProfileView: View {
 
     var body: some View {
         Form {
-            Section("Antwortstil") {
+            Section {
                 Picker("Erklärungsart", selection: Binding(
                     get: { profile.responseStyle },
                     set: { value in
@@ -32,9 +32,13 @@ struct LearningProfileView: View {
                         Text(style.title).tag(style)
                     }
                 }
+            } header: {
+                Text("Antwortstil")
+                    .foregroundStyle(NIKNOLIGBrand.gold)
             }
+            .listRowBackground(NIKNOLIGBrand.surface)
 
-            Section("Freiwillige Rückmeldungen") {
+            Section {
                 Toggle("Manuelle Beispiel-Rückmeldungen zählen", isOn: Binding(
                     get: { profile.feedbackEnabled },
                     set: { value in
@@ -57,9 +61,13 @@ struct LearningProfileView: View {
                         $0.recordCorrectionFeedback()
                     }
                 }
+            } header: {
+                Text("Freiwillige Rückmeldungen")
+                    .foregroundStyle(NIKNOLIGBrand.gold)
             }
+            .listRowBackground(NIKNOLIGBrand.surface)
 
-            Section("Manuelle Sitzungsnotiz") {
+            Section {
                 Text("Wird nur nach dem Speichern lokal abgelegt (max. 500 Zeichen). Keine sensiblen Angaben eintragen.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -82,22 +90,34 @@ struct LearningProfileView: View {
                         statusMessage = "Notiz lokal gespeichert."
                     }
                 }
+            } header: {
+                Text("Manuelle Sitzungsnotiz")
+                    .foregroundStyle(NIKNOLIGBrand.gold)
             }
+            .listRowBackground(NIKNOLIGBrand.surface)
 
             Section {
                 Button("Alle Lernprofildaten löschen", role: .destructive) {
                     showingClearConfirmation = true
                 }
             }
+            .listRowBackground(NIKNOLIGBrand.surface)
+
             if let statusMessage {
                 Section {
                     Text(statusMessage)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
+                .listRowBackground(NIKNOLIGBrand.surface)
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(NIKNOLIGBrand.background)
+        .tint(NIKNOLIGBrand.energy)
         .navigationTitle("Lernprofil")
+        .toolbarBackground(NIKNOLIGBrand.background, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .confirmationDialog(
             "Alle lokalen Lernprofildaten löschen?",
             isPresented: $showingClearConfirmation,

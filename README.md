@@ -46,6 +46,23 @@ als Veröffentlichungsquelle **GitHub Actions**. Nach einem erfolgreichen Lauf z
 der Workflow die veröffentlichte URL an. Verfügbarkeit und Kosten hängen von
 Repository-Sichtbarkeit und GitHub-Tarif ab.
 
+## Markenauftritt
+
+NIKNOLIG verwendet die eigenständige Markenlinie **„DER STROM, DER SPRICHT.“**
+mit dem dunklen Hintergrund `#08090D`, Gold `#F4C95D`, Neongrün `#39F58A`
+und hellem Text `#F2F2F5`.
+
+- Website: `index.html`, `styles.css`, `assets/niknolig-mark.svg`
+- Android: `app/src/main/res/values/colors.xml`, `values/themes.xml`,
+  `values/strings.xml`, `values-en/strings.xml`, `drawable/card_surface.xml`,
+  `drawable/niknolig_mark.xml` und `layout/activity_main.xml`
+- iOS: `ios/NIKNOLIG/App/MainTabView.swift`, `HomeView.swift`,
+  `AssistantView.swift` und `LearningProfileView.swift`
+
+Android bleibt bei nativen Activity-/XML-Ansichten; iOS verwendet eigenständige
+SwiftUI-Ansichten. Diese Präsentationsschichten ändern weder Vorschaufunktionen
+noch Backend- oder Sicherheitsverträge.
+
 Prüfstand vom 22.10.2026: Der [Deployment-Lauf vom 21.10.2026](https://github.com/nikolausnold/NIKNOLIG/actions/runs/39650280195)
 hat Commit `bbb19d6bc6e1eb7b7c07aa86a17687b2bc025dbc` erfolgreich unter
 https://nikolausnold.github.io/NIKNOLIG/ veröffentlicht. Das Upload-Log bestätigt

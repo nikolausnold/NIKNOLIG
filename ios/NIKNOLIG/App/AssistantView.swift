@@ -10,16 +10,20 @@ struct AssistantView: View {
 
     var body: some View {
         Form {
-            Section("Elektro-Engel Vorschau") {
+            Section {
                 Text("Die Eingabe wird nur auf diesem Bildschirm angezeigt. Es gibt keinen aktiven KI-Dienst und keine automatische Übertragung.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                 TextField("Wobei brauchst du Unterstützung?", text: $requestText, axis: .vertical)
                     .lineLimit(3...6)
                     .accessibilityLabel("Lokale Vorschau-Eingabe")
+            } header: {
+                Text("Elektro-Engel Vorschau")
+                    .foregroundStyle(NIKNOLIGBrand.gold)
             }
+            .listRowBackground(NIKNOLIGBrand.surface)
 
-            Section("Optionaler Sandbox-Verbindungstest") {
+            Section {
                 Text("Nur ein HTTPS-Health-GET zu einer von dir angegebenen Serveradresse. Keine Anmeldung, Nutzereingabe oder Profildaten werden übertragen.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -41,9 +45,18 @@ struct AssistantView: View {
                 Text(healthStatus)
                     .font(.footnote)
                     .foregroundStyle(.secondary)
+            } header: {
+                Text("Optionaler Sandbox-Verbindungstest")
+                    .foregroundStyle(NIKNOLIGBrand.gold)
             }
+            .listRowBackground(NIKNOLIGBrand.surface)
         }
+        .scrollContentBackground(.hidden)
+        .background(NIKNOLIGBrand.background)
+        .tint(NIKNOLIGBrand.energy)
         .navigationTitle("Elektro-Engel")
+        .toolbarBackground(NIKNOLIGBrand.background, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .onDisappear {
             healthTask?.cancel()
         }
