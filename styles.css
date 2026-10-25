@@ -1,8 +1,8 @@
 :root {
     color-scheme: dark;
-    --background: #0c1110;
-    --surface: #131a17;
-    --surface-raised: #18211d;
+    --background: #101a14;
+    --surface: #1b2a20;
+    --surface-raised: #1b2a20;
     --text: #f3f4ef;
     --muted: #a0aaa2;
     --accent: #c8f169;
@@ -40,7 +40,9 @@ a {
     text-decoration: none;
 }
 
-a:focus-visible {
+a:focus-visible,
+summary:focus-visible,
+[tabindex="-1"]:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 5px;
 }
@@ -72,6 +74,9 @@ a:focus-visible {
 .site-header {
     min-height: 82px;
     border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-block: 12px;
 }
 
 .brand {
@@ -102,7 +107,8 @@ a:focus-visible {
 .site-header nav {
     display: flex;
     align-items: center;
-    gap: 34px;
+    gap: 18px;
+    flex-wrap: wrap;
     color: var(--muted);
     font-size: 13px;
 }
@@ -220,7 +226,7 @@ h2 span {
     gap: 20px;
     padding: 0 20px;
     border: 1px solid transparent;
-    border-radius: 4px;
+    border-radius: 14px;
     font-size: 13px;
     font-weight: 700;
     transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
@@ -497,8 +503,8 @@ h2 {
     min-height: 210px;
     padding: 25px;
     border: 1px solid var(--line);
-    border-radius: 5px;
-    background: linear-gradient(145deg, rgba(24, 33, 29, 0.85), rgba(15, 21, 18, 0.65));
+    border-radius: 18px;
+    background: var(--surface);
 }
 
 .status-card h3 {
@@ -543,8 +549,8 @@ h2 {
     min-height: 226px;
     padding: 25px;
     border: 1px solid var(--line);
-    border-radius: 5px;
-    background: linear-gradient(145deg, rgba(24, 33, 29, 0.85), rgba(15, 21, 18, 0.65));
+    border-radius: 18px;
+    background: var(--surface);
 }
 
 .card-number {
@@ -590,10 +596,10 @@ h2 {
     overflow: hidden;
     padding: 48px 8%;
     border: 1px solid rgba(200, 241, 105, 0.17);
-    border-radius: 7px;
+    border-radius: 24px;
     background:
         radial-gradient(ellipse at 24% 48%, rgba(119, 155, 66, 0.2), transparent 19rem),
-        linear-gradient(110deg, #19221a, #111714 70%);
+        linear-gradient(110deg, var(--surface), var(--background) 70%);
 }
 
 .assistant-symbol {
@@ -694,8 +700,8 @@ h2 {
 .payment-note {
     padding: 24px;
     border: 1px solid var(--line);
-    border-radius: 5px;
-    background: rgba(19, 26, 23, 0.8);
+    border-radius: 18px;
+    background: var(--surface);
 }
 
 .payment-icon {
@@ -748,6 +754,134 @@ h2 {
     color: var(--accent);
 }
 
+.page-layout main {
+    min-width: 0;
+}
+
+.help-panel {
+    width: min(var(--content-width), calc(100% - 64px));
+    margin: 24px auto;
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--surface);
+    overflow-wrap: anywhere;
+}
+
+.help-panel h2 {
+    margin-bottom: 12px;
+    font-size: 22px;
+    letter-spacing: -0.03em;
+}
+
+.help-panel p {
+    color: #bdc5bd;
+    font-size: 14px;
+}
+
+.help-panel details {
+    border-top: 1px solid var(--line);
+    padding-block: 4px 12px;
+}
+
+.help-panel summary {
+    min-height: 44px;
+    padding-block: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.help-panel details p {
+    margin-top: 12px;
+}
+
+.help-panel a,
+.information a:not(.button) {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.help-contact {
+    display: inline-block;
+    padding-block: 12px;
+}
+
+.help-panel .knowledge-note {
+    margin: 12px 0 0;
+    font-size: 12px;
+}
+
+.product-note {
+    max-width: 475px;
+    color: var(--accent);
+    font-size: 14px;
+}
+
+.information > p {
+    max-width: 75ch;
+}
+
+.api-origin {
+    overflow-wrap: anywhere;
+}
+
+.site-header nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+}
+
+.site-header .nav-help {
+    color: var(--accent);
+}
+
+@media (min-width: 1400px) {
+    .page-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        grid-template-areas: "main help";
+        align-items: start;
+        gap: 24px;
+        width: min(1540px, calc(100% - 40px));
+        margin-inline: auto;
+    }
+
+    .page-layout main {
+        grid-area: main;
+    }
+
+    .help-panel {
+        grid-area: help;
+        position: sticky;
+        top: 24px;
+        width: 100%;
+        max-height: calc(100dvh - 48px);
+        overflow-y: auto;
+    }
+
+    .page-layout .contact {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 1399px) and (min-height: 650px) {
+    .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: var(--background);
+    }
+
+    html {
+        scroll-padding-top: 180px;
+    }
+
+    .skip-link {
+        position: fixed;
+    }
+}
+
 @media (max-width: 800px) {
     .hero {
         min-height: 580px;
@@ -794,7 +928,8 @@ h2 {
 @media (max-width: 600px) {
     .site-header,
     .site-footer,
-    .section-wrap {
+    .section-wrap,
+    .help-panel {
         width: calc(100% - 40px);
     }
 
@@ -807,9 +942,10 @@ h2 {
         font-size: 11px;
     }
 
-    .site-header nav a:nth-child(1),
-    .site-header nav a:nth-child(3),
-    .site-header nav a:nth-child(4) {
+    .site-header .nav-vision,
+    .site-header .nav-principles,
+    .site-header .nav-status,
+    .site-header .nav-contact {
         display: none;
     }
 

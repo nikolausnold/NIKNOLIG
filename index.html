@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#0c1110">
+    <meta name="theme-color" content="#101A14">
     <meta name="description" content="NIKNOLIG entwickelt mit Elektro-Engel eine verständliche, kontrollierbare Technologieplattform.">
     <title>NIKNOLIG — Technologie, die dir gehört</title>
     <link rel="icon" type="image/svg+xml" href="assets/niknolig-mark.svg">
@@ -17,20 +17,23 @@
             <span>NIKNOLIG</span>
         </a>
         <nav aria-label="Hauptnavigation">
-            <a href="#vision">Unsere Vision</a>
-            <a href="#projektstand">Projektstand</a>
-            <a href="#prinzipien">Prinzipien</a>
-            <a href="https://defense.niknolig.com/" target="_blank" rel="noopener noreferrer">NIKNOLIG Defense <span aria-hidden="true">↗</span></a>
+            <a class="nav-vision" href="#vision">Unsere Vision</a>
+            <a class="nav-status" href="#projektstand">Projektstand</a>
+            <a class="nav-principles" href="#prinzipien">Prinzipien</a>
+            <a href="https://defense.niknolig.com/">NIKNOLIG Defense <span aria-hidden="true">↗</span></a>
+            <a class="nav-help" href="#hilfe">Elektro-Engel · Hilfe</a>
             <a class="nav-contact" href="#kontakt">Kontakt <span aria-hidden="true">↗</span></a>
         </nav>
     </header>
 
-    <main id="main">
+    <div class="page-layout">
+    <main id="main" tabindex="-1">
         <section class="hero section-wrap" id="start" aria-labelledby="hero-title">
             <div class="hero-copy">
                 <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Eine Plattform in Entwicklung</p>
                 <h1 id="hero-title">Technologie.<br><span>In deiner Hand.</span></h1>
                 <p class="hero-intro">NIKNOLIG denkt digitale Technik vom Menschen aus: verständlich, bewusst steuerbar und mit Sicherheit als Grundlage.</p>
+                <p class="product-note">NIKNOLIG bleibt kostenlos. NIKNOLIG Defense ist eine eigenständige App.</p>
                 <div class="hero-actions">
                     <a class="button button-primary" href="#vision">Die Idee entdecken <span aria-hidden="true">↓</span></a>
                     <a class="text-link" href="#kontakt">Kontakt aufnehmen <span aria-hidden="true">↗</span></a>
@@ -88,6 +91,7 @@
                     </article>
                 </div>
                 <p class="project-status-source">Weitere technische Details findest du im <a href="https://github.com/nikolausnold/NIKNOLIG">NIKNOLIG-Monorepo <span aria-hidden="true">↗</span></a>.</p>
+                <p class="project-status-source"><a href="#hilfe">Elektro-Engel · Hilfe zum Projektstand</a></p>
             </div>
         </section>
 
@@ -126,9 +130,31 @@
                     <p class="eyebrow">Deine Assistenz — in Entwicklung</p>
                     <h2 id="assistant-title">Hallo, ich bin<br><span>Elektro-Engel.</span></h2>
                     <p>Ich soll dir helfen, Technik besser zu verstehen und sicherer zu nutzen. Was davon schon verfügbar ist, zeigen wir transparent — vieles ist noch in Arbeit.</p>
+                    <p><a class="button button-primary" href="#hilfe">Verfügbare statische Hilfe öffnen</a></p>
                 </div>
                 <span class="assistant-index" aria-hidden="true">N° 01</span>
             </div>
+        </section>
+
+        <section class="section-wrap section-block information" id="daten" aria-labelledby="data-title">
+            <p class="eyebrow">Zielbild · nicht verbunden</p>
+            <h2 id="data-title">Gemeinsame Basis.<br><span>Getrennte Berechtigungen.</span></h2>
+            <p>Ein authentifizierter Austausch über <span class="api-origin">https://api.niknolig.com</span> ist geplant, hier aber nicht angebunden. NIKNOLIG und Defense sollen nur auf die jeweils freigegebenen Daten zugreifen können.</p>
+            <p>Keine Zugangsdaten, privaten Schlüssel oder vollständigen Zahlungsdaten werden synchronisiert. Profile und ausgewählte Gespräche dürfen erst nach gezielter, verständlicher und widerrufbarer Freigabe übertragen werden. Ein KI-Anbieter erhält nicht automatisch Zugriff.</p>
+            <p>Produktwissen soll versioniert mit Quelle, Aktualisierungszeit, Prüfstatus und klarer Veraltet-/Offline-Kennzeichnung bereitstehen. Die Hilfe zeigt derzeit nur einen festen redaktionellen Stand, keinen synchronisierten Wissensdienst.</p>
+            <p>Produktive Verträge für Konto, Berechtigungen, Wissen, Freigaben und Löschung fehlen. SecurityChain-P0 bleibt eine Freigabeschranke. Die vorhandene Sandbox ist ausschließlich für synthetische Testdaten vorgesehen.</p>
+            <p><a href="https://github.com/nikolausnold/NIKNOLIG#gemeinsame-datenbasis--zielbild">Datenflussübersicht und offene Datenschutzfragen</a> · <a href="#hilfe">Elektro-Engel · Hilfe zu Daten</a></p>
+            <p class="note">Vor einer öffentlichen Veröffentlichung fehlen noch geprüfte Betreiber- und Datenschutzangaben. Diese Übersicht ersetzt keine Datenschutzerklärung.</p>
+        </section>
+
+        <section class="section-wrap section-block information" id="defense" aria-labelledby="defense-title">
+            <p class="eyebrow">Eigenständiges Produkt</p>
+            <h2 id="defense-title">NIKNOLIG <span>Defense.</span></h2>
+            <p>NIKNOLIG und NIKNOLIG Defense bleiben getrennte Apps. NIKNOLIG bleibt kostenlos und unabhängig von einem Defense-Test zugänglich.</p>
+            <p>Defense-Test: <strong>Status nicht verfügbar</strong>.</p>
+            <p>Eine verifizierte Konto-/Entitlement-API fehlt. Geplant ist ein zentraler, kontobezogener Status. Eine Statusabfrage startet niemals den Test; ein Start benötigt eine getrennte, bewusste Bestätigung und serverseitige Freigabe. Browser-Speicher, Gerätedatum und Website-Code schalten nichts frei.</p>
+            <p><a class="button button-primary" href="https://defense.niknolig.com/">Zum eigenständigen Produkt Defense <span aria-hidden="true">↗</span></a></p>
+            <p><a href="#hilfe">Elektro-Engel · Hilfe zu Defense</a></p>
         </section>
 
         <section class="contact section-wrap section-block" id="kontakt" aria-labelledby="contact-title">
@@ -149,6 +175,30 @@
             </div>
         </section>
     </main>
+    <aside class="help-panel" id="hilfe" aria-labelledby="help-title" tabindex="-1">
+        <h2 id="help-title">Elektro-Engel · Hilfe</h2>
+        <p>Statische Orientierung, kein KI-Chat. Wähle dein Thema; es wird nichts an einen KI-Dienst gesendet.</p>
+        <details>
+            <summary>Was ist schon verfügbar?</summary>
+            <p>Hier findest du Informationen und den E-Mail-Support. Die Apps sind lokale Vorschauen. Automatische Assistenz und Synchronisierung sind nicht verfügbar.</p>
+            <a href="#projektstand">Zum Projektstand</a>
+        </details>
+        <details>
+            <summary>Was passiert mit meinen Daten?</summary>
+            <p>Diese Hilfe verwendet keine Profile, Cookies oder Browser-Speicher und stellt keine API-Anfragen. Beim Seitenabruf fallen technisch Verbindungsdaten beim Hosting an.</p>
+            <p>Gemeinsame Kontodaten sind nur geplant. Optionale Freigaben sollen Inhalt, Zweck, Empfänger und Dauer nennen, einzeln wählbar und widerrufbar sein. Keine pauschale Weitergabe an Elektro-Engel oder KI-Anbieter.</p>
+            <a href="#daten">Zu Datenbasis und Grenzen</a>
+        </details>
+        <details>
+            <summary>Defense und kostenloser Zugang</summary>
+            <p>NIKNOLIG bleibt kostenlos. Defense ist eine getrennte App. Ein Defense-Test oder dessen Ablauf sperrt NIKNOLIG nicht.</p>
+            <p>Defense-Test: <strong>Status nicht verfügbar</strong>. Es gibt hier keine verifizierte Konto-/Entitlement-API. Das Öffnen dieser Hilfe startet keinen Test.</p>
+            <a href="#defense">Zu NIKNOLIG Defense</a>
+        </details>
+        <a class="help-contact" href="#kontakt">Technischen Support kontaktieren</a>
+        <p class="knowledge-note">Wissensstand: Version 1 · <time datetime="2026-10-25">25.10.2026</time>.<br>Quelle: <a href="https://github.com/nikolausnold/NIKNOLIG/blob/e3e90d680558fa7b72bfe52fbc0e925284598f6b/README.md">Repository-Ausgangsstand e3e90d6</a>. Redaktionelle Vorschau, keine Live-Auskunft. Kann veraltet sein; keine Online-/Offline- oder Aktualitätsprüfung.</p>
+    </aside>
+    </div>
 
     <footer class="site-footer">
         <a class="brand" href="#start" aria-label="NIKNOLIG — zurück zum Anfang">

@@ -64,6 +64,116 @@ Vor einer öffentlichen Veröffentlichung müssen die rechtlich erforderlichen
 Betreiber- und Datenschutzangaben ergänzt und geprüft werden. Diese Angaben wurden
 nicht erfunden oder als fertige Rechtsseiten ausgegeben.
 
+### Elektro-Engel auf der Website
+
+Die Website bietet statische, per Tastatur aufklappbare Hilfe zu Projektstand,
+Daten und Defense sowie den bestehenden E-Mail-Supportzugang. Auf breiten
+Bildschirmen steht sie als eigenes, mitscrollendes Seitenpanel neben dem Inhalt;
+auf schmaleren Bildschirmen im Dokumentfluss, erreichbar über die Navigation.
+Es gibt kein überlagerndes Chatfenster, keine Eingabe, kein JavaScript, keine
+Cookies oder Browser-Speicherung durch die Website und keine API-Anfragen.
+Der Seitenabruf selbst übermittelt technisch Verbindungsdaten an das Hosting;
+externe Links und ein vom Nutzer versandter Supportentwurf sind getrennte Vorgänge.
+Die Themenwahl ist explizit; es findet keine Verhaltens- oder Profilauswertung statt.
+
+Der Hilfewissensstand ist ein redaktioneller Snapshot (Version 1, 25.10.2026),
+mit verlinktem Repository-Ausgangsstand `e3e90d6`, kein Live-Status.
+Er kann veraltet sein; eine automatische Online-/Offline- oder Aktualitätsprüfung
+existiert nicht. Vor Überarbeitung die Aussagen erneut mit den Quellen abgleichen
+und Version sowie Aktualisierungsdatum gemeinsam ändern. Ein späterer Wissensdienst
+braucht eine freigegebene Version, Quelle, Aktualisierungszeit, Prüfstatus,
+Rücknahme-/Ablaufregeln und eine sichtbare Kennzeichnung veralteter oder offline
+zwischengespeicherter Fassungen; ohne Online-Nachweis keine Aktualität behaupten.
+
+### Gemeinsame Datenbasis – Zielbild
+
+NIKNOLIG bleibt kostenlos. [NIKNOLIG Defense](https://defense.niknolig.com/)
+bleibt eine eigenständige App. Authentifizierter Austausch über
+`https://api.niknolig.com` ist ausschließlich ein Zielbild, hier nicht angebunden.
+Die Sandbox-Verträge in `backend/openapi.json` erlauben keine echten Konten oder
+produktiven Daten. Insbesondere sind synthetische `profile:read`-/`profile:write`-
+Scopes kein app-spezifisches produktives Berechtigungsmodell.
+
+**Datenflussübersicht (Vorbereitung, keine aktive Übertragung):**
+Die Rechtsgrundlagen sind Vorschläge zur rechtlichen Prüfung, keine Rechtsfreigabe.
+Konkrete Fristen, Verantwortliche, Empfänger einschließlich Hosting/Unterauftragnehmern
+und Löschverfahren müssen vor Produktivbetrieb verbindlich festgelegt werden.
+
+| Datenbereich | Zweck | Quelle → Empfänger | Vorgesehene Rechtsgrundlage | Aufbewahrung und Löschung |
+| --- | --- | --- | --- | --- |
+| Konto | Anmeldung und Kontoverwaltung | Nutzer/Identitätsdienst → Konto-Service; nur erforderliche Kontodaten an die jeweilige App | Art. 6 Abs. 1 lit. b DSGVO, soweit erforderlich | Kontolaufzeit; danach Löschung mit dokumentierten gesetzlichen Ausnahmen und konkreter Löschfrist |
+| Zugangsberechtigungen und Trial | App-spezifischen Zugang serverseitig prüfen | Berechtigungsdienst → jeweils berechtigte App | Art. 6 Abs. 1 lit. b; zusätzliche Missbrauchsschutz-Zwecke gesondert prüfen | Verbindliche Fristen für Status, Nachweise und Schutz vor Trial-Neustart festlegen; keine unbegrenzte Vorratsspeicherung |
+| Einstellungen | Ausgewählte Präferenzen geräteübergreifend verfügbar machen | Nutzer/App → Einstellungsdienst → ausdrücklich ausgewählte Apps | Art. 6 Abs. 1 lit. b bei ausdrücklich gewünschter Funktion | Bis Zurücksetzen, Abschalten mit Löschoption oder Kontolöschung; lokale Kopien einbeziehen |
+| Produktwissen | Nachvollziehbare Hilfe bereitstellen | Geprüfte Produktquellen → versionierter Wissensbestand → Hilfeansicht | Ohne Personenbezug keine DSGVO-Rechtsgrundlage erforderlich; Nutzungsrechte prüfen | Versions-/Archivregeln festlegen; falsche Inhalte zurückziehen, Kopien entsprechend kennzeichnen |
+| Optionales Profil | Gezielte Personalisierung | Nutzerfreigabe → ausgewählter Profildienst/ausgewählte App | Art. 6 Abs. 1 lit. a DSGVO | Bis Widerruf oder festgelegtem Ablauf; Zugriff entziehen und betroffene Kopien löschen |
+| Optional ausgewählte Gespräche | Ausdrücklich gewünschte Fortsetzung | Vom Nutzer ausgewählte Inhalte → ausdrücklich benannter Empfänger | Art. 6 Abs. 1 lit. a DSGVO; sensible Inhalte gesondert prüfen | Kurze, vorab erklärte Frist; einzelne Inhalte und Gesamtfreigabe löschbar |
+
+Für jeden Datenfluss gelten Datenminimierung und serverseitige Autorisierung mit
+getrennten App-Berechtigungen. Defense erhält nicht automatisch NIKNOLIG-Daten
+oder umgekehrt. Zugangsdaten, private Schlüssel und vollständige Zahlungsdaten
+werden nicht synchronisiert. Authentifizierung ist getrennt von den synchronisierten
+Nutzdaten zu behandeln; keine Tokens in Website-Code, URLs oder Logs einbauen.
+Elektro-Engel und KI-Anbieter erhalten keinen pauschalen Datenzugriff.
+Eine spätere KI-Anbindung benötigt eine gesonderte Zweck-, Empfänger-, Anbieter-
+und Datenschutzfreigabe einschließlich etwaiger Drittlandübermittlung.
+
+Optionale Freigaben sind standardmäßig aus, benennen Inhalt, Zweck, Empfänger und
+Dauer verständlich und sind einzeln wählbar, einsehbar und widerrufbar. Keine
+gekoppelte Freigabe aller Profile oder Gespräche. Widerruf beendet weitere Nutzung
+und Übertragung; Löschung muss Empfänger, lokale Kopien, Caches und dokumentierte
+Backup-Ablauffristen einschließen. Ein Backup-Restore darf gelöschte Freigaben nicht
+wieder aktivieren. Gesetzlich erforderliche Ausnahmen sind getrennt und begrenzt
+zu dokumentieren. Diese Funktionen sind noch nicht implementiert.
+
+**Blocker vor produktiver Integration:**
+
+- Freigegebene Verträge für Identität, Sitzungen, Tokenlaufzeit/-widerruf,
+  App-Zuordnung, Berechtigungen und sichere Browser-Anbindung fehlen.
+- Verträge für Einstellungen, versioniertes Wissen, Einwilligung, Widerruf,
+  Auskunft und durchgängige Löschung sowie verbindliche Fristen fehlen.
+- Der konkrete SecurityChain-P0-Vertrag ist hier nicht auffindbar. Er bleibt eine
+  verbindliche Freigabeschranke; weder Sandbox noch Website dürfen ihn umgehen.
+- Der bestehende Plan eines zentralen kontobezogenen Defense-Trials ist zu
+  berücksichtigen; seine verbindliche Spezifikation und eine verifizierte
+  Konto-/Entitlement-API fehlen hier. Deshalb steht auf der Website ausschließlich
+  **„Status nicht verfügbar“**, ohne einen Statusabruf oder Trialstart auszulösen.
+  Eine spätere Statusabfrage darf niemals einen Test starten. Ein Start muss ein
+  getrennter, bewusst bestätigter serverseitiger Vorgang sein; kein Browser-Speicher,
+  Gerätedatum oder Website-Code darf freischalten. Ein abgelaufener oder nicht
+  verfügbarer Defense-Test darf den kostenlosen NIKNOLIG-Zugang nicht sperren.
+- Betreiber-/Datenschutzangaben und eine separate Veröffentlichungsfreigabe fehlen.
+
+Die statische Vorbereitung erfindet keine Endpunkte, Zugangsdaten, Einwilligungs-
+oder Synchronisierungserfolge. Backend, native Apps und Defense werden nicht
+verändert. Neue Website-Assets werden nicht benötigt; das bestehende Pages-Paket
+bleibt ausreichend. Produktive API-Anbindung und Deployment brauchen eine
+gesonderte Freigabe.
+
+Prüfungen für Website-Änderungen: vorhandene Prüfnachweise zuerst berücksichtigen.
+Es ist kein dedizierter Website-Test-/Lint-/Build-Runner eingerichtet.
+Die lokale Vorschau manuell bei schmalen und breiten Ansichten, Zoom, Tastatur,
+auf-/zugeklappten Hilfethemen, reduzierter Bewegung und ohne Netzwerk prüfen.
+Insbesondere Defense-Link, Sprunglink, sichtbaren Fokus, Kontraste und den
+unveränderten Nichtverfügbarkeitsstatus ohne Konto prüfen. Keine API-Fehler oder
+erfolgreichen Anmeldungen simulieren: Es gibt noch keine solche Integration.
+Secret-/Codeprüfung, Deployment und tatsächlich geprüften Live-Status getrennt
+berichten; historische Deployment-Nachweise belegen nicht diese Website-Version.
+
+Lokaler Website-Prüfstand vom 25.10.2026: Chromium/ChromeDriver bestätigten
+Reflow ohne horizontales Überlaufen bei 320, 375, 768, 1024, 1440 und 1920 Pixeln
+Breite, auch mit geöffneten Hilfethemen, sowie bei 200 % CSS-Zoom.
+Defense blieb in der Navigation sichtbar. Sprunglink und Hilfethemen wurden mit
+Tab/Enter beziehungsweise Leertaste und sichtbarer Fokusmarkierung geprüft.
+Interne Anker und geladene Bilder waren gültig. Reduzierte Bewegung deaktivierte
+weiches Scrollen. Nach Abschalten des Netzwerks blieb die bereits geladene
+statische Hilfe nutzbar, der Defense-Status blieb unverfügbar; es wurden nur CSS
+und das lokale Logo geladen, keine Skripte, Cookies oder Web-Storage-Einträge.
+Das ist keine zugesicherte Offline-Neuladung oder PWA-Funktion.
+Die geprüften Textfarben auf den neuen Flächen erreichten mindestens 4,60:1
+Kontrast; Fokus-/Akzentfarbe 11,61:1. Kein automatischer vollständiger
+Barrierefreiheitsnachweis und kein Screenreader-Test.
+Es wurde kein Deployment ausgelöst und kein öffentlicher Live-Stand geprüft.
+
 ## Android-Releases
 
 Der [Android-Build-Workflow](https://github.com/nikolausnold/NIKNOLIG/actions/workflows/android-build.yml)
